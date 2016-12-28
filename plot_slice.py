@@ -4,6 +4,8 @@
 # Diego J. Munoz
 #
 ##############################
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 from mpl_toolkits.axes_grid import make_axes_locatable
@@ -20,7 +22,6 @@ import os
 from string import split
 import sys
 import glob
-import orbital
 ###################################################################
 
 
@@ -33,11 +34,15 @@ racc=0.02
 if __name__=="__main__":
 	#first, identify simulation and directory with the data
         #binary and disk properties
-	snap_init=float(sys.argv[1])
-	snap_end=float(sys.argv[2])
-
+	snap_init=int(sys.argv[1])
+	snap_end=int(sys.argv[2])
+        if (len(sys.argv) > 3):
+            Lx = int(sys.argv[3])
+            Ly = int(sys.argv[4])
+        else:
+	    Lx, Ly = None, None 
         # paths to files
-	run_path = "./"
+	directory = "./"
 	base = "output/"
 	
 
@@ -51,16 +56,27 @@ if __name__=="__main__":
 
 	print "Reading from output directory:",base
 	snap_base="snap_"
-
+	
+	print snap_init,snap_end
 	snap_list = range(snap_init,snap_end)
-
+	time_list = []
         for num in snap_list:
-	#look for image file
-	projfilename=directory+base+"density_field_"+str(num).zfill(3)
-        #check if the file exists
-	if not os.path.isfile(projfilename):
-		print "\nERROR: projection not found"
-	else:
+                filename=directory+base+snap_base+str(num).zfill(3)
+                #open the snapshot header
+                header = rs.snapshot_header(filename)
+                time_list.append(header.time)
+                if (Lx is None) & (Ly is None):
+                        Lx, Ly = header.boxsize, header.boxsize
+                X0, X1 = 0.5 * header.boxsize - 0.5 * Lx,0.5 * header.boxsize + 0.5 * Lx
+                Y0, Y1 = 0.5 * header.boxsize - 0.5 * Ly,0.5 * header.boxsize + 0.5 * Ly
+                
+	        #look for image file
+	        projfilename=directory+base+"density_field_"+str(num).zfill(3)
+                #check if the file exists
+                if not os.path.isfile(projfilename):
+		        print "\nERROR: projection not found"
+                        continue
+
 		f = open(projfilename,"rb")
 		pixelx = np.fromfile(f, dtype=np.int32, count=1)[0]
 		pixely = np.fromfile(f, dtype=np.int32, count=1)[0]
@@ -96,7 +112,7 @@ if __name__=="__main__":
 		ax.set_xticks(xticks[1:-1])
 		ax.set_yticks(yticks[1:-1])
 
-		figname="./figure-resolution-comparison-panels_q%.1f_e%.1f" % (qb,eb)
+		figname="./figure-disk_slice_%i" % num
 		print "Saving figure",figname+".pdf"
 		#plt.savefig(figname+".pdf")
 		plt.savefig(figname+".png",dpi=200)
