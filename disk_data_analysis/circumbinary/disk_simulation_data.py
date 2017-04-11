@@ -20,12 +20,13 @@ datablocks = {"POS ":["Coordinates",3],
 
 def get_snapshot_data(filename_prefix,snap_num,quantities,code="AREPO"):
     print code,"hehe"
+    print quantities
     nquant=len(quantities)
     outquant = []
     for quant in quantities:
         if (code == "AREPO"):
             if (quant.ljust(4) in datablocks):
-                outquant.append(rs.read_block(filename_prefix+snap_num,quant.ljust(4),parttype=0))
+                outquant.append(rs.read_block(filename_prefix+str(snap_num).zfill(3),quant.ljust(4),parttype=0))
             elif (quant in disk_data_fields):
                 header = rs.snapshot_header(filename_prefix+snap_num)
                 BoxX,BoxY = header.boxsize,header.boxsize

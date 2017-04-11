@@ -44,7 +44,12 @@ First of all, load the package and check the functions/attributes in it:
 
    dir(dda)
    
-The most basic function in that list is :code:`get_snapshot_data`
+The most basic function in that list is :code:`get_snapshot_data`,
+which can be used to give
+
+.. code:: python
+	  
+   quant = dda.get_snapshot_data('./data/snap_',0,['POS','VEL'])
 
 Computing radial profiles
 ~~~~~~~
