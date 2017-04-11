@@ -38,3 +38,7 @@ Computing radial profiles
 
 Mapping onto polar grids
 ~~~~~~~
+
+
+Displaying 2-D fields without pre-computed image data
+~~~~~~~
