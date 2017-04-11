@@ -40,5 +40,20 @@ Mapping onto polar grids
 ~~~~~~~
 
 
+.. code:: python
+	  
+   polar_grid =
+   
+   density_gridded = da.
+
+Perhaps you would rather use an unevenly sampled grid loosely based
+on the actual positioning of the cells/particles
+
+.. code:: python
+	  
+   polar_grid =
+   
+
+
 Displaying 2-D fields without pre-computed image data
 ~~~~~~~
