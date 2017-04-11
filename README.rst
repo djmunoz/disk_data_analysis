@@ -2,6 +2,11 @@ disk_data_analysis - Analysis and Plotting Tools for HDF5 simulation data of mes
 ==================================================
 .. sectnum::
 
+.. class:: no-web
+           
+   .. image:: example_figures/disk_images.png
+      :height: 100px
+      :width: 400 px
 
 Overview
 --------
