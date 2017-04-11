@@ -36,6 +36,15 @@ Examples
 Reading-in data
 ~~~~~~~
 
+First of all, load the package and check the functions/attributes in it:
+
+.. code:: python
+	  
+   import disk_data_analysis.circumbinary as dda
+
+   dir(dda)
+   
+
 
 Computing radial profiles
 ~~~~~~~
