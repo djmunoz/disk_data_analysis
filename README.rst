@@ -44,7 +44,7 @@ First of all, load the package and check the functions/attributes in it:
 
    dir(dda)
    
-
+The most basic function in that list is :code:`get_snapshot_data`
 
 Computing radial profiles
 ~~~~~~~
