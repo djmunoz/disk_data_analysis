@@ -4,7 +4,7 @@ from joblib import Parallel, delayed
 import multiprocessing
 from string import split
 import disk_simulation_data 
-import readsnapHDF5 as rs
+from disk_hdf5 import readsnapHDF5 as rs
 
 def compute_cell_size_profile(radii,cell_vol,reference_radius):
 # In unstructured meshes, we need to estimate a representative cell size
