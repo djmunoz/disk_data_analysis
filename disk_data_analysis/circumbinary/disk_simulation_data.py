@@ -1,4 +1,4 @@
-from disk_hdf5 import readsnapHDF5 as rs
+from ../../disk_hdf5 import readsnapHDF5 as rs
 #import readsnap_PLUTO as rspluto
 #import pluto_data_utils as rspluto
 import numpy as np
