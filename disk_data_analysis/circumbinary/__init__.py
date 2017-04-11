@@ -1,5 +1,6 @@
-__all__ = ["disk_simulation_data","compute_profiles","plot_profiles"]
+__all__ = ["get_snapshot_data","get_snapshot_time",
+           "compute_profiles","plot_profiles"]
 
-import disk_simulation_data
+from disk_simulation_data import get_snapshot_data, get_snapshot_time
 import compute_profiles
 import plot_profiles
