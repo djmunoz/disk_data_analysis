@@ -33,7 +33,7 @@ Examples
 --------
 
 
-Reading-in data
+Reading-in and plotting data
 ~~~~~~~
 
 First of all, load the package and check the functions/attributes in it:
@@ -64,7 +64,7 @@ the positions
    x = snap.gas.pos[:,0]
    y = snap.gas.pos[:,1]
    box = snap.header.boxsize
-   plt.plot(x,y,'b.',ms=1.0)
+   plt.plot(x,y,'b.',ms=2.4)
    plt.xlim(0.5 * box - 2.5, 0.5 * box + 2.5)
    plt.ylim(0.5 * box - 2.5, 0.5 * box + 2.5)
    plt.xlabel(r'$x$',size=18)
