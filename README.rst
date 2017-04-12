@@ -65,10 +65,10 @@ the positions
    y = snap.gas.pos[:,1]
    box = snap.header.boxsize
    plt.plot(x,y,'b.')
-   plt.xlim(0.5 * box - 2, 0.5 * box + 2)
-   plt.ylim(0.5 * box - 2, 0.5 * box + 2)
-   plt.xlabel(r'$x$')
-   plt.ylabel(r'$y$')
+   plt.xlim(0.5 * box - 2.5, 0.5 * box + 2.5)
+   plt.ylim(0.5 * box - 2.5, 0.5 * box + 2.5)
+   plt.xlabel(r'$x$',size=16)
+   plt.ylabel(r'$y$',size=16)
    plt.show()
    
 
