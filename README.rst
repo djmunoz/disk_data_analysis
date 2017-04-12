@@ -71,7 +71,11 @@ the positions
    plt.ylabel(r'$y$',size=18)
    plt.show()
    
-
+.. class:: no-web
+           
+   .. image:: example_figures/figure_points.png
+      :height: 200px
+      :width: 200 px
    
 Computing radial profiles
 ~~~~~~~
