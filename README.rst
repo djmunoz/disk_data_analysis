@@ -49,8 +49,30 @@ which can be used to give
 
 .. code:: python
 	  
-   quant = dda.get_snapshot_data('./data/snap_',0,['POS','VEL'])
+   snap = dda.get_snapshot_data('./data/snap_',0,['POS','VEL'])
 
+which will only contain the requested quantities :code:`POS`, (positions)
+and :code:`VEL` (velocities)
+
+You can see the distribution of particles/mesh generating points by plotting
+the positions
+
+.. code:: python
+
+   import matplotlib.pyplot as plt
+
+   x = snap.gas.pos[:,0]
+   y = snap.gas.pos[:,1]
+   box = snap.header.boxsize
+   plt.plot(x,y,'b.')
+   plt.xlim(0.5 * boxsize - 2, 0.5 * boxsize + 2)
+   plt.ylim(0.5 * boxsize - 2, 0.5 * boxsize + 2)
+   plt.xlabel(r'$x$')
+   plt.ylabel(r'$y$')
+   plt.show()
+   
+
+   
 Computing radial profiles
 ~~~~~~~
 
