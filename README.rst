@@ -76,7 +76,8 @@ the positions
    .. image:: example_figures/figure_points.png
       :scale: 50
       :align: center 
-
+      :height: 140px
+      :width: 140 px
    
 Computing radial profiles
 ~~~~~~~
