@@ -74,8 +74,8 @@ the positions
 .. class:: no-web
            
    .. image:: example_figures/figure_points.png
+      :align: right
       :scale: 50
-      :align: center 
       :height: 140px
       :width: 140 px
    
