@@ -106,7 +106,7 @@ points.
 
    # We need the density and positions
    snap = dda.get_snapshot_data('./data/snap_',0,['POS','RHO'])
-   x, y, dens = snap.gas.pos[:,0], snap.gas.pos[:,1], snap.gas.rho
+   x, y, rho = snap.gas.pos[:,0], snap.gas.pos[:,1], snap.gas.RHO
 
    # get a sense of the dynamical range in radius in the simulation
    Rmin, Rmax = 1.0, 80.0
@@ -116,8 +116,8 @@ points.
    X, Y = R * np.cos(phi), R * np.sin(phi)
    
    # interpolate Z values on defined grid
-   Z = griddata(np.vstack((x.flatten(),y.flatten())).T, \
-	        np.vstack(z.flatten()),(X,Y),method='linear').reshape(X.shape)
+   rho_interp = griddata(np.vstack((x.flatten(),y.flatten())).T, \
+                         np.vstack(rho.flatten()),(X,Y),method='linear').reshape(X.shape)
 			
    
    density_gridded = da.
