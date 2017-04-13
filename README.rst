@@ -52,8 +52,14 @@ which can be used to give
    snap = dda.get_snapshot_data('./data/snap_',0,['POS','VEL'])
 
 which will only contain the requested quantities :code:`POS`, (positions)
-and :code:`VEL` (velocities)
+and :code:`VEL` (velocities). You can double-check the attributes of
+the  :code:`snap` data structure by doing
 
+.. code:: python
+	  
+   dir(snap.gas)
+
+   
 You can see the distribution of particles/mesh generating points by plotting
 the positions
 
@@ -61,8 +67,8 @@ the positions
 
    import matplotlib.pyplot as plt
 
-   x = snap.gas.pos[:,0]
-   y = snap.gas.pos[:,1]
+   x = snap.gas.POS[:,0]
+   y = snap.gas.POS[:,1]
    box = snap.header.boxsize
    plt.plot(x,y,'b.',ms=2.4)
    plt.xlim(0.5 * box - 2.5, 0.5 * box + 2.5)
@@ -94,8 +100,24 @@ points.
 
 
 .. code:: python
-	  
-   polar_grid =
+
+
+   import numpy as np
+
+   # We need the density and positions
+   snap = dda.get_snapshot_data('./data/snap_',0,['POS','RHO'])
+   x, y, dens = snap.gas.pos[:,0], snap.gas.pos[:,1], snap.gas.rho
+   # get a sense of the dynamical range in radius in the simulation
+   Rmin, Rmax = 1.0, 80.0
+   NR, Nphi = 200, 300
+   R, phi = np.meshgrid(10**np.logspace(np.log10(Rmin),(np.log10(Rmax)),NR),\
+	                np.linspace(0,2*np.pi,Nphi))
+   X, Y = R * np.cos(phi), R * np.sin(phi)
+   
+   # interpolate Z values on defined grid
+   Z = griddata(np.vstack((x.flatten(),y.flatten())).T, \
+	        np.vstack(z.flatten()),(X,Y),method='linear').reshape(X.shape)
+			
    
    density_gridded = da.
 
