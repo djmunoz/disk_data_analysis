@@ -107,10 +107,11 @@ points.
    # We need the density and positions
    snap = dda.get_snapshot_data('./data/snap_',0,['POS','RHO'])
    x, y, dens = snap.gas.pos[:,0], snap.gas.pos[:,1], snap.gas.rho
+
    # get a sense of the dynamical range in radius in the simulation
    Rmin, Rmax = 1.0, 80.0
    NR, Nphi = 200, 300
-   R, phi = np.meshgrid(10**np.logspace(np.log10(Rmin),(np.log10(Rmax)),NR),\
+   R, phi = np.meshgrid(10**np.logspace(np.log10(Rmin),np.log10(Rmax),NR),\
 	                np.linspace(0,2*np.pi,Nphi))
    X, Y = R * np.cos(phi), R * np.sin(phi)
    
