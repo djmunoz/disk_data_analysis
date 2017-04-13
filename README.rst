@@ -106,7 +106,7 @@ points.
 
    # We need the density and positions
    snap = dda.get_snapshot_data('./data/snap_',0,['POS','RHO'])
-   x, y, rho = snap.gas.pos[:,0], snap.gas.pos[:,1], snap.gas.RHO
+   x, y, rho = snap.gas.POS[:,0], snap.gas.POS[:,1], snap.gas.RHO
 
    # get a sense of the dynamical range in radius in the simulation
    Rmin, Rmax = 1.0, 80.0
