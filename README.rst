@@ -103,7 +103,8 @@ points.
 
 
    import numpy as np
-
+   from scipy.interpolate import griddata
+   
    # We need the density and positions
    snap = dda.get_snapshot_data('./data/snap_',0,['POS','RHO'])
    x, y, rho = snap.gas.POS[:,0], snap.gas.POS[:,1], snap.gas.RHO
