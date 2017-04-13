@@ -84,6 +84,14 @@ Computing radial profiles
 Mapping onto polar grids
 ~~~~~~~
 
+Often, SPH and moving-mesh simulations of disks will be compared to simulation
+results obtained with polar-grid codes. In particular, comparison of
+azimuthally-averaged quantities is common practice. While azimuthal averaging
+is trivial in polar grids, it requires some tinkering when computational cells
+(or particles) are not placed in regular intervals in radius. One way around
+this is to remap the fluid's primitive variables into a structured grid of
+points.
+
 
 .. code:: python
 	  
