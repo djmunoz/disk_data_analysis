@@ -24,16 +24,19 @@ STAR_PARTTYPE = 4
 
 class gas_data():
     def __init__(self,*args,**kwargs):
-        self.pos=kwargs.get("POS")
-        self.vel=kwargs.get("VEL")
-        self.dens=kwargs.get("RHO")
-        self.utherm=kwargs.get("U")
-        self.ids=kwargs.get("ID")
+        #self.pos=kwargs.get("POS")
+        #self.vel=kwargs.get("VEL")
+        #self.dens=kwargs.get("RHO")
+        #self.utherm=kwargs.get("U")
+        #self.ids=kwargs.get("ID")
 
-        self.R = kwargs.get("R")
-        self.phi = kwargs.get("PHI")
-        self.velR = kwargs.get("VELR")
-        self.velphi = kwargs.get("VELPHI")        
+        #self.R = kwargs.get("R")
+        #self.phi = kwargs.get("PHI")
+        #self.velR = kwargs.get("VELR")
+        #self.velphi = kwargs.get("VELPHI")
+
+        for key in kwargs:
+            setattr(self, key, kwargs[key])
         
 class particle_data():
     def __init__(self,*args,**kwargs):
