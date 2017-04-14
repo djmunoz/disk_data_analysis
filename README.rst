@@ -136,13 +136,13 @@ points.
    ax.set_aspect(1.0)
    plt.show()
 
+   
 .. image:: example_figures/polar_grid1.png
    :align: center
    :height: 120px
    :width: 120 px 
    
-			 
-   density_gridded = da.
+
 
 Perhaps you would rather use an unevenly sampled grid loosely based
 on the actual positioning of the cells/particles
