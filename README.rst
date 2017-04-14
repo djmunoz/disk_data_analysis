@@ -143,6 +143,7 @@ simulation will in general have unevenly populated resolution elements, you migh
 a "nested" polar grid such as:
 
 .. code:: python
+	  
    Rmin, Rmax = 1.0, 3.0
    NR, Nphi = 60, 600
    Rin, phiin = np.meshgrid(np.linspace(Rmin,Rmax,NR),\
