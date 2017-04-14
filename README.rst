@@ -116,16 +116,9 @@ points.
 	                np.linspace(0,2*np.pi,Nphi))
    X, Y = R * np.cos(phi) + snap.header.boxsize * 0.5, R * np.sin(phi) + snap.header.boxsize * 0.5
    
-   # interpolate Z values on defined grid
-   #rho_interp = griddata(np.vstack((x.flatten(),y.flatten())).T, \
-   #                      np.vstack(rho.flatten()),(X,Y),method='linear').reshape(X.shape)
-			
    rho_interp = dda.disk_interpolate_primitive_quantities(snap,[X,Y],quantities=['RHO'])[0]
 
-   plt.scatter(X,Y,c=rho_interp ,lw=0)
-   plt.axis([76,84,76,84])
-   plt.show()
-
+   # And now we can plot the density field of this structured grid
    fig = plt.figure(figsize=(5,4.5))
    fig.subplots_adjust(top=0.97,right=0.95,left=0.1,bottom=0.12)
    ax = fig.add_subplot(111)
@@ -143,7 +136,28 @@ points.
    :width: 120 px 
    
 
+An interpolated, structured grid can be used to map AREPO snapshots into data readable
+by other codes like FARGO and PLUTO. But you might find other used for the polar regridding,
+such as computing radial profiles for diverse quantities. In such case, since AREPO (and SPH)
+simulation will in general have unevenly populated resolution elements, you might want to have
+a "nested" polar grid such as:
 
+.. code:: python
+   Rmin, Rmax = 1.0, 3.0
+   NR, Nphi = 60, 600
+   Rin, phiin = np.meshgrid(np.linspace(Rmin,Rmax,NR),\
+                            np.linspace(0,2*np.pi,Nphi))
+   Rmin, Rmax = 3.0, 80.0
+   NR, Nphi = 140, 300
+   Rout, phiout = np.meshgrid(np.logspace(np.log10(Rmin),np.log10(Rmax),NR),\
+                              np.linspace(0,2*np.pi,Nphi))
+
+   R = np.append(Rin,Rout)
+   phi = np.append(phi,phiout)
+   X, Y = R * np.cos(phi) + snap.header.boxsize * 0.5, R * np.sin(phi) + snap.header.boxsize * 0.5
+   plt.plot(X,Y,'b.')
+   plt.show()
+   
 Perhaps you would rather use an unevenly sampled grid loosely based
 on the actual positioning of the cells/particles
 
