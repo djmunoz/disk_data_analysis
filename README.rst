@@ -156,20 +156,21 @@ a "nested" polar grid such as:
    R = np.append(Rin,Rout)
    phi = np.append(phi,phiout)
    X, Y = R * np.cos(phi) + snap.header.boxsize * 0.5, R * np.sin(phi) + snap.header.boxsize * 0.5
+
+You can repeat the re-gridding step as before
+   
+.. code:: python
+
    rho_interp = dda.disk_interpolate_primitive_quantities(snap,[X,Y],quantities=['RHO'])[0]
 
-   # And now we can plot the density field of this structured grid
-   fig = plt.figure(figsize=(5,4.5))
-   fig.subplots_adjust(top=0.97,right=0.95,left=0.1,bottom=0.12)
-   ax = fig.add_subplot(111)
-   ax.scatter(X,Y,c=rho_interp ,lw=0)
-   ax.axis([73,87,73,87])
-   ax.set_xlabel(r'$x$',size=18)
-   ax.set_ylabel(r'$y$',size=18)
-   ax.set_aspect(1.0)
-   plt.show()
+and plot the color-coded cell locations as before
 
-   
+.. image:: example_figures/polar_grid2.png
+   :align: center
+   :height: 120px
+   :width: 120 px
+
+	   
 Perhaps you would rather use an unevenly sampled grid loosely based
 on the actual positioning of the cells/particles
 
