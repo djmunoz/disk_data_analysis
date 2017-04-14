@@ -111,7 +111,7 @@ points.
 
    # get a sense of the dynamical range in radius in the simulation
    Rmin, Rmax = 1.0, 80.0
-   NR, Nphi = 200, 300
+   NR, Nphi = 200, 400
    R, phi = np.meshgrid(np.logspace(np.log10(Rmin),np.log10(Rmax),NR),\
 	                np.linspace(0,2*np.pi,Nphi))
    X, Y = R * np.cos(phi) + snap.header.boxsize * 0.5, R * np.sin(phi) + snap.header.boxsize * 0.5
@@ -120,7 +120,7 @@ points.
    #rho_interp = griddata(np.vstack((x.flatten(),y.flatten())).T, \
    #                      np.vstack(rho.flatten()),(X,Y),method='linear').reshape(X.shape)
 			
-   rho_interp = dda.disk_interpolate_primitive_quantities(snap,[X,Y],quantities=['RHO']
+   rho_interp = dda.disk_interpolate_primitive_quantities(snap,[X,Y],quantities=['RHO'])
 
    plt.scatter(X,Y,c=Z,lw=0)
    plt.show()
