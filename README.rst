@@ -134,9 +134,12 @@ points.
    ax.set_xlabel(r'$x$',size=18)
    ax.set_ylabel(r'$y$',size=18)
    ax.set_aspect(1.0)
-   fig.savefig('./example_figures/polar_grid1.png')
+   plt.show()
 
-   
+.. image:: example_figures/polar_grid1.png
+   :align: center
+   :height: 120px
+   :width: 120 px 
    
 			 
    density_gridded = da.
