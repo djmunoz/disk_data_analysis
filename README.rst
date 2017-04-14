@@ -117,10 +117,15 @@ points.
    X, Y = R * np.cos(phi) + snap.header.boxsize * 0.5, R * np.sin(phi) + snap.header.boxsize * 0.5
    
    # interpolate Z values on defined grid
-   rho_interp = griddata(np.vstack((x.flatten(),y.flatten())).T, \
-                         np.vstack(rho.flatten()),(X,Y),method='linear').reshape(X.shape)
+   #rho_interp = griddata(np.vstack((x.flatten(),y.flatten())).T, \
+   #                      np.vstack(rho.flatten()),(X,Y),method='linear').reshape(X.shape)
 			
+   rho_interp = dda.disk_interpolate_primitive_quantities(snap,[X,Y],quantities=['RHO']
+
+   plt.scatter(X,Y,c=Z,lw=0)
+   plt.show()
    
+			 
    density_gridded = da.
 
 Perhaps you would rather use an unevenly sampled grid loosely based
