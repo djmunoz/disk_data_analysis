@@ -51,7 +51,7 @@ which can be used to give
 	  
    snap = dda.get_snapshot_data('./data/snap_',0,['POS','VEL'])
 
-which will only contain the requested quantities :code:`POS`, (positions)
+which will only contain the requested quantities :code:`POS` (positions)
 and :code:`VEL` (velocities). You can double-check the attributes of
 the  :code:`snap` data structure by doing
 
@@ -114,7 +114,7 @@ points.
    NR, Nphi = 200, 300
    R, phi = np.meshgrid(np.logspace(np.log10(Rmin),np.log10(Rmax),NR),\
 	                np.linspace(0,2*np.pi,Nphi))
-   X, Y = R * np.cos(phi), R * np.sin(phi)
+   X, Y = R * np.cos(phi) + snap.boxsize * 0.5, R * np.sin(phi) + snap.boxsize * 0.5
    
    # interpolate Z values on defined grid
    rho_interp = griddata(np.vstack((x.flatten(),y.flatten())).T, \
