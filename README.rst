@@ -144,11 +144,11 @@ a "nested" polar grid such as:
 
 .. code:: python
 	  
-   Rmin, Rmax = 1.0, 3.0
-   NR, Nphi = 60, 600
+   Rmin, Rmax = 1.0, 4.0
+   NR, Nphi = 80, 600
    Rin, phiin = np.meshgrid(np.linspace(Rmin,Rmax,NR),\
                             np.linspace(0,2*np.pi,Nphi))
-   Rmin, Rmax = 3.0, 80.0
+   Rmin, Rmax = 4.0, 80.0
    NR, Nphi = 140, 300
    Rout, phiout = np.meshgrid(np.logspace(np.log10(Rmin),np.log10(Rmax),NR),\
                               np.linspace(0,2*np.pi,Nphi))
@@ -156,8 +156,19 @@ a "nested" polar grid such as:
    R = np.append(Rin,Rout)
    phi = np.append(phi,phiout)
    X, Y = R * np.cos(phi) + snap.header.boxsize * 0.5, R * np.sin(phi) + snap.header.boxsize * 0.5
-   plt.plot(X,Y,'b.')
+   rho_interp = dda.disk_interpolate_primitive_quantities(snap,[X,Y],quantities=['RHO'])[0]
+
+   # And now we can plot the density field of this structured grid
+   fig = plt.figure(figsize=(5,4.5))
+   fig.subplots_adjust(top=0.97,right=0.95,left=0.1,bottom=0.12)
+   ax = fig.add_subplot(111)
+   ax.scatter(X,Y,c=rho_interp ,lw=0)
+   ax.axis([73,87,73,87])
+   ax.set_xlabel(r'$x$',size=18)
+   ax.set_ylabel(r'$y$',size=18)
+   ax.set_aspect(1.0)
    plt.show()
+
    
 Perhaps you would rather use an unevenly sampled grid loosely based
 on the actual positioning of the cells/particles
