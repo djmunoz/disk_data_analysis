@@ -120,10 +120,21 @@ points.
    #rho_interp = griddata(np.vstack((x.flatten(),y.flatten())).T, \
    #                      np.vstack(rho.flatten()),(X,Y),method='linear').reshape(X.shape)
 			
-   rho_interp = dda.disk_interpolate_primitive_quantities(snap,[X,Y],quantities=['RHO'])
+   rho_interp = dda.disk_interpolate_primitive_quantities(snap,[X,Y],quantities=['RHO'])[0]
 
    plt.scatter(X,Y,c=Z,lw=0)
+   plt.axis([76,84,76,84])
    plt.show()
+
+   fig = plt.figure(figsize=(5,4.5))
+   ax = fig.add_subplot(111)
+   ax.scatter(X,Y,c=Z,lw=0)
+   ax.axis([76,84,76,84])
+   ax.set_xlabel(r'$x$',size=18)
+   ax.set_ylabel(r'$y$',size=18)
+   fig.savefig('./example_figures/polar_grid1.png')
+
+   
    
 			 
    density_gridded = da.
