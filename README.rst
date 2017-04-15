@@ -103,7 +103,6 @@ points.
 
 
    import numpy as np
-   from scipy.interpolate import griddata
    
    # We need the density and positions
    snap = dda.get_snapshot_data('./data/snap_',0,['POS','RHO'])
@@ -114,6 +113,7 @@ points.
    NR, Nphi = 200, 400
    R, phi = np.meshgrid(np.logspace(np.log10(Rmin),np.log10(Rmax),NR),\
 	                np.linspace(0,2*np.pi,Nphi))
+   X, Y = R * np.cos(phi) + snap.header.boxsize * 0.5, R * np.sin(phi) + snap.header.boxsize * 0.5
    
    rho_interp = dda.disk_interpolate_primitive_quantities(snap,[R,phi],quantities=['RHO'])[0]
 
