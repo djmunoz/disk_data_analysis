@@ -186,8 +186,8 @@ image plot in polar coordinates
 
 .. code:: python
 
-   Rmin, Rmax = 1.0, 6.0
-   NR, Nphi = 160, 600
+   Rmin, Rmax = 1.0, 7.0
+   NR, Nphi = 300, 500
    R, phi = np.meshgrid(np.arange(Rmin,Rmax,(Rmax-Rmin)/NR),\
 	                np.linspace(0,2*np.pi-np.pi/Nphi,Nphi))
    X, Y = R * np.cos(phi) + snap.header.boxsize * 0.5, R * np.sin(phi) + snap.header.boxsize * 0.5
@@ -200,7 +200,7 @@ image plot in polar coordinates
    ax.imshow(rho_interp, origin='lower',interpolation='bilinear',
 	  extent=[R.min(),R.max(),phi.min()/np.pi,phi.max()/np.pi])
    ax.set_xlabel(r'$R$',size=18)
-   ax.set_ylabel(r'$\phi/pi$',size=18)
+   ax.set_ylabel(r'$\phi/\pi$',size=18)
    X0, X1 = ax.get_xlim()
    Y0, Y1 = ax.get_ylim()
    ax.set_aspect((X1-X0)/(Y1-Y0)/1.6)
