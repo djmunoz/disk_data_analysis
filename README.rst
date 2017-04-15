@@ -200,11 +200,10 @@ image plot in polar coordinates
    ax.imshow(rho_interp, origin='lower',interpolation='bilinear',
 	  extent=[R.min(),R.max(),phi.min()/np.pi,phi.max()/np.pi])
    ax.set_xlabel(r'$R$',size=18)
-   ax.set_ylabel(r'$\phi/2\pi$',size=18)
+   ax.set_ylabel(r'$\phi/pi$',size=18)
    X0, X1 = ax.get_xlim()
    Y0, Y1 = ax.get_ylim()
    ax.set_aspect((X1-X0)/(Y1-Y0)/1.6)
-   ax.set_aspect(0.5)
    plt.show()
 
 
