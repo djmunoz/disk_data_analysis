@@ -106,7 +106,7 @@ points.
    
    # We need the density and positions
    snap = dda.get_snapshot_data('./data/snap_',0,['POS','RHO'])
-   x, y, rho = snap.gas.POS[:,0], snap.gas.POS[:,1], snap.gas.RHO
+
 
    # get a sense of the dynamical range in radius in the simulation
    Rmin, Rmax = 1.0, 80.0
@@ -203,8 +203,12 @@ image plot in polar coordinates
    ax.set_ylabel(r'$\phi/\pi$',size=18)
    X0, X1 = ax.get_xlim()
    Y0, Y1 = ax.get_ylim()
-   ax.set_aspect((X1-X0)/(Y1-Y0)/1.6)
+   ax.set_aspect(float((X1-X0)/(Y1-Y0)/1.6))
    plt.show()
+
+.. image:: example_figures/polar_coord_plot.png
+   :align: center
+
 
 
 Displaying 2-D fields without pre-computed image data
