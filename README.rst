@@ -197,12 +197,12 @@ image plot in polar coordinates
    fig = plt.figure(figsize=(8,4.5))
    fig.subplots_adjust(top=0.97,right=0.95,left=0.1,bottom=0.12)
    ax = fig.add_subplot(111)
-   ax.imshow(rho_interp, origin='lower',
+   ax.imshow(rho_interp, origin='lower',interpolation='bilinear',
 	  extent=[R.min(),R.max(),phi.min(),phi.max()])
    ax.set_xlabel(r'$R$',size=18)
    ax.set_ylabel(r'$\phi$',size=18)
    ax.set_aspect(0.4)
-   
+   plt.show()
 
 
 Displaying 2-D fields without pre-computed image data
