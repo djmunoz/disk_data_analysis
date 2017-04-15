@@ -161,7 +161,7 @@ You can repeat the re-gridding step as before
    
 .. code:: python
 
-   rho_interp = dda.disk_interpolate_primitive_quantities(snap,[R,phi],quantities=['RHO'])[0]
+   rho_interp = dda.disk_interpolate_primitive_quantities(snap,[X,Y],quantities=['RHO'])[0]
    fig = plt.figure(figsize=(5,4.5))
    fig.subplots_adjust(top=0.97,right=0.95,left=0.1,bottom=0.12)
    ax = fig.add_subplot(111)
