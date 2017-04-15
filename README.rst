@@ -194,14 +194,14 @@ image plot in polar coordinates
    rho_interp = dda.disk_interpolate_primitive_quantities(snap,[X,Y],quantities=['RHO'])[0]
 
    
-   fig = plt.figure(figsize=(8,4.5))
+   fig = plt.figure(figsize=(8,5))
    fig.subplots_adjust(top=0.97,right=0.95,left=0.1,bottom=0.12)
    ax = fig.add_subplot(111)
    ax.imshow(rho_interp, origin='lower',interpolation='bilinear',
-	  extent=[R.min(),R.max(),phi.min(),phi.max()])
+	  extent=[R.min(),R.max(),phi.min()/2/np.pi,phi.max()/2/np.pi])
    ax.set_xlabel(r'$R$',size=18)
    ax.set_ylabel(r'$\phi$',size=18)
-   ax.set_aspect(0.4)
+   ax.set_aspect(0.5)
    plt.show()
 
 
