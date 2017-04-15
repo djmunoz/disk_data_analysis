@@ -198,9 +198,12 @@ image plot in polar coordinates
    fig.subplots_adjust(top=0.97,right=0.95,left=0.1,bottom=0.12)
    ax = fig.add_subplot(111)
    ax.imshow(rho_interp, origin='lower',interpolation='bilinear',
-	  extent=[R.min(),R.max(),phi.min()/2/np.pi,phi.max()/2/np.pi])
+	  extent=[R.min(),R.max(),phi.min()/np.pi,phi.max()/np.pi])
    ax.set_xlabel(r'$R$',size=18)
-   ax.set_ylabel(r'$\phi$',size=18)
+   ax.set_ylabel(r'$\phi/2\pi$',size=18)
+   X0, X1 = ax.get_xlim()
+   Y0, Y1 = ax.get_ylim()
+   ax.set_aspect((X1-X0)/(Y1-Y0)/1.6)
    ax.set_aspect(0.5)
    plt.show()
 
