@@ -154,7 +154,7 @@ a "nested" polar grid such as:
 
    R = np.append(Rin.flatten(),Rout.flatten())
    phi = np.append(phiin.flatten(),phiout.flatten())
-   
+   X, Y = R * np.cos(phi) + snap.header.boxsize * 0.5, R * np.sin(phi) + snap.header.boxsize * 0.5
 
 You can repeat the re-gridding step as before
    
