@@ -180,12 +180,27 @@ and plot the color-coded cell locations as before
    :width: 120 px
 
 	   
-Perhaps you would rather use an unevenly sampled grid loosely based
-on the actual positioning of the cells/particles
+A uniform (and linear) sampling in :code: `R` and :code: `phi` allows us to create an reconstructed
+image plot in polar coordinates
+ 	   
 
 .. code:: python
-	  
-   polar_grid =
+
+   Rmin, Rmax = 1.0, 6.0
+   NR, Nphi = 160, 600
+   R, phi = np.meshgrid(np.arange(Rmin,Rmax,(Rmax-Rmin)/NR),\
+	                np.linspace(0,2*np.pi-np.pi/Nphi,Nphi))
+   X, Y = R * np.cos(phi) + snap.header.boxsize * 0.5, R * np.sin(phi) + snap.header.boxsize * 0.5
+   rho_interp = dda.disk_interpolate_primitive_quantities(snap,[X,Y],quantities=['RHO'])[0]
+   fig = plt.figure(figsize=(5,4.5))
+   fig.subplots_adjust(top=0.97,right=0.95,left=0.1,bottom=0.12)
+   ax = fig.add_subplot(111)
+   ax.imshow(rho_interp.T, origin='lower',	  
+	  extent=[R.min(),R.max(),phi.min(),phi.max()])
+   ax.axis([73,87,73,87])
+   ax.set_xlabel(r'$R$',size=18)
+   ax.set_ylabel(r'$\phi$',size=18)
+   ax.set_aspect(1.0)
    
 
 
