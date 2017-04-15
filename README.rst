@@ -210,6 +210,9 @@ image plot in polar coordinates
    :align: center
 
 
+Using re-gridded data to plot radial profiles
+''''''''
+	   
 
 Displaying 2-D fields without pre-computed image data
 ~~~~~~~
