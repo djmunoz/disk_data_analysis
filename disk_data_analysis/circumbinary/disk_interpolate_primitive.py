@@ -27,7 +27,7 @@ def disk_interpolate_primitive_quantities(snapshot, XY, quantities = None):
         
         z = getattr(snapshot.gas,quant)
         # interpolate Z values on defined grid
-        Z = griddata(np.vstack((rvals.flatten(),phivals.flatten())).T, \
+        Z = griddata(np.vstack((x.flatten(),y.flatten())).T, \
                           np.vstack(z.flatten()),(X,Y),method='linear').reshape(X.shape)
         interp_quant.append(Z)
 
