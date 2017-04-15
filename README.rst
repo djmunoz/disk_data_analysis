@@ -153,8 +153,8 @@ a "nested" polar grid such as:
    Rout, phiout = np.meshgrid(np.logspace(np.log10(Rmin),np.log10(Rmax),NR),\
                               np.linspace(0,2*np.pi,Nphi))
 
-   R = np.append(Rin.flatten(),Rout.flatten())
-   phi = np.append(phiin.flatten(),phiout.flatten())
+   R = np.append(Rin,Rout_
+   phi = np.append(phiin,phiout)
    X, Y = R * np.cos(phi) + snap.header.boxsize * 0.5, R * np.sin(phi) + snap.header.boxsize * 0.5
 
 You can repeat the re-gridding step as before
@@ -165,7 +165,7 @@ You can repeat the re-gridding step as before
    fig = plt.figure(figsize=(5,4.5))
    fig.subplots_adjust(top=0.97,right=0.95,left=0.1,bottom=0.12)
    ax = fig.add_subplot(111)
-   ax.scatter(X,Y,c=rho_interp ,lw=0,s=10)
+   ax.scatter(X,Y,c=rho_interp ,lw=0,s=8)
    ax.axis([73,87,73,87])
    ax.set_xlabel(r'$x$',size=18)
    ax.set_ylabel(r'$y$',size=18)
