@@ -153,7 +153,7 @@ a "nested" polar grid such as:
    Rout, phiout = np.meshgrid(np.logspace(np.log10(Rmin),np.log10(Rmax),NR),\
                               np.linspace(0,2*np.pi,Nphi))
 
-   R = np.append(Rin,Rout_
+   R = np.append(Rin,Rout)
    phi = np.append(phiin,phiout)
    X, Y = R * np.cos(phi) + snap.header.boxsize * 0.5, R * np.sin(phi) + snap.header.boxsize * 0.5
 
