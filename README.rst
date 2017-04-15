@@ -147,11 +147,11 @@ a "nested" polar grid such as:
    Rmin, Rmax = 1.0, 4.0
    NR, Nphi = 80, 600
    Rin, phiin = np.meshgrid(np.arange(Rmin,Rmax,(Rmax-Rmin)/NR),\
-                            np.arange(0,2*np.pi,2*np.pi/Nphi))
+	                    np.linspace(0,2*np.pi,Nphi))
    Rmin, Rmax = 4.0, 80.0
    NR, Nphi = 140, 300
    Rout, phiout = np.meshgrid(np.logspace(np.log10(Rmin),np.log10(Rmax),NR),\
-                              np.arange(0,2*np.pi,2*np.pi/Nphi))
+                              np.linspace(0,2*np.pi,Nphi))
 
    R = np.append(Rin.flatten(),Rout.flatten())
    phi = np.append(phiin.flatten(),phiout.flatten())

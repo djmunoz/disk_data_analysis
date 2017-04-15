@@ -19,7 +19,7 @@ def disk_interpolate_primitive_quantities(snapshot, XY, quantities = None):
 
         
     X,Y = XY[0], XY[1]
-    x,y = snapshot.gas.POS[:,0] - snapshot.header.boxsize * 0.5, snapshot.gas.POS[:,1] - snapshot.header.boxsize * 0.5
+    x,y = snapshot.gas.POS[:,0], snapshot.gas.POS[:,1]
 
     
     interp_quant = []
