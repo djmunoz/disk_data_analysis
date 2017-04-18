@@ -243,6 +243,7 @@ Simple quantities such as
    ax = fig.add_subplot(1,3,3)
    ax.plot(R,velr_interp,'b.',ms=2.5)
    ax.plot(Rvals,velr_av,color='darkred',lw=5.0,alpha=0.6) 
+
    
 .. image:: example_figures/example_profiles.png
    :align: center
