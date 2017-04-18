@@ -180,7 +180,7 @@ and plot the color-coded cell locations as before
    :width: 120 px
 
 	   
-A uniform (and linear) sampling in :code: `R` and :code: `phi` allows us to create an reconstructed
+A uniform (and linear) sampling in :code:`R` and :code:`phi` allows us to create an reconstructed
 image plot in polar coordinates
  	   
 
@@ -212,8 +212,8 @@ image plot in polar coordinates
 
 Using re-gridded data to plot radial profiles
 ''''''''
-Simple quantities such as "first order" primitive variables :code: `RHO`,
-:code: `VELPHI` and :code: `VELR` can be evaluated over a strucured grid and plotted as a function or :code: `R`. A simple average can be used to compute the radial profile for all these quantities.
+Simple quantities such as "first order" primitive variables :code:`RHO`,
+:code:`VELPHI` and :code:`VELR` can be evaluated over a strucured grid and plotted as a function or :code:`R`. A simple average can be used to compute the radial profile for all these quantities.
 
 .. code:: python
 	  
