@@ -212,7 +212,7 @@ image plot in polar coordinates
 
 Using re-gridded data to plot radial profiles
 ''''''''
-
+Simple quantities such as
 
 .. code:: python
 	  
