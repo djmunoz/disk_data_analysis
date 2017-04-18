@@ -228,6 +228,7 @@ From the previous example:
 
 
 .. code:: python
+	  
    fig = plt.figure(figsize=(8,5))
    fig.subplots_adjust(top=0.97,right=0.95,left=0.1,bottom=0.12)
    ax = fig.add_subplot(111)
