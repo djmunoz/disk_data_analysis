@@ -245,12 +245,13 @@ Simple quantities such as
    ax.plot(Rvals,velr_av,color='darkred',lw=5.0,alpha=0.6) 
 
    
-.. image:: example_figures/example_profiles.png
+.. image:: example_figures/examples_profiles.png
    :align: center
    :height: 120px
    :width: 120 px
 
 
+	   
 Computing basic quantities, such as the mass accretion profile in disks,
 can be non-trivial. In conservative, finite-volume codes, one can in principle
 store the flux of any conserved quantity across a given radial location
