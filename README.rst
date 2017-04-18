@@ -268,7 +268,7 @@ a boundary at a specific value of radius *R*.
 
 For the mass accretion rate:
 
-.. image:: example_figures/equation1.png
+.. image:: example_figures/equation_1.png
    :align: center
 
 
