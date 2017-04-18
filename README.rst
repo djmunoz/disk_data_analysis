@@ -244,6 +244,8 @@ Simple quantities such as
    ax.plot(R,velr_interp,'b.',ms=2.5)
    ax.plot(Rvals,velr_av,color='darkred',lw=5.0,alpha=0.6) 
 
+   plt.show()
+
    
 .. image:: example_figures/examples_profiles.png
    :align: center
