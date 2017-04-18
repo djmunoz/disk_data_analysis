@@ -213,6 +213,7 @@ image plot in polar coordinates
 Using re-gridded data to plot radial profiles
 ''''''''
 
+
 .. code:: python
 	  
    snap = dda.get_snapshot_data('./data/snap_',0,['POS','RHO','VELPHI','VELR'])
