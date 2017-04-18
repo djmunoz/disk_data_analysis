@@ -255,7 +255,7 @@ Simple quantities such as "first order" primitive variables :code: `RHO`,
 
 
 	   
-Computing basic quantities, such as the mass accretion profile in disks,
+Computing other basic quantities, such as the mass accretion profile in disks,
 can be non-trivial. In conservative, finite-volume codes, one can in principle
 store the flux of any conserved quantity across a given radial location
 provided: (1) the cell boundaries align with the radial coordinate (i.e.,
@@ -281,6 +281,10 @@ From the previous example:
    Y0, Y1 = ax.get_ylim()
    ax.set_aspect(float((X1-X0)/(Y1-Y0)/1.6))
    plt.show()
+
+
+.. image:: example_figures/equation1.png
+   :align: center
 
 
 Displaying 2-D fields without pre-computed image data
