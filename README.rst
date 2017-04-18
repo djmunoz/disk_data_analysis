@@ -212,7 +212,18 @@ image plot in polar coordinates
 
 Using re-gridded data to plot radial profiles
 ''''''''
-	   
+
+Computing basic quantities, such as the mass accretion profile in disks,
+can be non-trivial. In conservative, finite-volume codes, one can in principle
+store the flux of any conserved quantity across a given radial location
+provided: (1) the cell boundaries align with the radial coordinate (i.e.,
+the a cylindrical grid is used to discretize the domain) and (2) the quantity
+under question is directly evolved in a conservative manner (i.e., by used
+of a Godunov-like scheme). AREPO simulations fail to meet the first requirement,
+since the mesh is unstructured. In such case, interpolation is left as the
+most straightforward tool to compute the flux of conserved quantities crossing
+a boundary at a specific value of radius *R*.
+
 
 Displaying 2-D fields without pre-computed image data
 ~~~~~~~
