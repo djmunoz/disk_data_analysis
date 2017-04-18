@@ -266,22 +266,7 @@ since the mesh is unstructured. In such case, interpolation is left as the
 most straightforward tool to compute the flux of conserved quantities crossing
 a boundary at a specific value of radius *R*.
 
-From the previous example:
-
-
-.. code:: python
-	  
-   fig = plt.figure(figsize=(8,5))
-   fig.subplots_adjust(top=0.97,right=0.95,left=0.1,bottom=0.12)
-   ax = fig.add_subplot(111)
-   ax.plot(R,rho_interp,'b.')
-   ax.set_xlabel(r'$R$',size=18)
-   ax.set_ylabel(r'$\phi/\pi$',size=18)
-   X0, X1 = ax.get_xlim()
-   Y0, Y1 = ax.get_ylim()
-   ax.set_aspect(float((X1-X0)/(Y1-Y0)/1.6))
-   plt.show()
-
+For the mass accretion rate:
 
 .. image:: example_figures/equation1.png
    :align: center
