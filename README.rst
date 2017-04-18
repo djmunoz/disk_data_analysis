@@ -212,7 +212,8 @@ image plot in polar coordinates
 
 Using re-gridded data to plot radial profiles
 ''''''''
-Simple quantities such as
+Simple quantities such as "first order" primitive variables :code: `RHO`,
+:code: `VELPHI` and :code: `VELR` can be evaluated over a strucured grid and plotted as a function or :code: `R`. A simple average can be used to compute the radial profile for all these quantities.
 
 .. code:: python
 	  
