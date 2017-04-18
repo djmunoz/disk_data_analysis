@@ -213,6 +213,42 @@ image plot in polar coordinates
 Using re-gridded data to plot radial profiles
 ''''''''
 
+.. code:: python
+	  
+   snap = dda.get_snapshot_data('./data/snap_',0,['POS','RHO','VELPHI','VELR'])
+
+   Rmin, Rmax = 1.0, 15.0
+   NR, Nphi = 300, 500
+   R, phi = np.meshgrid(np.arange(Rmin,Rmax,(Rmax-Rmin)/NR),\
+   np.linspace(0,2*np.pi-np.pi/Nphi,Nphi))
+   X, Y = R * np.cos(phi) + snap.header.boxsize * 0.5, R * np.sin(phi) + snap.header.boxsize * 0.5
+   rho_interp,velphi_interp,velr_interp  = dda.disk_interpolate_primitive_quantities(snap,[X,Y],quantities=['RHO','VELPHI','VELR'])
+
+   Rvals = R.mean(axis=0)
+   sigma0 = rho_interp.mean()
+   sigma_av = rho_interp.mean(axis=0)    
+   velphi_av = velphi_interp.mean(axis=0)
+   velr_av = velr_interp.mean(axis=0)
+   
+   fig = plt.figure(figsize=(16,4))
+   ax = fig.add_subplot(1,3,1)
+   ax.plot(R,rho_interp/sigma0,'b.',ms=2.5)
+   ax.plot(Rvals,sigma_av/sigma0,color='darkred',lw=5.0,alpha=0.6) 
+
+   ax = fig.add_subplot(1,3,2)
+   ax.plot(R,velphi_interp,'b.',ms=2.5)
+   ax.plot(Rvals,velphi_av,color='darkred',lw=5.0,alpha=0.6) 
+
+   ax = fig.add_subplot(1,3,3)
+   ax.plot(R,velr_interp,'b.',ms=2.5)
+   ax.plot(Rvals,velr_av,color='darkred',lw=5.0,alpha=0.6) 
+   
+.. image:: example_figures/example_profiles.png
+   :align: center
+   :height: 120px
+   :width: 120 px
+
+
 Computing basic quantities, such as the mass accretion profile in disks,
 can be non-trivial. In conservative, finite-volume codes, one can in principle
 store the flux of any conserved quantity across a given radial location
