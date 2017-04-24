@@ -17,6 +17,14 @@ class grid_polar():
         #self.phi =
         #self.R = 
 
+class grid_cartesian():    
+    def __init__(self,NX=None,NY=None,Xmin=-10.0,Xmax=10.0,Ymin=-10.0,Ymax=10.0):
+        self.NX = NR
+        self.NX = Nphi
+
+        self.X, self.Y = np.meshgrid(np.arange(Xmin + 0.5 * (Xmax-Xmin)/self.NX,Xmax,(Xmax-Xmin)/self.NX),\
+                                     np.arange(Ymin + 0.5 * (Ymax-Ymin)/NY,Ymax,(Ymax-Ymin)/self.NY))
+        
 
 
         
@@ -58,7 +66,7 @@ def disk_interpolate_primitive_quantities(snapshot, gridXY, quantities = None):
 def compute_gradient_on_grid(x,y,quantity,grid):
 
     
-    quantity_interp = interpolate_quantities(x,y, [grid.X,grid.Y], quantities = [quantity])[0]
+    quantity_interp = interpolate_quantities(x,y, [grid.X,grid.Y], quantity)
 
     delta_x = np.diff(grid.X).mean()
     delta_y = np.diff(grid.Y).mean()
@@ -67,4 +75,6 @@ def compute_gradient_on_grid(x,y,quantity,grid):
     gradx = grad[0].reshape(quantity_interp.shape)
     grady = grad[1].reshape(quantity_interp.shape)
 
-    local_grad = interp2d(grid.X,grid.Y,gradx)
+    local_gradx = interp2d(grid.X,grid.Y,gradx)(x,y)
+
+    print local_gradx.shape
