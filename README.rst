@@ -143,21 +143,6 @@ a "nested" polar grid such as:
 .. code:: python
 
    grid_in = dda.grid_polar(NR = 80, Nphi = 600, Rmin = 1.0, Rmax= 4.0, scale='linear')
-   #Rmin, Rmax = 1.0, 4.0
-   #NR, Nphi = 80, 600
-   #Rin, phiin = np.meshgrid(np.arange(Rmin,Rmax,(Rmax-Rmin)/NR),\
-	                    np.linspace(0,2*np.pi-np.pi/Nphi,Nphi))
-   Rmin, Rmax = 4.0, 80.0
-   NR, Nphi = 140, 300
-   Rout, phiout = np.meshgrid(np.logspace(np.log10(Rmin),np.log10(Rmax),NR),\
-                              np.linspace(0,2*np.pi-np.pi/Nphi,Nphi))
-   
-   #R = np.append(Rin,Rout)
-   #phi = np.append(phiin,phiout)
-   
-   #X, Y = R * np.cos(phi) + snap.header.boxsize * 0.5, R * np.sin(phi) + snap.header.boxsize * 0.5
-
-   grid_in = dda.grid_polar(NR = 80, Nphi = 600, Rmin = 1.0, Rmax= 4.0, scale='linear')
    grid_in.X, grid_in.Y = grid_in.X + snap.header.boxsize * 0.5, grid_in.Y  +  snap.header.boxsize * 0.5
    grid_out = dda.grid_polar(NR = 140, Nphi = 300, Rmin = 4.0, Rmax= 80.0, scale='log')
    grid_out.X, grid_out.Y = grid_out.X + snap.header.boxsize * 0.5, grid_out.Y  +  snap.header.boxsize * 0.5
