@@ -2,7 +2,15 @@ import numpy as np
 from scipy.interpolate import griddata
 
 
-
+class grid():
+    def __init__(self,NR,Nphi):
+        self.NR = NR
+        self.Nphi = Nphi
+        self.x = 
+        self.y =
+        self.phi =
+        self.R = 
+    
 
 def disk_interpolate_primitive_quantities(snapshot, XY, quantities = None):
 
@@ -28,7 +36,7 @@ def disk_interpolate_primitive_quantities(snapshot, XY, quantities = None):
         z = getattr(snapshot.gas,quant)
         # interpolate Z values on defined grid
         Z = griddata(np.vstack((x.flatten(),y.flatten())).T, \
-                          np.vstack(z.flatten()),(X,Y),method='linear').reshape(X.shape)
+                     np.vstack(z.flatten()),(X,Y),method='linear').reshape(X.shape)
         interp_quant.append(Z)
 
     return interp_quant

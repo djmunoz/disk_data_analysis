@@ -16,6 +16,8 @@ datablocks = {"POS ":["Coordinates",3],
               "RHO ":["Density",1],
               "VOL ":["Volume",1],
 	      "PRES":["Pressure",1],
+              "ACCE":["Acceleration",3],
+              "GRAV":["VelocityGradient", 3]
               }
 
 
@@ -72,7 +74,11 @@ class snapshot():
         if (self.parttype == 1):
             self.particle = particle_data(**kwargs)
         
-                
+    def add_snapshot_data(self,*args,**kwargs):
+
+        if (self.parttype == 0):
+            self.gas.add_gas_data(**kwargs)
+        
 
 def get_snapshot_data(filename_prefix,snap_num,quantities,parttype= 0 ,code="AREPO"):
 
@@ -89,21 +95,16 @@ def get_snapshot_data(filename_prefix,snap_num,quantities,parttype= 0 ,code="ARE
                     outquant.append(rs.read_block(filename_prefix+str(snap_num).zfill(3),quant.ljust(4),parttype=parttype))
                 elif (quant in disk_data_fields):
                     BoxX,BoxY = header.boxsize,header.boxsize
-                    if ((quant == "R") | (quant == "PHI")):
-                        pos = rs.read_block(filename_prefix+snap_num,"POS ", parttype=parttype)
-                        pos[:,0],pos[:,1] = (pos[:,0]- BoxX/2), (pos[:,1]- BoxY/2)
-                        radius = np.sqrt(pos[:,0]**2 + pos[:,1]**2)
-                        phi = np.arctan2(pos[:,1],pos[:,0])
-                        if (quant == "R"):
-                            outquant.append(radius)
-                        if (quant == "PHI"):
-                            outquant.append(phi)
+                    pos = rs.read_block(filename_prefix+str(snap_num).zfill(3),"POS ", parttype=parttype)
+                    pos[:,0],pos[:,1] = (pos[:,0]- BoxX/2), (pos[:,1]- BoxY/2)
+                    radius = np.sqrt(pos[:,0]**2 + pos[:,1]**2)
+                    phi = np.arctan2(pos[:,1],pos[:,0])
+                    if (quant == "R"):
+                        outquant.append(radius)
+                    if (quant == "PHI"):
+                        outquant.append(phi)
                     if ((quant == "VELR") | (quant == "VELPHI")):
-                        pos = rs.read_block(filename_prefix+snap_num,"POS ", parttype=parttype)
-                        vel = rs.read_block(filename_prefix+snap_num,"VEL ", parttype=parttype)
-                        pos[:,0],pos[:,1] = (pos[:,0]- BoxX/2), (pos[:,1]- BoxY/2)
-                        radius = np.sqrt(pos[:,0]**2 + pos[:,1]**2)
-                        phi = np.arctan2(pos[:,1],pos[:,0])
+                        vel = rs.read_block(filename_prefix+str(snap_num).zfill(3),"VEL ", parttype=parttype)
                         vphi = -np.sin(phi) * vel[:,0] + np.cos(phi) * vel[:,1]
                         vr   =  np.cos(phi) * vel[:,0] + np.sin(phi) * vel[:,1]
                         if (quant == "VELR"):
