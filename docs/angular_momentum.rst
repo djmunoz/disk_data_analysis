@@ -3,7 +3,7 @@ Computing angular momentum balance
 
 
 
-.. code::
+.. code:: python
 
    import numpy as np
    import disk_data_analysis.circumbinary as dda
