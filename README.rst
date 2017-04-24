@@ -111,7 +111,7 @@ points.
    # get a sense of the dynamical range in radius in the simulation
    Rmin, Rmax = 1.0, 80.0
    NR, Nphi = 200, 400
-   grid = dda.grid_polar(NR = NR, Nphi = Nphi,Rmin=1.0,Rmax=10.0,scale='log')
+   grid = dda.grid_polar(NR = NR, Nphi = Nphi,Rmin=1.0,Rmax= 80.0,scale='log')
    grid.X, grid.Y = grid.X + snap.header.boxsize * 0.5, grid.Y  +  snap.header.boxsize * 0.5
    
    rho_interp = dda.disk_interpolate_primitive_quantities(snap,[grid.X,grid.Y],quantities=['RHO'])[0]
