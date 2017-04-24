@@ -119,7 +119,7 @@ points.
 
    grid.X, grid.Y = grid.X + snap.header.boxsize * 0.5, grid.Y  +  snap.header.boxsize * 0.5
    
-   rho_interp = dda.disk_interpolate_primitive_quantities(snap,grid,quantities=['RHO'])[0]
+   rho_interp = dda.disk_interpolate_primitive_quantities(snap,[grid.X,grid.Y],quantities=['RHO'])[0]
 
    # And now we can plot the density field of this structured grid
    fig = plt.figure(figsize=(5,4.5))

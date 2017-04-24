@@ -6,12 +6,18 @@ class grid_polar():
     def __init__(self,NR=None,Nphi=None,Rmin=1.0,Rmax=10.0,scale='log'):
         self.NR = NR
         self.Nphi = Nphi
-        self.R, self.phi = np.meshgrid(np.logspace(np.log10(Rmin),np.log10(Rmax),NR),\
-	                               np.linspace(0,2*np.pi,Nphi))
+        if (scale == 'log'):
+            self.R, self.phi = np.meshgrid(np.logspace(np.log10(Rmin),np.log10(Rmax),NR),\
+	                                   np.linspace(0,2*np.pi,Nphi))
+        elif (scale == 'linear'):
+             self.R, self.phi = np.meshgrid(np.arange(Rmin,Rmax,(Rmax-Rmin)/NR),\
+                                            np.linspace(0,2*np.pi-np.pi/Nphi,Nphi))
+            
         self.X, self.Y = self.R * np.cos(self.phi), self.R * np.sin(self.phi)
         #self.phi =
         #self.R = 
-    
+
+
 
         
 def interpolate_quantities(x,y, gridXY, quantity):
@@ -32,7 +38,7 @@ def interpolate_quantities(x,y, gridXY, quantity):
     return Z
         
 
-def disk_interpolate_primitive_quantities(snapshot, grid, quantities = None):
+def disk_interpolate_primitive_quantities(snapshot, gridXY, quantities = None):
 
     if (quantities is None):
         quantities = ["RHO"]
@@ -43,7 +49,7 @@ def disk_interpolate_primitive_quantities(snapshot, grid, quantities = None):
     interp_quant = []
     for quant in quantities:
         quant = getattr(snapshot.gas,quant)
-        interp_quant.append(interpolate_quantities(x,y, [grid.X,grid.Y], quant))
+        interp_quant.append(interpolate_quantities(x,y, [gridXY[0],gridXY[1]], quant))
         
     return  interp_quant
 
