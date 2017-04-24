@@ -111,15 +111,15 @@ points.
    # get a sense of the dynamical range in radius in the simulation
    Rmin, Rmax = 1.0, 80.0
    NR, Nphi = 200, 400
-   grid = grid_polar(NR = NR, Nphi = Nphi,Rmin=1.0,Rmax=10.0,scale='log')
+   grid = dda.grid_polar(NR = NR, Nphi = Nphi,Rmin=1.0,Rmax=10.0,scale='log')
    #R, phi = np.meshgrid(np.logspace(np.log10(Rmin),np.log10(Rmax),NR),\
    #	                np.linspace(0,2*np.pi,Nphi))
    #X, Y = R * np.cos(phi) + snap.header.boxsize * 0.5, R * np.sin(phi) + snap.header.boxsize * 0.5
    #X, Y = R * np.cos(phi), R * np.sin(phi)
 
-   X, Y = grid.X + snap.header.boxsize * 0.5, grid.Y  +  snap.header.boxsize * 0.5
+   grid.X, grid.Y = grid.X + snap.header.boxsize * 0.5, grid.Y  +  snap.header.boxsize * 0.5
    
-   rho_interp = dda.disk_interpolate_primitive_quantities(snap,[X,Y],quantities=['RHO'])[0]
+   rho_interp = dda.disk_interpolate_primitive_quantities(snap,grid,quantities=['RHO'])[0]
 
    # And now we can plot the density field of this structured grid
    fig = plt.figure(figsize=(5,4.5))
