@@ -39,7 +39,11 @@ class gas_data():
 
         for key in kwargs:
             setattr(self, key, kwargs[key])
+
+    def add_gas_gradient(self, quantity,gradient):
         
+        
+            
 class particle_data():
     def __init__(self,*args,**kwargs):
         self.pos=kwargs.get("pos")
@@ -74,10 +78,10 @@ class snapshot():
         if (self.parttype == 1):
             self.particle = particle_data(**kwargs)
         
-    def add_snapshot_data(self,*args,**kwargs):
+    def add_snapshot_gradient(self,quantity,gradient):
 
         if (self.parttype == 0):
-            self.gas.add_gas_data(**kwargs)
+            self.gas.add_gas_gradient(quantity,gradient)
         
 
 def get_snapshot_data(filename_prefix,snap_num,quantities,parttype= 0 ,code="AREPO"):
