@@ -19,9 +19,9 @@ class grid_polar():
 
 class grid_cartesian():    
     def __init__(self,NX=None,NY=None,Xmin=-10.0,Xmax=10.0,Ymin=-10.0,Ymax=10.0):
-        self.NX = NR
-        self.NX = Nphi
-
+        self.NX = NX
+        self.NY = NY
+        
         self.X, self.Y = np.meshgrid(np.arange(Xmin + 0.5 * (Xmax-Xmin)/self.NX,Xmax,(Xmax-Xmin)/self.NX),\
                                      np.arange(Ymin + 0.5 * (Ymax-Ymin)/NY,Ymax,(Ymax-Ymin)/self.NY))
         
