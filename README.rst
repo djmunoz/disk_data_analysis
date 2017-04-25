@@ -101,10 +101,10 @@ Fortunately, Python has built-in Voronoi routines in 2-D.
    fig.subplots_adjust(top=0.97,right=0.95,left=0.1,bottom=0.12)
    ax = fig.add_subplot(111)
    voronoi_plot_2d(vor,show_points=False,show_vertices=False)
-   ax.set_xlim(0.5 * snap.header.boxsize - 2.5, 0.5 * snap.header.boxsize + 2.5)
-   ax.set_ylim(0.5 * snap.header.boxsize - 2.5, 0.5 * snap.header.boxsize + 2.5)
-   ax.set_xlabel(r'$x$',size=18)
-   ax.set_ylabel(r'$y$',size=18)
+   plt.xlim(0.5 * snap.header.boxsize - 2.5, 0.5 * snap.header.boxsize + 2.5)
+   plt.ylim(0.5 * snap.header.boxsize - 2.5, 0.5 * snap.header.boxsize + 2.5)
+   plt.xlabel(r'$x$',size=18)
+   plt.ylabel(r'$y$',size=18)
    plt.show()
    
    
