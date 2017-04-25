@@ -92,7 +92,7 @@ Fortunately, Python has built-in Voronoi routines in 2-D.
 .. code:: python
 
    from scipy.spatial import Voronoi, voronoi_plot_2d
-   ind = snap.gas.R < 3.5
+   ind = snap.gas.R < 3.8
    points = np.array(snap.gas.POS[:,0],snap.gas.POS[:,1]).T
 
    vor = Voronoi(points)
