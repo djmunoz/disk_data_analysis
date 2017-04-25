@@ -35,3 +35,17 @@
    gradient_sum_1 = faceareas[:] * (delta_quant[:] * cvectors[:,1] - mean_quant[:] * rvectors[:,1]) / rvecsize[:]
 
 	  
+   def sum_by_group(values, groups):
+	  order = np.argsort(groups)
+	  groups = groups[order]
+	  values = values[order]
+	  values.cumsum(out=values)
+	  index = np.ones(len(groups), 'bool')
+	  index[:-1] = groups[1:] != groups[:-1]
+	  values = values[index]
+	  groups = groups[index]
+	  values[1:] = values[1:] - values[:-1]
+	  return values, groups
+   
+   print  sum_by_group(gradient_sum_0,vor.ridge_points[:,0])
+	  
