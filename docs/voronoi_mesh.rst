@@ -8,12 +8,17 @@
    import disk_data_analysis.circumbinary as dda
    from scipy.spatial import Voronoi, voronoi_plot_2d
 
+   # Load the simulation data and, for the sake of simplicity, select a subset of cells
    snap = dda.get_snapshot_data('./data/snap_',0,['POS','RHO','R','VOL'])
    ind = snap.gas.R < 3.8
    points = np.array([snap.gas.POS[ind,0],snap.gas.POS[ind,1]]).T
    quant = snap.gas.RHO[ind]
    cellvol = snap.gas.VOL[ind]
-	  
+
+   # Compute the Voronoi tessellation...
+   vor = Voronoi(points)
+
+   # ... and compute some quantities associated with the mesh
    rvectors = points[vor.ridge_points[:,1]]-points[vor.ridge_points[:,0]]
    rvecsize = np.sqrt(rvectors[:,0]**2 + rvectors[:,1]**2)
 
@@ -25,6 +30,7 @@
    delta_quant = quant[vor.ridge_points[:,1]]- quant[vor.ridge_points[:,0]]
    mean_quant = 0.5 * (quant[vor.ridge_points[:,1]] + quant[vor.ridge_points[:,0]])
 
+   # We use these quantities to compute the Voronoi-Green-Gauss gradients
    gradient_sum_0 = faceareas[:] * (delta_quant[:] * cvectors[:,0] - mean_quant[:] * rvectors[:,0]) / rvecsize[:]
    gradient_sum_1 = faceareas[:] * (delta_quant[:] * cvectors[:,1] - mean_quant[:] * rvectors[:,1]) / rvecsize[:]
 
