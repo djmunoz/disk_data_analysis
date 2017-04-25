@@ -105,6 +105,9 @@ Fortunately, Python has built-in Voronoi routines in 2-D.
    plt.ylabel(r'$y$',size=18)
    plt.axes().set_aspect('equal')
    plt.show()
+
+.. image:: example_figures/voronoi_mesh.png
+
    
    
 Computing radial profiles
