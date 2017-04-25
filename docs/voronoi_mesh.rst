@@ -20,6 +20,7 @@
    cvectors = 0.5 * (vor.vertices[np.asarray(vor.ridge_vertices)[:,1]]+vor.vertices[np.asarray(vor.ridge_vertices)[:,0]]) - 0.5 *( points[vor.ridge_points[:,1]]+points[vor.ridge_points[:,0]])
 
    faceareas = vor.vertices[np.asarray(vor.ridge_vertices)[:,1]] - vor.vertices[np.asarray(vor.ridge_vertices)[:,0]]
+   faceareas = np.sqrt(faceareas[:,0]**2 + faceareas[:,1]**2)
 
    delta_quant = quant[vor.ridge_points[:,1]]- quant[vor.ridge_points[:,0]]
    mean_quant = 0.5 * (quant[vor.ridge_points[:,1]] + quant[vor.ridge_points[:,0]])
