@@ -49,7 +49,7 @@ which can be used to give
 
 .. code:: python
 	  
-   snap = dda.get_snapshot_data('./data/snap_',0,['POS','VEL'])
+   snap = dda.get_snapshot_data('./data/snap_',0,['POS','VEL','R'])
 
 which will only contain the requested quantities :code:`POS` (positions)
 and :code:`VEL` (velocities). You can double-check the attributes of
@@ -82,6 +82,31 @@ the positions
    :scale: 50
    :height: 40px
    :width: 40 px
+
+Voronoi mesh
+'''''''
+
+You can compare the mesh-generating scatter plot above with the associated Voronoi grid.
+Fortunately, Python has built-in Voronoi routines in 2-D.
+
+.. code:: python
+
+   from scipy.spatial import Voronoi, voronoi_plot_2d
+   ind = snap.gas.R < 3.5
+   points = np.array(snap.gas.POS[:,0],snap.gas.POS[:,1]).T
+
+   vor = Voronoi(points)
+
+   fig = plt.figure(figsize=(5,4.5))
+   fig.subplots_adjust(top=0.97,right=0.95,left=0.1,bottom=0.12)
+   ax = fig.add_subplot(111)
+   voronoi_plot_2d(vor,show_points=False,show_vertices=False)
+   ax.set_xlim(0.5 * snap.header.boxsize - 2.5, 0.5 * snap.header.boxsize + 2.5)
+   ax.set_ylim(0.5 * snap.header.boxsize - 2.5, 0.5 * snap.header.boxsize + 2.5)
+   ax.set_xlabel(r'$x$',size=18)
+   ax.set_ylabel(r'$y$',size=18)
+   plt.show()
+   
    
 Computing radial profiles
 ~~~~~~~
