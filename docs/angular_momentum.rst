@@ -9,8 +9,24 @@ Computing angular momentum balance
    import matplotlib.pyplot as plt
    import disk_data_analysis.circumbinary as dda
 
-   snap = dda.get_snapshot_data('./data/snap_',0,['POS','VEL','RHO','ACCE'])
+   snap = dda.get_snapshot_data('./data/snap_',0,['POS','VELX','VELY','RHO','ACCE','R'])
 
+   # if we do not have gradient data, we can compute it
+   gradientvx = dda.compute_snapshot_gradient(snap,fielddata=snap.gas.VEL[:,0])
+   gradientvy = dda.compute_snapshot_gradient(snap,fielddata=snap.gas.VEL[:,1])
+
+   snap.add_data(gradientvx,'GRVX')
+   snap.add_data(gradientvy,'GRVY')
+
+   # as in other cases, map onto a regular grid
+   Rmin, Rmax = 1.0, 80.0
+   NR, Nphi = 200, 400
+   grid = dda.grid_polar(NR = NR, Nphi = Nphi,Rmin=1.0,Rmax= 80.0,scale='log')
+   grid.X, grid.Y = grid.X + snap.header.boxsize * 0.5, grid.Y  +  snap.header.boxsize * 0.5
+
+   # And interpolate the quantities we need
+   
+   
    grid = dda.grid_cartesian(Xmin=-80.0,Xmax=80.0,Ymin=-80.0,Ymax=80.0,NX=512,NY=512,mask= '(R < 1.0) | (R > 80.0)')
    grid.X, grid.Y =  grid.X + snap.header.boxsize * 0.5, grid.Y + snap.header.boxsize * 0.5
    
