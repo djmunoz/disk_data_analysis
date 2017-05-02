@@ -18,10 +18,25 @@ Computing angular momentum balance
    snap.add_data(gradientvx,'GRVX')
    snap.add_data(gradientvy,'GRVY')
 
+As in other examples, in order to get radial profiles, it is useful to create a regularly spaced
+polar grid
 
-   
+.. code:: python
+	  
+   # as in other cases, map onto a regular grid
+   Rmin, Rmax = 1.0, 80.0
+   NR, Nphi = 200, 400
+   grid = dda.grid_polar(NR = NR, Nphi = Nphi,Rmin=1.0,Rmax= 80.0,scale='log')
+   grid.X, grid.Y = grid.X + snap.header.boxsize * 0.5, grid.Y  +  snap.header.boxsize * 0.5
+
+
+Onto this grid, we want to map :image:`./doc_images/equation1.png`
+
+to compute the advective angular momentum transfer rate:
+
 .. image:: ./doc_images/equation1.png
 
+Similarly, we want to map
 	   
 .. image:: ./doc_images/equation2.png	      
 
@@ -29,11 +44,7 @@ Computing angular momentum balance
 	      
 .. code:: python
 	      
-   # as in other cases, map onto a regular grid
-   Rmin, Rmax = 1.0, 80.0
-   NR, Nphi = 200, 400
-   grid = dda.grid_polar(NR = NR, Nphi = Nphi,Rmin=1.0,Rmax= 80.0,scale='log')
-   grid.X, grid.Y = grid.X + snap.header.boxsize * 0.5, grid.Y  +  snap.header.boxsize * 0.5
+
 
    # And interpolate the quantities we need
    
