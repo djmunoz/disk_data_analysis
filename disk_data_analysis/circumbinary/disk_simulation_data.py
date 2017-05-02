@@ -44,6 +44,10 @@ class gas_data():
         for key in kwargs:
             setattr(self, key, kwargs[key])
         
+    def add_gas_data(self,data,fieldname):
+        setattr(self, fieldname, data)
+        
+
             
 class particle_data():
     def __init__(self,*args,**kwargs):
@@ -61,7 +65,9 @@ class particle_data():
         if (self.ids is None):
             self.ids = np.empty([0])
 
-
+    def add_particle_data(self,data,fieldname):
+        setattr(self, fieldname, data)
+        
 class snapshot():
     """
     Snapshot class, containing -- in a single data structure -- the simulation snapshot information
@@ -79,7 +85,12 @@ class snapshot():
         if (self.parttype == 1):
             self.particle = particle_data(**kwargs)
         
-
+    def add_data(self,data,fieldname,parttype=0):
+        if (parttype == 0):
+            self.gas.add_gas_data(data,fieldname)
+        if (parttype == 1):
+            self.gas.add_particle_data(data,fieldname)
+            
 def get_snapshot_data(filename_prefix,snap_num,quantities,parttype= 0 ,code="AREPO"):
 
     nquant=len(quantities)
