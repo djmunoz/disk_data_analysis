@@ -18,11 +18,15 @@ Computing angular momentum balance
    snap.add_data(gradientvx,'GRVX')
    snap.add_data(gradientvy,'GRVY')
 
-   .. image:: docs/doc_images/equation1.png
+
+   
+.. image:: docs/doc_images/equation1.png
+
+	   
+.. image:: docs/doc_images/equation2.png	      
 
 
-   .. image:: docs/doc_images/equation2.png	      
-
+	      
 .. code:: python
 	      
    # as in other cases, map onto a regular grid
