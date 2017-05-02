@@ -79,13 +79,33 @@ quantities such as the velocity gradients.
 
 .. code:: python
 
-
+   # compute the advective angular momentum transfer rate
    jdot_adv = -2 * np.pi * rho_interp * (grid.X * grid.Y * (vy_interp**2 - vx_interp**2) +\
                                          vx_interp * vy_interp * (grid.X**2 - grid.Y**2))
 
    # average out the azimuthal axis
    jdot_adv = jdot_adv.mean(axis=0)
 
+To compute the viscous transfer rate, we need one more element: the kinematic viscosity coefficient
+*nu* as a function of radius on the grid.
+
+.. code:: python
+
+   alpha = 0.1
+   h0 = 0.1
+   GM = 1.0
+   
+   def nu(R):
+	  return alpha * h0**2 * np.sqrt(GM) * R**(0.5)
+
+   nu_grid = nu(grid.R)
+
+.. code:: python
+   
+   # Similarly, compute the viscous angular momentum transfer rate
+   jdot_visc = 
+
+   
    # and plot it
    plt.plot(grid.R.mean(axis=0),jdot_adv)
    plt.xlim(0,15)
