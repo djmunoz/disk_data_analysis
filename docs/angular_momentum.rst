@@ -12,8 +12,8 @@ Computing angular momentum balance
    snap = dda.get_snapshot_data('./data/snap_',0,['POS','VELX','VELY','RHO','ACCE','R'])
 
    # if we do not have gradient data, we can compute it
-   gradientvx = dda.compute_snapshot_gradient(snap,fielddata=snap.gas.VEL[:,0])
-   gradientvy = dda.compute_snapshot_gradient(snap,fielddata=snap.gas.VEL[:,1])
+   gradientvx = dda.compute_snapshot_gradient(snap,'VELX')
+   gradientvy = dda.compute_snapshot_gradient(snap,'VELY')
 
    snap.add_data(gradientvx,'GRVX')
    snap.add_data(gradientvy,'GRVY')
