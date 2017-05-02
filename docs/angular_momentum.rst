@@ -103,9 +103,9 @@ To compute the viscous transfer rate, we need one more element: the kinematic vi
 .. code:: python
    
    # Similarly, compute the viscous angular momentum transfer rate
-   jdot_visc = (-2 * np.pi * nu_grid * rho_interp \
-                2 * grid.X * grid.Y * (gradvy_interp[1] - gradvx_interp[0]) + \
-		(grid.X**2 - grid.Y**2) * (gradvx_interp[1] + gradvy_interp[0])).mean(axis=0)
+   jdot_visc = (-2 * np.pi * nu_grid * rho_interp * \
+	        (2 * grid.X * grid.Y * (gradvy_interp[1] - gradvx_interp[0]) + \
+		 (grid.X**2 - grid.Y**2) * (gradvx_interp[1] + gradvy_interp[0]))).mean(axis=0)
 
    
    # and plot it
