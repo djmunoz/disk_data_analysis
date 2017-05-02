@@ -51,11 +51,14 @@ Similarly, we want to map |inlineq2| onto the grid to compute
 .. code:: python
 	  
    #interpolating ...
-   rho_interp = dda.disk_interpolate_primitive_quantities(snap,[grid.X,grid.Y],quantities=['RHO'],method = 'linear')[0]
+   rho_interp = dda.disk_interpolate_primitive_quantities(snap,[grid.X,grid.Y],\
+	                                                  quantities=['RHO'],method = 'linear')[0]
 
-   vx_interp = dda.disk_interpolate_primitive_quantities(snap,[grid.X,grid.Y],quantities=['VELX'],method = 'linear')[0]
+   vx_interp = dda.disk_interpolate_primitive_quantities(snap,[grid.X,grid.Y],\
+	                                                 quantities=['VELX'],method = 'linear')[0]
 
-   vy_interp = dda.disk_interpolate_primitive_quantities(snap,[grid.X,grid.Y],quantities=['VELY'],method = 'linear')[0]
+   vy_interp = dda.disk_interpolate_primitive_quantities(snap,[grid.X,grid.Y],\
+	                                                 quantities=['VELY'],method = 'linear')[0]
    
 
 Now, let us pay specially attention on how we carry out the mapping for higher-order primitive
