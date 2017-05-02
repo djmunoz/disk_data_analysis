@@ -18,16 +18,24 @@ class grid_polar():
         #self.R = 
 
 class grid_cartesian():    
-    def __init__(self,NX=None,NY=None,Xmin=-10.0,Xmax=10.0,Ymin=-10.0,Ymax=10.0):
+    def __init__(self,NX=None,NY=None,Xmin=-10.0,Xmax=10.0,Ymin=-10.0,Ymax=10.0, mask = None):
         self.NX = NX
         self.NY = NY
         
         self.X, self.Y = np.meshgrid(np.arange(Xmin + 0.5 * (Xmax-Xmin)/self.NX,Xmax,(Xmax-Xmin)/self.NX),\
-                                     np.arange(Ymin + 0.5 * (Ymax-Ymin)/NY,Ymax,(Ymax-Ymin)/self.NY))
-        
+                                     np.arange(Ymin + 0.5 * (Ymax-Ymin)/self.NY,Ymax,(Ymax-Ymin)/self.NY))
 
+        self.R = np.sqrt(self.X * self.X + self.Y * self.Y)
+        self.phi = np.arctan2(self.Y, self.X)
 
-        
+        if (mask is not None):
+            R = self.R
+            ind = eval(mask)
+            self.X = self.X[np.invert(ind)]
+            self.Y = self.Y[np.invert(ind)]
+            self.R = self.R[np.invert(ind)]
+            self.phi = self.phi[np.invert(ind)]
+            
 def interpolate_quantities(x,y, gridXY, quantity):
 
     """
@@ -68,9 +76,12 @@ def compute_gradient_on_grid(x,y,quantity,grid):
     
     quantity_interp = interpolate_quantities(x,y, [grid.X,grid.Y], quantity)
 
-    delta_x = np.diff(grid.X).mean()
-    delta_y = np.diff(grid.Y).mean()
-    grad = np.gradient(quantity_interp,varargs=[delta_x,delta_y])
+    return quantity_interp 
+    
+    delta_x = np.diff(grid.X[0,:]).mean()
+    delta_y = np.diff(grid.Y[:,0]).mean()
+    print delta_x,delta_y
+    grad = np.gradient(quantity_interp,[delta_x,delta_y])
 
     gradx = grad[0].reshape(quantity_interp.shape)
     grady = grad[1].reshape(quantity_interp.shape)

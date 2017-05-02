@@ -1,4 +1,5 @@
 from disk_hdf5 import readsnapHDF5 as rs
+from disk_voronoi import voronoi_simulation_data 
 #import readsnap_PLUTO as rspluto
 #import pluto_data_utils as rspluto
 import numpy as np
@@ -16,8 +17,11 @@ datablocks = {"POS ":["Coordinates",3],
               "RHO ":["Density",1],
               "VOL ":["Volume",1],
 	      "PRES":["Pressure",1],
+              "CMCE":["CenterOfMass",3],
+              "AREA":["SurfaceArea",1],
               "ACCE":["Acceleration",3],
-              "GRAV":["VelocityGradient", 3]
+              "GRAR":["DensityGradient", 3],
+              "GRAV":["VelocityGradient", 9]
               }
 
 
@@ -155,3 +159,20 @@ def get_snapshot_time(filename,snapnum,code="AREPO",snapinterval=0):
         time = snapnum*snapinterval
 
     return time
+
+
+def compute_snapshot_gradient(snapshot,field):
+
+    # Read-in mesh-generating points
+    points = np.array([snapshot.gas.POS[:,0],snapshot.gas.POS[:,1]]).T
+    # Create Voronoi mesh
+    mesh = voronoi_simulation_data.VoronoiMesh(points)
+    # Compute the Voronoi-Green-Gauss gradients
+    print getattr(snapshot.gas,field)
+    gradientx,gradienty = voronoi_simulation_data.compute_voronoi_gradients(mesh,getattr(snapshot.gas,field))
+    # Compute the slope limiters
+    limiter = voronoi_simulation_data.compute_voronoi_limiter(mesh,getattr(snapshot.gas,field),np.array([gradientx,gradienty]).T)
+    
+    # Return limited gradients
+
+    return np.array([gradientx*limiter, gradienty * limiter]).T
