@@ -35,7 +35,8 @@ Onto this grid, we want to map |inlineq1|
 to compute the advective angular momentum transfer rate:
 
 .. |inlineq1| image:: ./doc_images/inline_eq1.png
-
+   :align: middle
+		      
 .. image:: ./doc_images/equation1.png
 
 Similarly, we want to map
