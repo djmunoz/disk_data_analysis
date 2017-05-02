@@ -68,13 +68,32 @@ quantities such as the velocity gradients.
 .. code:: python
 	  
    #interpolating ...
-   dvxdx_interp = dda.disk_interpolate_gradient_quantities(snap,[grid.X,grid.Y],\
+   gradvx_interp = dda.disk_interpolate_gradient_quantities(snap,[grid.X,grid.Y],\
+	                                                   quantities=['GRVX'],method = 'nearest')[0]
+
+							   
+   gradvy_interp = dda.disk_interpolate_gradient_quantities(snap,[grid.X,grid.Y],\
 	                                                   quantities=['GRVX'],method = 'nearest')[0]
 
 
 
+.. code:: python
 
 
+   jdot_adv = -2 * np.pi * rho_interp * (grid.X * grid.Y * (vy_interp**2 - vx_interp**2) +\
+                                         vx_interp * vy_interp * (grid.X**2 - grid.Y**2))
+
+   # average out the azimuthal axis
+   jdot_adv = jdot_adv.mean(axis=0)
+
+   # and plot it
+   plt.plot(grid.R.mean(axis=0),jdot_adv)
+   plt.xlim(0,15)
+   plt.xlabel(r'$R$')
+   plt.ylabel(r'$\dot{J}_{\rm adv}$')
+   plt.show()
+					 
+	  
    quantities=['VELX'],method = 'linear')[0]
 
    vy_interp = dda.disk_interpolate_primitive_quantities(snap,[grid.X,grid.Y],\

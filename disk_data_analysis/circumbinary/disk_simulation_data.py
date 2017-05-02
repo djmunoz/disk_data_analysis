@@ -6,7 +6,7 @@ import numpy as np
 import sys
 
 
-disk_data_fields = ["POS","VEL","MASS","U","RHO","R","PHI","VELR","VELPHI","VELX","VELY"]]
+disk_data_fields = ["POS","VEL","MASS","U","RHO","R","PHI","VELR","VELPHI","VELX","VELY"]
 
 
 datablocks = {"POS ":["Coordinates",3], 
@@ -114,7 +114,7 @@ def get_snapshot_data(filename_prefix,snap_num,quantities,parttype= 0 ,code="ARE
                         outquant.append(radius)
                     if (quant == "PHI"):
                         outquant.append(phi)
-                    if ((quant == "VELR") | (quant == "VELPHI")):
+                    if ((quant == "VELR") | (quant == "VELPHI") | (quant == "VELX") | (quant == "VELY" )):
                         vel = rs.read_block(filename_prefix+str(snap_num).zfill(3),"VEL ", parttype=parttype)
                         vphi = -np.sin(phi) * vel[:,0] + np.cos(phi) * vel[:,1]
                         vr   =  np.cos(phi) * vel[:,0] + np.sin(phi) * vel[:,1]

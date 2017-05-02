@@ -36,7 +36,7 @@ class grid_cartesian():
             self.R = self.R[np.invert(ind)]
             self.phi = self.phi[np.invert(ind)]
             
-def interpolate_quantities(x,y, gridXY, quantity):
+def interpolate_quantities(x,y, gridXY, quantity, method = 'linear'):
 
     """
     Interpolate primitive quantity data (stored in a snapshot data structure) usually 
@@ -49,12 +49,12 @@ def interpolate_quantities(x,y, gridXY, quantity):
 
     # interpolate Z values on defined grid
     Z = griddata(np.vstack((x.flatten(),y.flatten())).T, \
-                 np.vstack(quantity.flatten()),(X,Y),method='linear').reshape(X.shape)
+                 np.vstack(quantity.flatten()),(X,Y),method = method).reshape(X.shape)
 
     return Z
         
 
-def disk_interpolate_primitive_quantities(snapshot, gridXY, quantities = None):
+def disk_interpolate_primitive_quantities(snapshot, gridXY, quantities = None, method = 'linear'):
 
     if (quantities is None):
         quantities = ["RHO"]
@@ -65,16 +65,31 @@ def disk_interpolate_primitive_quantities(snapshot, gridXY, quantities = None):
     interp_quant = []
     for quant in quantities:
         quant = getattr(snapshot.gas,quant)
-        interp_quant.append(interpolate_quantities(x,y, [gridXY[0],gridXY[1]], quant))
+        interp_quant.append(interpolate_quantities(x,y, [gridXY[0],gridXY[1]], quant, method = method))
         
     return  interp_quant
 
+def disk_interpolate_gradient_quantities(snapshot, gridXY, quantities = None, method = 'nearest'):
 
+    if (quantities is None):
+        quantities = ["GRRHO"]
+
+    x,y = snapshot.gas.POS[:,0], snapshot.gas.POS[:,1]
+        
+    interp_gradquant = []
+    for quant in quantities:
+        gradquant = getattr(snapshot.gas,quant)
+        interp_gradquant.append(np.array([interpolate_quantities(x,y, [gridXY[0],gridXY[1]], gradquant[:,0], method = method),
+                                      interpolate_quantities(x,y, [gridXY[0],gridXY[1]], gradquant[:,1], method = method)]))
+
+        
+    return interp_gradquant
+        
 
 def compute_gradient_on_grid(x,y,quantity,grid):
 
     
-    quantity_interp = interpolate_quantities(x,y, [grid.X,grid.Y], quantity)
+    quantity_interp = interpolate_quantities(x,y, [grid.X,grid.Y], quantity, method = 'linear')
 
     return quantity_interp 
     
