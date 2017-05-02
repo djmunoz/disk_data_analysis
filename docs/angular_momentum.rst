@@ -30,17 +30,20 @@ polar grid
    grid.X, grid.Y = grid.X + snap.header.boxsize * 0.5, grid.Y  +  snap.header.boxsize * 0.5
 
 
-Onto this grid, we want to map |inlineq1|
-
-to compute the advective angular momentum transfer rate:
+Onto this grid, we want to map |inlineq1| to compute the advective angular momentum transfer rate:
 
 .. |inlineq1| image:: ./doc_images/inline_eq1.png
    :align: middle
 		      
 .. image:: ./doc_images/equation1.png
 
-Similarly, we want to map
+
 	   
+Similarly, we want to map |inlineq1| onto the grid to compute
+
+.. |inlineq2| image:: ./doc_images/inline_eq2.png
+   :align: middle
+
 .. image:: ./doc_images/equation2.png	      
 
 
