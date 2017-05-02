@@ -6,7 +6,7 @@ import numpy as np
 import sys
 
 
-disk_data_fields = ["POS","VEL","MASS","U","RHO","R","PHI","VELR","VELPHI"]
+disk_data_fields = ["POS","VEL","MASS","U","RHO","R","PHI","VELR","VELPHI","VELX","VELY"]]
 
 
 datablocks = {"POS ":["Coordinates",3], 
@@ -122,7 +122,10 @@ def get_snapshot_data(filename_prefix,snap_num,quantities,parttype= 0 ,code="ARE
                             outquant.append(vr)
                         if (quant == "VELPHI"):
                             outquant.append(vphi)
-
+                    if (quant == "VELX"):
+                        outquant.append(vel[:,0])
+                    if (quant == "VELY"):
+                        outquant.append(vel[:,1])
                 else: 
                     print "[error] Quantity type ", quant, "not known!"
                     sys.exit()  
@@ -172,17 +175,22 @@ def get_snapshot_time(filename,snapnum,code="AREPO",snapinterval=0):
     return time
 
 
-def compute_snapshot_gradient(snapshot,field):
+def compute_snapshot_gradient(snapshot,fieldname = None, fielddata = None):
 
     # Read-in mesh-generating points
     points = np.array([snapshot.gas.POS[:,0],snapshot.gas.POS[:,1]]).T
     # Create Voronoi mesh
     mesh = voronoi_simulation_data.VoronoiMesh(points)
     # Compute the Voronoi-Green-Gauss gradients
-    print getattr(snapshot.gas,field)
-    gradientx,gradienty = voronoi_simulation_data.compute_voronoi_gradients(mesh,getattr(snapshot.gas,field))
+    if (fieldname is not None):
+        data = getattr(snapshot.gas,fieldname)
+    elif (fielddata is not None):
+        data = fielddata
+    else:
+        raise ValueError('You need to provide either "fieldname" or a data vector "fielddata"')
+    gradientx,gradienty = voronoi_simulation_data.compute_voronoi_gradients(mesh,data)
     # Compute the slope limiters
-    limiter = voronoi_simulation_data.compute_voronoi_limiter(mesh,getattr(snapshot.gas,field),np.array([gradientx,gradienty]).T)
+    limiter = voronoi_simulation_data.compute_voronoi_limiter(mesh,data,np.array([gradientx,gradienty]).T)
     
     # Return limited gradients
 
