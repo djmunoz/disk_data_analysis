@@ -69,7 +69,7 @@ quantities such as the velocity gradients.
 	  
    #interpolating ...
    dvxdx_interp = dda.disk_interpolate_gradient_quantities(snap,[grid.X,grid.Y],\
-	                                                   quantities=['GRVX'],method = 'linear')[0]
+	                                                   quantities=['GRVX'],method = 'nearest')[0]
 
 
 
