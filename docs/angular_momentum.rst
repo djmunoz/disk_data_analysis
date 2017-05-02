@@ -39,7 +39,7 @@ Onto this grid, we want to map |inlineq1| to compute the advective angular momen
 
 
 	   
-Similarly, we want to map |inlineq1| onto the grid to compute
+Similarly, we want to map |inlineq2| onto the grid to compute
 
 .. |inlineq2| image:: ./doc_images/inline_eq2.png
    :align: middle
