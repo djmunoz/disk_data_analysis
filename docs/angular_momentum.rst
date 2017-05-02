@@ -20,10 +20,10 @@ Computing angular momentum balance
 
 
    
-.. image:: docs/doc_images/equation1.png
+.. image:: ./doc_images/equation1.png
 
 	   
-.. image:: docs/doc_images/equation2.png	      
+.. image:: ./doc_images/equation2.png	      
 
 
 	      
