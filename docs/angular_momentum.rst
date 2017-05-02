@@ -49,10 +49,17 @@ Similarly, we want to map |inlineq2| onto the grid to compute
 
 	      
 .. code:: python
-	      
+	  
+   #interpolating ...
+   rho_interp = dda.disk_interpolate_primitive_quantities(snap,[grid.X,grid.Y],quantities=['RHO'])[0]
 
+   vx_interp = dda.disk_interpolate_primitive_quantities(snap,[grid.X,grid.Y],quantities=['VELX'])[0]
 
-   # And interpolate the quantities we need
+   vy_interp = dda.disk_interpolate_primitive_quantities(snap,[grid.X,grid.Y],quantities=['VELX'])[0]
+   
+
+Now, let us pay specially attention on how we carry out the mapping for higher-order primitive
+quantities such as the velocity gradients.
    
    
    grid = dda.grid_cartesian(Xmin=-80.0,Xmax=80.0,Ymin=-80.0,Ymax=80.0,NX=512,NY=512,mask= '(R < 1.0) | (R > 80.0)')
