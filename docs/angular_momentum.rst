@@ -75,10 +75,12 @@ quantities such as the velocity gradients.
    gradvy_interp = dda.disk_interpolate_gradient_quantities(snap,[grid.X,grid.Y],\
 	                                                   quantities=['GRVX'],method = 'nearest')[0]
 
-
+With this quantities re-mapped, we can use Equation(1) to compute the advective angular momentum
+transfer rate:
 
 .. code:: python
-
+	  
+   grid.X, grid.Y = grid.X + snap.header.boxsize * 0.5, grid.Y  +  snap.header.boxsize * 0.5
    # compute the advective angular momentum transfer rate
    jdot_adv = -2 * np.pi * rho_interp * (grid.X * grid.Y * (vy_interp**2 - vx_interp**2) +\
                                          vx_interp * vy_interp * (grid.X**2 - grid.Y**2))
