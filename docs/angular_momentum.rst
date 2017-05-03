@@ -210,6 +210,10 @@ evolution of the angular momentum balance and save it into a text file.
 
 .. code:: python
 
+   import numpy as np
+   import matplotlib.pyplot as plt
+   import disk_data_analysis.circumbinary as dda
+	  
    # open a file
    filename = 'jdot_balance.txt'
    f = open(filename,'w')
