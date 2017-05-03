@@ -25,7 +25,7 @@ polar grid
 	  
    # as in other cases, map onto a regular grid
    Rmin, Rmax = 1.0, 80.0
-   NR, Nphi = 200, 400
+   NR, Nphi = 400, 600
    grid = dda.grid_polar(NR = NR, Nphi = Nphi,Rmin=1.0,Rmax= 80.0,scale='log')
    grid.X, grid.Y = grid.X + snap.header.boxsize * 0.5, grid.Y  +  snap.header.boxsize * 0.5
 
@@ -166,14 +166,16 @@ Then the gravitational torque density and the integrated gravitational torque ar
    # now we integrate
    from scipy.integrate import cumtrapz, trapz
 
-   # First, the slow way
-   Tgrav_slow = [trapz(dTgravdR[gridR > R],x=gridR[gridR > R]) for R in gridR[gridR <= Rmax]]
+   Tgrav = [trapz(dTgravdR[gridR > R],x=gridR[gridR > R]) for R in gridR[gridR <= Rmax]]
 
-   # A slighly faster way
-   Tgrav_fast = cumtrapz(dTgravdR[gridR <= Rmax][::-1],x=-gridR[gridR <= Rmax][::-1],initial=(dTgravdR[gridR <= Rmax][-1])[::-1]
-   
-   plt.plot(gridR,Tgrav_slow)
-   plt.plot(gridR,Tgrav_fast)
+
+Now, we can combine the three sources of angular momentum transfer and plot them together
+
+.. code:: python
+
+   plt.plot(gridR[gridR <= Rmax],jdot_adv[gridR <= Rmax])
+   plt.plot(gridR[gridR <= Rmax],jdot_visc[gridR <= Rmax])
+   plt.plot(gridR[gridR <= Rmax],Tgrav)
    plt.show()
    
    
