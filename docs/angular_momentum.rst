@@ -80,7 +80,7 @@ transfer rate:
 
 .. code:: python
 	  
-   grid.X, grid.Y = grid.X + snap.header.boxsize * 0.5, grid.Y  +  snap.header.boxsize * 0.5
+   grid.X, grid.Y = grid.X - snap.header.boxsize * 0.5, grid.Y  -  snap.header.boxsize * 0.5
    # compute the advective angular momentum transfer rate
    jdot_adv = -2 * np.pi * rho_interp * (grid.X * grid.Y * (vy_interp**2 - vx_interp**2) +\
                                          vx_interp * vy_interp * (grid.X**2 - grid.Y**2))
@@ -90,6 +90,8 @@ transfer rate:
 
 To compute the viscous transfer rate, we need one more element: the kinematic viscosity coefficient
 *nu* as a function of radius on the grid.
+
+.. image:: ./doc_images/equation3.png
 
 .. code:: python
 
@@ -109,7 +111,17 @@ To compute the viscous transfer rate, we need one more element: the kinematic vi
 	        (2 * grid.X * grid.Y * (gradvy_interp[1] - gradvx_interp[0]) + \
 		 (grid.X**2 - grid.Y**2) * (gradvx_interp[1] + gradvy_interp[0]))).mean(axis=0)
 
-   
+
+It is useful to normalize the angular momentum flux in units of:
+
+.. image:: ./doc_images/equation4.png
+
+.. code:: python
+
+
+   mdot = -2 * np.pi * 
+	  
+		
    # and plot it
    plt.plot(grid.R.mean(axis=0),jdot_adv)
    plt.xlim(0,15)
