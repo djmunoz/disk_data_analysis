@@ -216,12 +216,13 @@ evolution of the angular momentum balance and save it into a text file.
 	  
    
    Rmin, Rmax = 1.0, 70.0
-   NR, Nphi = 400, 600
+   NR, Nphi = 500, 600
    grid = dda.grid_polar(NR = NR, Nphi = Nphi,Rmin=1.0,Rmax= 80.0,scale='log')
    grid.X, grid.Y = grid.X + snap.header.boxsize * 0.5, grid.Y  +  snap.header.boxsize * 0.5
 
    alpha,h0, GM = 0.1, 0.1, 1.0
    def nu(R): return (alpha * h0**2 * np.sqrt(GM) * R**(0.5))
+   
    nu_grid = nu(grid.R)
 
    # open a file
