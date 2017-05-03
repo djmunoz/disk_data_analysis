@@ -119,9 +119,10 @@ It is useful to normalize the angular momentum flux in units of:
 .. code:: python
 
 
-   mdot = -2 * np.pi * 
-	  
-		
+   mdot = -2 * np.pi * (rho_interp * (grid.X * vx_interp + grid.Y * vy_interp)).mean(axis=0) 
+   mdot0 = mdot[(grid.R.mean(axis = 0) < 68) & (grid.R.mean(axis = 0) > 30)]].mean()
+   jdotnorm = mdot0
+   
    # and plot it
    plt.plot(grid.R.mean(axis=0),jdot_adv)
    plt.xlim(0,15)
