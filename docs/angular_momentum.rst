@@ -119,8 +119,10 @@ It is useful to normalize the angular momentum flux in units of:
 .. code:: python
 
 
-   mdot = -2 * np.pi * (rho_interp * (grid.X * vx_interp + grid.Y * vy_interp)).mean(axis=0) 
-   mdot0 = mdot[(grid.R.mean(axis = 0) < 68) & (grid.R.mean(axis = 0) > 30)]].mean()
+   mdot = -2 * np.pi * (rho_interp * (grid.X * vx_interp + grid.Y * vy_interp)).mean(axis=0)
+   # if you do not know mdot0 from your simulation setup, it can be re-computed as 
+   mdot0 = mdot[(grid.R.mean(axis = 0) < 62) & (grid.R.mean(axis = 0) > 50)].mean()
+
    jdotnorm = mdot0
    
    # and plot it
@@ -130,8 +132,12 @@ It is useful to normalize the angular momentum flux in units of:
    plt.ylabel(r'$\dot{J}_{\rm adv}$')
    plt.show()
 					 
-	  
-   quantities=['VELX'],method = 'linear')[0]
+
+Of course, there is still one more term in the angular momentum balance equation, and that is
+the external gravitational torque:
+
+.. image:: ./doc_images/equation5.png
+
 
    vy_interp = dda.disk_interpolate_primitive_quantities(snap,[grid.X,grid.Y],\
 	                                                 quantities=['VELY'],method = 'linear')[0]
