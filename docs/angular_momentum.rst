@@ -167,12 +167,16 @@ Then the gravitational torque density and the integrated gravitational torque ar
    from scipy.integrate import cumtrapz, trapz
 
    # First, the slow way
-   Tgrav_slow = [trapz(dTgravdR[gridR > R],x=gridR[gridR > R]) for R in grid.R.mean(axis = 0)]
+   Tgrav_slow = [trapz(dTgravdR[gridR > R],x=gridR[gridR > R]) for R in gridR]
 
-   plt.plot(grid.R.mean(axis=0),Tgrav_slow)
+   # A slighly faster way
+   Tgrav_fast = cumtrapz(dTgravdR[::-1],x=-gridR[::-1],initial=0)
+   
+   plt.plot(gridR,Tgrav_slow)
+   plt.plot(gridR,Tgrav_fast)
    plt.show()
    
-   Tgrav = cumtrapz(dTgravdR[::-1],x=-grid.R.mean(axis=0)[::-1],initial=0)
+   
 
 
    
