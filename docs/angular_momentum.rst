@@ -128,7 +128,6 @@ It is useful to normalize the angular momentum flux in units of:
    # if you do not know mdot0 from your simulation setup, it can be re-computed as 
    mdot0 = mdot[(grid.R.mean(axis = 0) < 62) & (grid.R.mean(axis = 0) > 50)].mean()
 
-   jdotnorm = mdot0
    
    # and plot it
    plt.plot(grid.R.mean(axis=0),jdot_adv)
@@ -178,11 +177,10 @@ Now, we can combine the three sources of angular momentum transfer and plot them
 
 .. code:: python
 
-   plt.plot(gridR[gridR <= Rmax],jdot_adv[gridR <= Rmax]/jdotnorm)
-   plt.plot(gridR[gridR <= Rmax],jdot_visc[gridR <= Rmax]/jdotnorm)
-   plt.plot(gridR[gridR <= Rmax],Tgrav[gridR <= Rmax]/jdotnorm)
+   plt.plot(gridR[gridR <= Rmax],jdot_adv[gridR <= Rmax]/mdot0)
+   plt.plot(gridR[gridR <= Rmax],jdot_visc[gridR <= Rmax]/mdot0)
+   plt.plot(gridR[gridR <= Rmax],Tgrav[gridR <= Rmax]/mdot0)
    plt.xlim(0,10)
-   plt.xlim(-0.5,3.0)
    plt.xlabel(r'$R$',size=20)
    plt.ylabel(r'$\dot{J}/(\dot{M}_0 a_{\rm b}^2\Omega_{\rm b})$',size=20)
    plt.show()
@@ -222,7 +220,8 @@ evolution of the angular momentum balance and save it into a text file.
    grid.X, grid.Y = grid.X + snap.header.boxsize * 0.5, grid.Y  +  snap.header.boxsize * 0.5
 
    alpha,h0, GM = 0.1, 0.1, 1.0
-   def nu(R): return alpha * h0**2 * np.sqrt(GM) * R**(0.5)
+   def nu(R):
+	  return alpha * h0**2 * np.sqrt(GM) * R**(0.5)
    nu_grid = nu(grid.R)
    
    f.write("time\t type\t\t radii\n")
