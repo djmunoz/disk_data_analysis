@@ -136,9 +136,11 @@ It is useful to normalize the angular momentum flux in units of:
 Of course, there is still one more term in the angular momentum balance equation, and that is
 the external gravitational torque:
 
+
 .. image:: ./doc_images/equation5.png
 
 
+	   
    vy_interp = dda.disk_interpolate_primitive_quantities(snap,[grid.X,grid.Y],\
 	                                                 quantities=['VELY'],method = 'linear')[0]
    
