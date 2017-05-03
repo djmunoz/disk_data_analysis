@@ -214,9 +214,6 @@ evolution of the angular momentum balance and save it into a text file.
    import matplotlib.pyplot as plt
    import disk_data_analysis.circumbinary as dda
 	  
-   # open a file
-   filename = 'jdot_balance.txt'
-   f = open(filename,'w')
    
    Rmin, Rmax = 1.0, 70.0
    NR, Nphi = 400, 600
@@ -224,10 +221,13 @@ evolution of the angular momentum balance and save it into a text file.
    grid.X, grid.Y = grid.X + snap.header.boxsize * 0.5, grid.Y  +  snap.header.boxsize * 0.5
 
    alpha,h0, GM = 0.1, 0.1, 1.0
-   def nu(R):
-	  return alpha * h0**2 * np.sqrt(GM) * R**(0.5)
+   def nu(R): return (alpha * h0**2 * np.sqrt(GM) * R**(0.5))
    nu_grid = nu(grid.R)
-   
+
+   # open a file
+   filename = 'jdot_balance.txt'
+   f = open(filename,'w')
+
    f.write("time\t type\t\t radii\n")
    f.write("-\t-\t"+' '.join(grid.R.mean(axis = 0).astype('|S7'))+"\n")
    
