@@ -159,9 +159,13 @@ Then the gravitational torque density and the integrated gravitational torque ar
    dTgravdR = -2 * np.pi * (grid.R * rho_interp * (gradphi_interp[1] * grid.X -\
                                                    gradphi_interp[0] * grid.Y)).mean(axis = 0)
 
+   # Before integrating, make sure anomalous values are not taken into account
+   Rmax = 70
+   dTgravdR[grid.R.mean(axis = 0) > Rmax] = 0.0
+						   
    # now we integrate
    from scipy.integrate import cumtrapz
-   Tgrav = cumtrapz(dtgravdR[::-1],x=grid.R.mean(axis=0)[::-1],initial=0)
+   Tgrav = cumtrapz(dTgravdR[::-1],x=grid.R.mean(axis=0)[::-1],initial=0)[::-1]
 
 
    
