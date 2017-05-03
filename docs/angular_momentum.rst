@@ -173,9 +173,9 @@ Now, we can combine the three sources of angular momentum transfer and plot them
 
 .. code:: python
 
-   plt.plot(gridR[gridR <= Rmax],jdot_adv[gridR <= Rmax])
-   plt.plot(gridR[gridR <= Rmax],jdot_visc[gridR <= Rmax])
-   plt.plot(gridR[gridR <= Rmax],Tgrav)
+   plt.plot(gridR[gridR <= Rmax],jdot_adv[gridR <= Rmax]/jdotnorm)
+   plt.plot(gridR[gridR <= Rmax],jdot_visc[gridR <= Rmax]/jdotnorm)
+   plt.plot(gridR[gridR <= Rmax],Tgrav/jdotnorm)
    plt.show()
    
    
