@@ -140,7 +140,9 @@ the external gravitational torque:
 .. image:: ./doc_images/equation5.png
 
 
-	   
+.. code:: python
+
+	  
    vy_interp = dda.disk_interpolate_primitive_quantities(snap,[grid.X,grid.Y],\
 	                                                 quantities=['VELY'],method = 'linear')[0]
    
