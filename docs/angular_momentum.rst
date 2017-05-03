@@ -140,8 +140,31 @@ the external gravitational torque:
 .. image:: ./doc_images/equation5.png
 
 
+We can treat the gravitational acceleration as a gradient evaluated at the center of a cell:
+
+
 .. code:: python
 
+   snap.add_data(snap.gas.ACCE[:,0:2],'GRPHI')
+
+   # and interpolate using the 'nearest' method
+   gradphi_interp = dda.disk_interpolate_gradient_quantities(snap,[grid.X,grid.Y],\
+	                                                     quantities=['GRPHI'],method = 'nearest')[0]
+
+Then the gravitational torque density and the integrated gravitational torque are:
+   
+.. code:: python
+
+
+   dTgravdR = -2 * np.pi * (grid.R * rho_interp * (gradphi_interp[1] * grid.X -\
+                                                   gradphi_interp[0] * grid.Y)).mean(axis = 0)
+
+   # now we integrate
+   from scipy.integrate import cumtrapz
+   Tgrav = cumtrapz(dtgravdR[::-1],x=grid.R.mean(axis=0)[::-1],initial=0)
+
+
+   
 	  
    vy_interp = dda.disk_interpolate_primitive_quantities(snap,[grid.X,grid.Y],\
 	                                                 quantities=['VELY'],method = 'linear')[0]
