@@ -3,6 +3,7 @@ import numpy as np
 import sys
 from scipy.integrate import cumtrapz, trapz
 from disk_interpolate_primitive import *
+from disk_simulation_data import *
 
 def disk_compute_radial_balance(snapshot, griddata, nu_gridded, Rmin = None, Rmax = None):
 
