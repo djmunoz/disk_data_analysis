@@ -178,11 +178,13 @@ Now, we can combine the three sources of angular momentum transfer and plot them
    plt.plot(gridR[gridR <= Rmax],jdot_visc[gridR <= Rmax]/jdotnorm)
    plt.plot(gridR[gridR <= Rmax],Tgrav[gridR <= Rmax]/jdotnorm)
    plt.xlim(0,10)
+   plt.xlim(-0.5,3.0)
    plt.xlabel(r'$R$',size=20)
    plt.ylabel(r'$\dot{J}/(\dot{M}_0 a_{\rm b}^2\Omega_{\rm b})$',size=20)
    plt.show()
    
    
+.. image:: ./doc_images/angmom_fig.png
 
 
    
