@@ -230,4 +230,16 @@ evolution of the angular momentum balance and save it into a text file.
 	  snap = dda.get_snapshot_data('./data/snap_',0,['POS','VELX','VELY','RHO','ACCE'])
 	  mdot, jdot_adv, jdot_visc, tgrav = dda.disk_compute_radial_balance(snap,grid)
 
-	     
+	  f.write("%12.6f 0\t" % (snap.header.time))
+	  f.write(' '.join(mdot.astype('|S7').tolist())+"\n")
+
+	  f.write("%12.6f 1\t" % (snap.header.time))
+	  f.write(' '.join(jdot_adv.astype('|S7').tolist())+"\n")
+
+	  f.write("%12.6f 2\t" % (snap.header.time))
+	  f.write(' '.join(jdot_visc.astype('|S7').tolist())+"\n")
+
+	  f.write("%12.6f 3\t" % (snap.header.time))
+	  f.write(' '.join(tgrav.astype('|S7').tolist())+"\n")
+	  
+	  
