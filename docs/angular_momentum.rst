@@ -79,11 +79,12 @@ With this quantities re-mapped, we can use Equation(1) to compute the advective 
 transfer rate:
 
 .. code:: python
-	  
-   grid.X, grid.Y = grid.X - snap.header.boxsize * 0.5, grid.Y  -  snap.header.boxsize * 0.5
+
+   gridR = grid.R.mean(axis=0)
+   gridX, gridY = grid.X - snap.header.boxsize * 0.5, grid.Y  -  snap.header.boxsize * 0.5
    # compute the advective angular momentum transfer rate
-   jdot_adv = -2 * np.pi * rho_interp * (grid.X * grid.Y * (vy_interp**2 - vx_interp**2) +\
-                                         vx_interp * vy_interp * (grid.X**2 - grid.Y**2))
+   jdot_adv = -2 * np.pi * rho_interp * (gridX * gridY * (vy_interp**2 - vx_interp**2) +\
+                                         vx_interp * vy_interp * (gridX**2 - gridY**2))
 
    # average out the azimuthal axis
    jdot_adv = jdot_adv.mean(axis=0)
@@ -108,8 +109,8 @@ To compute the viscous transfer rate, we need one more element: the kinematic vi
    
    # Similarly, compute the viscous angular momentum transfer rate
    jdot_visc = (-2 * np.pi * nu_grid * rho_interp * \
-	        (2 * grid.X * grid.Y * (gradvy_interp[1] - gradvx_interp[0]) + \
-		 (grid.X**2 - grid.Y**2) * (gradvx_interp[1] + gradvy_interp[0]))).mean(axis=0)
+	        (2 * gridX * gridY * (gradvy_interp[1] - gradvx_interp[0]) + \
+		 (gridX**2 - gridY**2) * (gradvx_interp[1] + gradvy_interp[0]))).mean(axis=0)
 
 
 It is useful to normalize the angular momentum flux in units of:
@@ -119,7 +120,7 @@ It is useful to normalize the angular momentum flux in units of:
 .. code:: python
 
 
-   mdot = -2 * np.pi * (rho_interp * (grid.X * vx_interp + grid.Y * vy_interp)).mean(axis=0)
+   mdot = -2 * np.pi * (rho_interp * (gridX * vx_interp + gridY * vy_interp)).mean(axis=0)
    # if you do not know mdot0 from your simulation setup, it can be re-computed as 
    mdot0 = mdot[(grid.R.mean(axis = 0) < 62) & (grid.R.mean(axis = 0) > 50)].mean()
 
@@ -155,9 +156,9 @@ Then the gravitational torque density and the integrated gravitational torque ar
    
 .. code:: python
 
-   gridR = grid.R.mean(axis=0)
-   dTgravdR = -2 * np.pi * (grid.R * rho_interp * (gradphi_interp[1] * grid.X -\
-                                                   gradphi_interp[0] * grid.Y)).mean(axis = 0)
+
+   dTgravdR = -2 * np.pi * (gridR * rho_interp * (gradphi_interp[1] * gridX -\
+                                                   gradphi_interp[0] * gridY)).mean(axis = 0)
 
    # Before integrating, make sure anomalous values are not taken into account
    Rmax = 70
@@ -182,15 +183,3 @@ Now, we can combine the three sources of angular momentum transfer and plot them
 
 
    
-	  
-   vy_interp = dda.disk_interpolate_primitive_quantities(snap,[grid.X,grid.Y],\
-	                                                 quantities=['VELY'],method = 'linear')[0]
-   
-   
-   grid = dda.grid_cartesian(Xmin=-80.0,Xmax=80.0,Ymin=-80.0,Ymax=80.0,NX=512,NY=512,mask= '(R < 1.0) | (R > 80.0)')
-   grid.X, grid.Y =  grid.X + snap.header.boxsize * 0.5, grid.Y + snap.header.boxsize * 0.5
-   
-   gradvx = dda.compute_gradient_on_grid(snap.gas.POS[:,0], snap.gas.POS[:,1],\
-                                         snap.gas.VEL[:,0],grid)
-   
-   snap.add_snapshot_gradient('VEL','GRAV')
