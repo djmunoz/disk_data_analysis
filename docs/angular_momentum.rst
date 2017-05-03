@@ -13,7 +13,7 @@ Angular momentum balance for a single snapshot
    import matplotlib.pyplot as plt
    import disk_data_analysis.circumbinary as dda
 
-   snap = dda.get_snapshot_data('./data/snap_',0,['POS','VELX','VELY','RHO','ACCE','R'])
+   snap = dda.get_snapshot_data('./data/snap_',0,['POS','VELX','VELY','RHO','ACCE'])
 
    # if we do not have gradient data, we can compute it
    gradientvx = dda.compute_snapshot_gradient(snap,'VELX')
@@ -194,3 +194,40 @@ Now, we can combine the three sources of angular momentum transfer and plot them
    
 Angular momentum balance for a multiple snapshots
 -----
+
+The set of routines presented above are all summarized in the function
+:code:`disk_compute_radial_balance`, which computes the angular momentum
+transfer rate as well as the mass transfer rate as a function of radii for
+a single snapshot (a single point in time).
+
+.. code:: python
+
+   
+   mdot, jdot_adv, jdot_visc, tgrav = dda.disk_compute_radial_balance(snap,grid)
+
+
+For a series of simulation snapshots, one can use this function to compute the time
+evolution of the angular momentum balance and save it into a text file.
+
+
+.. code:: python
+
+   # open a file
+   filename = 'jdot_balance.txt'
+   f = open(filename,'w')
+   
+   Rmin, Rmax = 1.0, 80.0
+   NR, Nphi = 400, 600
+   grid = dda.grid_polar(NR = NR, Nphi = Nphi,Rmin=1.0,Rmax= 80.0,scale='log')
+   grid.X, grid.Y = grid.X + snap.header.boxsize * 0.5, grid.Y  +  snap.header.boxsize * 0.5
+
+   f.write("time\t type\t\t radii\n")
+   f.write("\t\t\t\t\t"+".join(grid.R.mean(axis = 0)\n") 
+   
+   snapmin,snapmax = 0, 100
+   for snapnum in range(snapmin,snapmax):
+
+	  snap = dda.get_snapshot_data('./data/snap_',0,['POS','VELX','VELY','RHO','ACCE'])
+	  mdot, jdot_adv, jdot_visc, tgrav = dda.disk_compute_radial_balance(snap,grid)
+
+	     
