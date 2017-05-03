@@ -155,19 +155,19 @@ Then the gravitational torque density and the integrated gravitational torque ar
    
 .. code:: python
 
-
+   gridR = grid.R.mean(axis=0)
    dTgravdR = -2 * np.pi * (grid.R * rho_interp * (gradphi_interp[1] * grid.X -\
                                                    gradphi_interp[0] * grid.Y)).mean(axis = 0)
 
    # Before integrating, make sure anomalous values are not taken into account
    Rmax = 70
-   dTgravdR[grid.R.mean(axis = 0) > Rmax] = 0.0
+   dTgravdR[gridR > Rmax] = 0.0
 						   
    # now we integrate
-   from scipy.integrate import cumtrapz, quad
+   from scipy.integrate import cumtrapz, trapz
 
    # First, the slow way
-   Tgrav_slow = [quad(dTgravdR,R,Rmax) for i in grid.R.mean(axis = 0)]
+   Tgrav_slow = [trapz(dTgravdR[gridR > R],x=gridR[gridR > R]) for R in grid.R.mean(axis = 0)]
 
    plt.plot(grid.R.mean(axis=0),Tgrav_slow)
    plt.show()
