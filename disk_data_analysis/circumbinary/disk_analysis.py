@@ -1,7 +1,7 @@
 from disk_hdf5 import readsnapHDF5 as rs
 import numpy as np
 import sys
-
+from scipy.integrate import cumtrapz, trapz
 
 
 def disk_compute_radial_balance(snapshot, griddata, nu_gridded, Rmin = None, Rmax = None):
