@@ -49,8 +49,8 @@ def disk_compute_radial_balance(snapshot, griddata, nu_gridded, Rmin = None, Rma
     mdot = -2 * np.pi * (rho_interp * (gridX * vx_interp + gridY * vy_interp)).mean(axis=0)
 
     # Angular momentum transfer rate
-    jdot_adv = -2 * np.pi * rho_interp * (gridX * gridY * (vy_interp**2 - vx_interp**2) +\
-                                          vx_interp * vy_interp * (gridX**2 - gridY**2))
+    jdot_adv = -2 * np.pi * (rho_interp * (gridX * gridY * (vy_interp**2 - vx_interp**2) +\
+                                          vx_interp * vy_interp * (gridX**2 - gridY**2))).mean(axis=0)
     
     jdot_visc = (-2 * np.pi * nu_gridded * rho_interp * \
                  (2 * gridX * gridY * (gradvy_interp[1] - gradvx_interp[0]) + \

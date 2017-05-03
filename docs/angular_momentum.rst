@@ -203,7 +203,7 @@ a single snapshot (a single point in time).
 .. code:: python
 
    
-   mdot, jdot_adv, jdot_visc, tgrav = dda.disk_compute_radial_balance(snap,grid,nu_grid,Rmax=70)
+   mdot, jdot_adv, jdot_visc, torque_grav = dda.disk_compute_radial_balance(snap,grid,nu_grid,Rmax=70)
 
 
 For a series of simulation snapshots, one can use this function to compute the time
@@ -216,11 +216,15 @@ evolution of the angular momentum balance and save it into a text file.
    filename = 'jdot_balance.txt'
    f = open(filename,'w')
    
-   Rmin, Rmax = 1.0, 80.0
+   Rmin, Rmax = 1.0, 70.0
    NR, Nphi = 400, 600
    grid = dda.grid_polar(NR = NR, Nphi = Nphi,Rmin=1.0,Rmax= 80.0,scale='log')
    grid.X, grid.Y = grid.X + snap.header.boxsize * 0.5, grid.Y  +  snap.header.boxsize * 0.5
 
+   alpha,h0, GM = 0.1, 0.1, 1.0
+   def nu(R): return alpha * h0**2 * np.sqrt(GM) * R**(0.5)
+   nu_grid = nu(grid.R)
+   
    f.write("time\t type\t\t radii\n")
    f.write("-\t-\t"+' '.join(grid.R.mean(axis = 0).astype('|S7'))+"\n")
    
@@ -228,7 +232,7 @@ evolution of the angular momentum balance and save it into a text file.
    for snapnum in range(snapmin,snapmax):
 
 	  snap = dda.get_snapshot_data('./data/snap_',0,['POS','VELX','VELY','RHO','ACCE'])
-	  mdot, jdot_adv, jdot_visc, tgrav = dda.disk_compute_radial_balance(snap,grid,nu_grid,Rmax=70)
+	  mdot, jdot_adv, jdot_visc, torque_grav = dda.disk_compute_radial_balance(snap,grid,nu_grid,Rmax=70)
 
 	  f.write("%12.6f 0\t" % (snap.header.time))
 	  f.write(' '.join(mdot.astype('|S7').tolist())+"\n")
