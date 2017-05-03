@@ -1,6 +1,10 @@
 Computing angular momentum balance
 ======
+.. sectnum::
 
+   
+Angular momentum balance for a single snapshot
+-----
 
 
 .. code:: python
@@ -188,3 +192,5 @@ Now, we can combine the three sources of angular momentum transfer and plot them
 
 
    
+Angular momentum balance for a multiple snapshots
+-----
