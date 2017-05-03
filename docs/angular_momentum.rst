@@ -222,7 +222,7 @@ evolution of the angular momentum balance and save it into a text file.
    grid.X, grid.Y = grid.X + snap.header.boxsize * 0.5, grid.Y  +  snap.header.boxsize * 0.5
 
    f.write("time\t type\t\t radii\n")
-   f.write("\t\t\t\t\t"+''.join(grid.R.mean(axis = 0))+"\n") 
+   f.write("\t\t\t\t\t"+''.join(str(grid.R.mean(axis = 0).astype('S7')))+"\n")
    
    snapmin,snapmax = 0, 100
    for snapnum in range(snapmin,snapmax):
