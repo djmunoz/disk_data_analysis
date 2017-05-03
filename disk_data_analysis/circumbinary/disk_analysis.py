@@ -11,8 +11,8 @@ def disk_compute_radial_balance(snapshot, griddata, nu_gridded, Rmin = None, Rma
     if (Rmax is None): Rmax  = griddata.R.max()
     
     # Make sure we have all the necessary gradient information
-    gradientvx = compute_snapshot_gradient(snap,'VELX')
-    gradientvy = compute_snapshot_gradient(snap,'VELY')
+    gradientvx = compute_snapshot_gradient(snapshot,'VELX')
+    gradientvy = compute_snapshot_gradient(snapshot,'VELY')
 
     # Add the gradients
     snapshot.add_data(gradientvx,'GRVX')
@@ -21,23 +21,23 @@ def disk_compute_radial_balance(snapshot, griddata, nu_gridded, Rmin = None, Rma
 
 
     #interpolate primitive quantities
-    rho_interp = disk_interpolate_primitive_quantities(snap,[griddata.X,griddata.Y],\
+    rho_interp = disk_interpolate_primitive_quantities(snapshot,[griddata.X,griddata.Y],\
                                                            quantities=['RHO'],method = 'linear')[0]
     
-    vx_interp = disk_interpolate_primitive_quantities(snap,[griddata.X,griddata.Y],\
+    vx_interp = disk_interpolate_primitive_quantities(snapshot,[griddata.X,griddata.Y],\
                                                           quantities=['VELX'],method = 'linear')[0]
     
-    vy_interp = disk_interpolate_primitive_quantities(snap,[griddata.X,griddata.Y],\
+    vy_interp = disk_interpolate_primitive_quantities(snapshot,[griddata.X,griddata.Y],\
                                                           quantities=['VELY'],method = 'linear')[0]
 
     # interpolate derivatives
-    gradvx_interp = disk_interpolate_gradient_quantities(snap,[griddata.X,griddata.Y],\
+    gradvx_interp = disk_interpolate_gradient_quantities(snapshot,[griddata.X,griddata.Y],\
                                                         quantities=['GRVX'],method = 'nearest')[0]
 
-    gradvy_interp = disk_interpolate_gradient_quantities(snap,[griddata.X,griddata.Y],\
+    gradvy_interp = disk_interpolate_gradient_quantities(snapshot,[griddata.X,griddata.Y],\
                                                              quantities=['GRVX'],method = 'nearest')[0]
     
-    gradphi_interp = disk_interpolate_gradient_quantities(snap,[griddata.X,griddata.Y],\
+    gradphi_interp = disk_interpolate_gradient_quantities(snapshot,[griddata.X,griddata.Y],\
                                                           quantities=['GRPHI'],method = 'nearest')[0]
 
 
