@@ -7,11 +7,11 @@ Angular momentum balance for a single snapshot
 -----
 
 hello
-.....
+~~~~~
 
 
 bye
-~~~~~
+....
 
 .. code:: python
 
