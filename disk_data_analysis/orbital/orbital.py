@@ -1,5 +1,4 @@
-from numpy as import sqrt, cos, sin, tan, arccos, arctan2, pi, cosh, sinh, arctanh,\
-    abs, sign, e
+from numpy import sqrt, cos, sin, tan, arccos, arctan2, pi, cosh, sinh, arctanh, abs, sign, e
 import matplotlib.pyplot as plt
 import numpy.random as rd
 
@@ -268,7 +267,7 @@ def orbit_in_time(time,eccentricity):
 
     ecc_anom = keplerEquation(time,eccentricity)
     x = cos(ecc_anom) - eccentricity
-    y = sqrt(1 - eccentricty * eccentricity) * sin(ecc_anom))
+    y = sqrt(1 - eccentricty * eccentricity) * sin(ecc_anom)
     vx = -sin(ecc_anom) / (1 - eccentricity * cos(ecc_anom))
     vy = sqrt(1 - eccentricity * eccentricity) * cos(ecc_anom) / \
          (1 - eccentricity * cos(ecc_anom))
