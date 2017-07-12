@@ -195,3 +195,36 @@ def compute_snapshot_gradient(snapshot,fieldname = None, fielddata = None):
     # Return limited gradients
 
     return np.array([gradientx*limiter, gradienty * limiter]).T
+
+def compute_external_gravforce(snapshot, XYZ = [0.0,0.0,0.0], softening=0.0):
+
+    
+    # Read-in mesh-generating points
+    x,y,z = snapshot.gas.POS[:,0], snapshot.gas.POS[:,1], snapshot.gas.POS[:,1]
+
+    dx = x - XYZ[0]
+    dy = y - XYZ[1]
+    dz = z - XYZ[0]
+    dR = np.sqrt(dx * dx + dy * dy + dz * dz)
+    
+    def softenedDistance(R,h):
+        r2 = R * R
+        fac = 0.0
+        h_inv = 1.0 / h
+        h3_inv = h_inv * h_inv * h_inv
+        u = R * h_inv
+        
+        fac = 1.0 / (r2 * R)
+        ind = u < 0.5
+        fac[ind] = h3_inv * (10.666666666667 + u[ind] * u[ind] * (32.0 * u[ind] - 38.4))
+        ind = (u >= 0.5) & (u < 1)
+        fac[ind] = h3_inv * (21.333333333333 - 48.0 * u[ind] + 38.4 * u[ind] * u[ind] - 10.666666666667 * u[ind] * u[ind] * u[ind] - 0.066666666667 / \
+                  (u[ind] * u[ind] * u[ind]))
+        
+        return fac
+
+    oneoverR3 =  softenedDistance(dR,softening)
+
+    force = np.asarray([dx, dy, dz]).T *  oneoverR3
+
+    return force
