@@ -1,3 +1,4 @@
+======
 Computing maps of the torque distribution/density
 ======
 .. sectnum::
