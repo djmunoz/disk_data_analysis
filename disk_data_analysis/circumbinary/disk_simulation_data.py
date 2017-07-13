@@ -200,16 +200,16 @@ def compute_external_gravforce(snapshot, XYZ = [0.0,0.0,0.0], softening=0.0):
 
     
     # Read-in mesh-generating points
-    x,y,z = snapshot.gas.POS[:,0], snapshot.gas.POS[:,1], snapshot.gas.POS[:,1]
+    x,y,z = snapshot.gas.POS[:,0], snapshot.gas.POS[:,1], snapshot.gas.POS[:,2]
 
     dx = x - XYZ[0]
     dy = y - XYZ[1]
-    dz = z - XYZ[0]
+    dz = z - XYZ[2]
     dR = np.sqrt(dx * dx + dy * dy + dz * dz)
     
     def softenedDistance(R,h):
         r2 = R * R
-        fac = 0.0
+        fac = R * 0
         h_inv = 1.0 / h
         h3_inv = h_inv * h_inv * h_inv
         u = R * h_inv
@@ -225,6 +225,6 @@ def compute_external_gravforce(snapshot, XYZ = [0.0,0.0,0.0], softening=0.0):
 
     oneoverR3 =  softenedDistance(dR,softening)
 
-    force = np.asarray([dx, dy, dz]).T *  oneoverR3
+    force = -np.asarray([dx, dy, dz]).T *  oneoverR3[:,None]
 
     return force

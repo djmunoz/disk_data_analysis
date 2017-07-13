@@ -43,3 +43,7 @@ In order to compute the accelerations due to two objects orbiting each other in 
    eb = 0.0
    x, y, _, _ = orbit_in_time(time + np.pi, eb)
    accel = dda.compute_external_gravforce(snap,XYZ=[0]
+
+
+
+.. image:: ./doc_images/accretion_regions.png
