@@ -49,9 +49,11 @@ In order to compute the accelerations due to two objects orbiting each other in 
 .. image:: ./doc_images/accretion_regions.png
 
 
-
-Recap: Intensity Images
+Separation of torques in intensity maps
 ....
+	   
+Recap: intensity images
+''''
 
 Recall that we can visualize previously-generated image data.
 
@@ -71,3 +73,7 @@ Recall that we can visualize previously-generated image data.
 
 
 .. image:: ./doc_images/density_field.png
+
+
+Three color maps in one figure
+''''
