@@ -47,3 +47,27 @@ In order to compute the accelerations due to two objects orbiting each other in 
 
 
 .. image:: ./doc_images/accretion_regions.png
+
+
+
+Recap: Intensity Images
+....
+
+Recall that we can visualize previously-generated image data.
+
+
+.. code:: python
+
+   import matplotlib.pyplot as plt
+   from disk_data_analysis.plotting import plot_slice, ImageData
+
+   image = ImageData('../data/density_field_000')
+   fig = plt.figure(figsize = (6.0,6.0))
+   ax = fig.add_subplot(111)
+   ax = plot_slice(ax,image)
+   ax.set_xlabel(r'$x$',size=18)
+   ax.set_ylabel(r'$y$',size=18)
+   ax.set_aspect('equal')
+
+
+.. image:: ./doc_images/density_field.png
