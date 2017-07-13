@@ -133,4 +133,4 @@ pixel coordinates
    plt.show()
 
 
-.. image:: ./doc_images/density_field_color_maps.png
+.. image:: ./doc_images/density_field_colormaps.png
