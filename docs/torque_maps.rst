@@ -83,39 +83,54 @@ pixel coordinates
 
 .. code:: python
 
+
    pixelxcoord, pixelycoord = np.meshgrid(np.arange(image.pixelx)*1.0/image.pixelx,\
-                                          np.arange(image.pixely)*1.0/image.pixely)
+	                                  np.arange(image.pixely)*1.0/image.pixely)
 
    Lx, Ly = extent[1] - extent[0], extent[3] - extent[2]
-   pixelxcoord, pixelycoord = (pixelxcoord - 0.5) * Lx + 0.5 * snap.header.boxsize,\
-                              (pixelycoord - 0.5) * Ly + 0.5 * snap.header.boxsize
-
-   
+   pixelxcoord, pixelycoord = (pixelxcoord.T - 0.5) * Lx + 0.5 * snap.header.boxsize,\
+                               (pixelycoord.T - 0.5) * Ly + 0.5 * snap.header.boxsize
+    
+    
    dxpixel1, dypixel1 = pixelxcoord - pos1[0], pixelycoord - pos1[1]
    dxpixel2, dypixel2 = pixelxcoord - pos2[0], pixelycoord - pos2[1]
    dxpixel, dypixel = pixelxcoord - 0.5 * snap.header.boxsize, pixelycoord - 0.5 * snap.header.boxsize
-
+   
    drpixel1 = np.sqrt(dxpixel1**2 + dypixel1**2)
    drpixel2 = np.sqrt(dxpixel2**2 + dypixel2**2)
    drpixel = np.sqrt(dxpixel**2 + dypixel**2)
    
    #we do the same region separation as before
    csd_region = (drpixel1 < csd_trunc) | (drpixel2 < csd_trunc)
-   cbd_region = (drpixel1 > cbd_trunc) & (drpixel2 > cbd_trunc)
-   str_region = ((drpixel1 <= cbd_trunc) | (drpixel2 <= cbd_trunc)) &\
-	        ((drpixel1 >= csd_trunc) & (drpixel2 >= csd_trunc))
+   cbd_region = drpixel > cbd_trunc
+   str_region = ((drpixel <= cbd_trunc) ) &\
+   ((drpixel1 >= csd_trunc) & (drpixel2 >= csd_trunc))
    
-   image_csd = image
-   image_cbd = image
-   image_str = image
-
+   image_csd = ImageData()
+   image_cbd = ImageData()
+   image_str = ImageData()
+   
+   image_csd.read('../data/density_field_000')
+   image_cbd.read('../data/density_field_000')
+   image_str.read('../data/density_field_000')
+   
+   image_cbd.data[np.invert(cbd_region)] = np.nan    
    image_csd.data[np.invert(csd_region)] = np.nan
-   image_cbd.data[np.invert(cbd_region)] = np.nan
    image_str.data[np.invert(str_region)] = np.nan
-
+   
    fig = plt.figure()
    ax = fig.add_subplot(111)
-   ax = plot_slice(ax,image_csd,normalize=6.0e-4,vmin=minval,vmax=maxval,extent=extent)
+   ax = plot_slice(ax,image_cbd,normalize=6.0e-4,vmin=minval,vmax=maxval,extent=extent,
+   cmap=cm.get_cmap('Blues'))
+   ax = plot_slice(ax,image_csd,normalize=6.0e-4,vmin=minval,vmax=maxval,extent=extent,
+   cmap=cm.get_cmap('Purples'))
+   ax = plot_slice(ax,image_str,normalize=6.0e-4,vmin=minval,vmax=maxval,extent=extent,
+   cmap=cm.get_cmap('Reds'))
    ax.set_xlabel(r'$x$',size=18)
    ax.set_ylabel(r'$y$',size=18)
    ax.set_aspect('equal')
+   
+   plt.show()
+
+
+.. image:: ./doc_images/density_field_color_maps.png
