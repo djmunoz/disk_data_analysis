@@ -77,3 +77,45 @@ Recall that we can visualize previously-generated image data.
 
 Three color maps in one figure
 ''''
+
+To do this, we need to do the spatial separation as above but not in cell-center coordinates, but in
+pixel coordinates
+
+.. code:: python
+
+   pixelxcoord, pixelycoord = np.meshgrid(np.arange(image.pixelx)*1.0/image.pixelx,\
+                                          np.arange(image.pixely)*1.0/image.pixely)
+
+   Lx, Ly = extent[1] - extent[0], extent[3] - extent[2]
+   pixelxcoord, pixelycoord = (pixelxcoord - 0.5) * Lx + 0.5 * snap.header.boxsize,\
+                              (pixelycoord - 0.5) * Ly + 0.5 * snap.header.boxsize
+
+   
+   dxpixel1, dypixel1 = pixelxcoord - pos1[0], pixelycoord - pos1[1]
+   dxpixel2, dypixel2 = pixelxcoord - pos2[0], pixelycoord - pos2[1]
+   dxpixel, dypixel = pixelxcoord - 0.5 * snap.header.boxsize, pixelycoord - 0.5 * snap.header.boxsize
+
+   drpixel1 = np.sqrt(dxpixel1**2 + dypixel1**2)
+   drpixel2 = np.sqrt(dxpixel2**2 + dypixel2**2)
+   drpixel = np.sqrt(dxpixel**2 + dypixel**2)
+   
+   #we do the same region separation as before
+   csd_region = (drpixel1 < csd_trunc) | (drpixel2 < csd_trunc)
+   cbd_region = (drpixel1 > cbd_trunc) & (drpixel2 > cbd_trunc)
+   str_region = ((drpixel1 <= cbd_trunc) | (drpixel2 <= cbd_trunc)) &\
+	        ((drpixel1 >= csd_trunc) & (drpixel2 >= csd_trunc))
+   
+   image_csd = image
+   image_cbd = image
+   image_str = image
+
+   image_csd.data[np.invert(csd_region)] = np.nan
+   image_cbd.data[np.invert(cbd_region)] = np.nan
+   image_str.data[np.invert(str_region)] = np.nan
+
+   fig = plt.figure()
+   ax = fig.add_subplot(111)
+   ax = plot_slice(ax,image_csd,normalize=6.0e-4,vmin=minval,vmax=maxval,extent=extent)
+   ax.set_xlabel(r'$x$',size=18)
+   ax.set_ylabel(r'$y$',size=18)
+   ax.set_aspect('equal')
