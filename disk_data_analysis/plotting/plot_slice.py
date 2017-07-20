@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
 from my_colortable import my_colortable
+import matplotlib.colors as colors
 
 s, gamma, hue, r  = 0.45, 0.8, 1.1, -1.46
 mycmap,nlow,nhigh = my_colortable(start=s,rots=r,hue=hue,gamma=gamma)
@@ -42,7 +43,7 @@ class ImageData():
         return
 
         
-def plot_slice(ax,image,vmin=None,vmax=None, scale='log',normalize=1.0,
+def plot_slice(ax,image,vmin=None,vmax=None,absvmin=None,scale='linear',normalize=1.0,
                cmap = mycmap,extent=None):
 
     imagedata = image.data/normalize
@@ -55,13 +56,21 @@ def plot_slice(ax,image,vmin=None,vmax=None, scale='log',normalize=1.0,
 
 
     if (scale == 'log'):
-        imagedata = np.log10(imagedata)
-        vmax = np.log10(vmax)
-        vmin = np.log10(vmin)
-
+        normalization = colors.LogNorm(vmin=vmin, vmax=vmax)
+        #imagedata = np.log10(imagedata)
+        #vmax = np.log10(vmax)
+        #vmin = np.log10(vmin)
+    elif (scale == 'semilog'):
+        if (absvmin is None):
+            absvmin = np.abs(imagedata).min()
+        normalization = colors.SymLogNorm(linthresh=absvmin, linscale=1.0,
+                                          vmin=-vmax, vmax=vmax)        
+    else:
+        normalization = None
         
     im=ax.imshow(imagedata.T,vmin=vmin, vmax=vmax,
 		 origin='lower',
+                 norm = normalization,
 		 interpolation='nearest',
 		 extent=extent, cmap=cmap)
     cmap.set_under(color='k')
@@ -69,5 +78,5 @@ def plot_slice(ax,image,vmin=None,vmax=None, scale='log',normalize=1.0,
     
 
 
-    return ax
+    return ax,im
     
