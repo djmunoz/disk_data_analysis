@@ -82,16 +82,16 @@ class snapshot():
         
         if (self.parttype == 0):
             self.gas = gas_data(**kwargs)
-        if (self.parttype == 1):
+        if (self.parttype > 1) & (self.parttype <= 5):
             self.particle = particle_data(**kwargs)
         
     def add_data(self,data,fieldname,parttype=0):
         if (parttype == 0):
             self.gas.add_gas_data(data,fieldname)
-        if (parttype == 1):
+        if (parttype > 1) & (parttype <= 5):
             self.gas.add_particle_data(data,fieldname)
             
-def get_snapshot_data(filename_prefix,snap_num,quantities,parttype= 0 ,code="AREPO"):
+def get_snapshot_data(filename_prefix,snap_num,quantities,parttype= None ,code="AREPO"):
 
     nquant=len(quantities)
     outquant = []
@@ -196,15 +196,21 @@ def compute_snapshot_gradient(snapshot,fieldname = None, fielddata = None):
 
     return np.array([gradientx*limiter, gradienty * limiter]).T
 
-def compute_external_gravforce(snapshot, XYZ = [0.0,0.0,0.0], softening=0.0):
+def compute_external_gravforce_from_snapshot(snapshot, XYZ = [0.0,0.0,0.0], softening=0.0):
 
-    
     # Read-in mesh-generating points
     x,y,z = snapshot.gas.POS[:,0], snapshot.gas.POS[:,1], snapshot.gas.POS[:,2]
 
-    dx = x - XYZ[0]
-    dy = y - XYZ[1]
-    dz = z - XYZ[2]
+    forces = compute_external_gravforce(np.asarray([x,y,z]).T, source = XYZ, softening = softening)
+
+    return forces 
+    
+    
+def compute_external_gravforce(positions, source = [0.0,0.0,0.0], softening=0.0):
+
+    dx = positions[:,0] - source[0]
+    dy = positions[:,1] - source[1]
+    dz = positions[:,2] - source[2]
     dR = np.sqrt(dx * dx + dy * dy + dz * dz)
     
     def softenedDistance(R,h):

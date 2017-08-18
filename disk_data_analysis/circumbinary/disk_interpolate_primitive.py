@@ -79,7 +79,6 @@ def disk_interpolate_gradient_quantities(snapshot, gridXY, quantities = None, me
     interp_gradquant = []
     for quant in quantities:
         gradquant = getattr(snapshot.gas,quant)
-        print gradquant
         interp_gradquant.append(np.array([interpolate_quantities(x,y, [gridXY[0],gridXY[1]], gradquant[:,0], method = method),
                                       interpolate_quantities(x,y, [gridXY[0],gridXY[1]], gradquant[:,1], method = method)]))
 
