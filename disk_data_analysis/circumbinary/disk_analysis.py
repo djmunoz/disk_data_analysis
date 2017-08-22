@@ -63,5 +63,8 @@ def disk_compute_radial_balance(snapshot, griddata, nu_gridded, Rmin = None, Rma
 
     Tgrav = np.asarray([trapz(dTgravdR[gridR > R],x=gridR[gridR > R]) for R in gridR[gridR <= Rmax]])
 
-
+    mdot = mdot[gridR <= Rmax]
+    jdot_adv = jdot_adv[gridR <= Rmax]
+    jdot_visc = jdot_visc[gridR <= Rmax]
+    
     return mdot, jdot_adv, jdot_visc, Tgrav
