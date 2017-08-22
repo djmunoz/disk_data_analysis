@@ -61,7 +61,7 @@ def disk_compute_radial_balance(snapshot, griddata, nu_gridded, Rmin = None, Rma
                                                     gradphi_interp[0] * gridY)).mean(axis = 0)
     dTgravdR[(gridR > Rmax) | (gridR < Rmin)] = 0.0
 
-    Tgrav = np.asarray([trapz(dTgravdR[gridR > R],x=gridR[gridR > R]) for R in gridR])
+    Tgrav = np.asarray([trapz(dTgravdR[gridR > R],x=gridR[gridR > R]) for R in gridR[gridR <= Rmax]])
 
 
     return mdot, jdot_adv, jdot_visc, Tgrav
