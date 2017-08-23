@@ -141,8 +141,8 @@ def angular_momentum_gravity(snapshot,grid):
 
     
     # Compute the cell-centered quantities
-    jdot_per_cell = -snapshot.gas.RHO * ((snapshot.gas.POS[:,0] - X0) * snapshot.gas.ACCE[:,1] - \
-                                         (snapshot.gas.POS[:,1] - Y0) * snapshot.gas.ACCE[:,0])
+    jdot_per_cell = -snapshot.gas.RHO * ((snapshot.gas.POS[:,0] - X0) * (-snapshot.gas.ACCE[:,1]) - \
+                                         (snapshot.gas.POS[:,1] - Y0) * (-snapshot.gas.ACCE[:,0]))
     snapshot.add_data(jdot_per_cell,'TORQUEDENS')
     # interpolate onto the grid
     jdot_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
