@@ -26,6 +26,8 @@ def compute_angular_momentum_transfer(snapshot, Rmin, Rmax, NR = None, Nphi = No
 
     # Create a polar grid
     grid = grid_polar(NR = NR, Nphi = Nphi, Rmin= Rmin,Rmax = Rmax,scale='log')
+
+    mdot = mass_advection(snapshot,grid)
     
     torque_adv = angular_momentum_advection(snapshot,grid)
 
@@ -33,9 +35,32 @@ def compute_angular_momentum_transfer(snapshot, Rmin, Rmax, NR = None, Nphi = No
 
     torque_grav = angular_momentum_gravity(snapshot,grid)
     
-    return grid.R.mean(axis=0), torque_adv,torque_visc,torque_grav
+    return grid.R.mean(axis=0),mdot, torque_adv,torque_visc,torque_grav
 
 
+def mass_advection(snapshot,grid):
+    '''
+    Compute the mass flux due to advection
+    '''
+
+    X0, Y0 = 0.5 * snapshot.header.boxsize, 0.5 * snapshot.header.boxsize
+    gridX, gridY = grid.X + X0, grid.Y + Y0
+
+
+    # Compute the cell-centered quantities
+    mdot_per_cell = -snapshot.gas.RHO * ((snapshot.gas.POS[:,0] - X0) * snapshot.gas.VELX + \
+                                         (snapshot.gas.POS[:,1] - Y0) * snapshot.gas.VELY) / snapshot.gas.R
+      
+    snapshot.add_data(mdot_per_cell,'MASSFLUX')
+    # interpolate onto the grid
+    mdot_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
+                                                        quantities=['MASSFLUX'],method = 'nearest')[0]
+
+    # Take the azimuthal integral to get the profile
+
+    mdot = (mdot_interp * grid.R).mean(axis=0) * 2 * np.pi
+    
+    return mdot
 
 def angular_momentum_advection(snapshot,grid):
     '''
