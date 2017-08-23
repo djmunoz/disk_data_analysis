@@ -20,7 +20,7 @@ def compute_angular_momentum_transfer(snapshot, Rmin, Rmax, NR = None, Nphi = No
     
 
     if (NR is None):
-        NR = 1024
+        NR = 512
     if (Nphi is None):
         Nphi = int(2 * np.pi / (10**((np.log10(Rmax) - np.log10(Rmin))/NR) - 1))
 
