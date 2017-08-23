@@ -76,7 +76,7 @@ def angular_momentum_advection(snapshot,grid):
                                          (snapshot.gas.VELY**2 - snapshot.gas.VELX**2) + \
                                          snapshot.gas.VELX * snapshot.gas.VELY * \
                                          ((snapshot.gas.POS[:,0] - X0)**2 - (snapshot.gas.POS[:,1] - Y0)**2)) / \
-                                         snap.gas.R
+                                         snapshot.gas.R
     snapshot.add_data(jdot_per_cell,'TORQUEDENS')
     # interpolate onto the grid
     jdot_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
