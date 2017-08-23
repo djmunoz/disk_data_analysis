@@ -1,5 +1,7 @@
 import numpy as np
 from scipy.integrate import cumtrapz
+from disk_interpolate_primitive import *
+from disk_simulation_data import *
 
 """
 Set of routines to compute angular momentum transfer rates as defined
@@ -7,15 +9,7 @@ in Miranda, Munoz & Lai (2017).
 
 """
 
-def compute_angular_momentum_transfer(snapnum):
-
-    snap = dda.get_snapshot_data('./data/snap_',snapnum,['POS','VEL','RHO'])
-    snap.add_snapshot_data('VEL')
-    
-    torque_adv,torque_visc,torque_grav = angular_momentum_transfer(snap,grid)
-
-
-def angular_momentum_transfer(snapshot,grid):
+def compute_angular_momentum_transfer(snapshot, Rmin, Rmax, NR = None, Nphi = None, alpha=0.1, h0=0.1):
     """
     Compute the angular momentum transfer as a function of
     radius from a simulation snapshot and a prescribed grid
@@ -24,31 +18,118 @@ def angular_momentum_transfer(snapshot,grid):
 
     """
     
-    NR, Nphi = grid.NR, grid.Nphi
-    X, Y = grid.X, grid.Y
-    radii = grid.R
 
-    # Compute the re-gridded quantities first
-    rho_interp,velx_interp,vely_interp  = dda.disk_interpolate_primitive_quantities(snapshot,[X,Y],quantities=['RHO','VELX','VELY'])
+    if (NR is None):
+        NR = 1024
+    if (Nphi is None):
+        Nphi = int(2 * np.pi / (10**((np.log10(Rmax) - np.log10(Rmin))/NR) - 1))
 
-    # Make sure we have the velocity gradients
-    gradvx,gradvy =  dda.disk_compute_derivative_quantities(snapshot,[X,Y],quantities=['VELX','VELY'])
+    # Create a polar grid
+    grid = grid_polar(NR = NR, Nphi = Nphi, Rmin= Rmin,Rmax = Rmax,scale='log')
+    
+    torque_adv = angular_momentum_advection(snapshot,grid)
 
-    # And also make sure we have the gravitational acceleration
+    torque_visc = angular_momentum_viscosity(snapshot,grid, alpha = alpha, h0 = h0)
+
+    torque_grav = angular_momentum_gravity(snapshot,grid)
+    
+    return grid.R.mean(axis=0), torque_adv,torque_visc,torque_grav
+
+
+
+def angular_momentum_advection(snapshot,grid):
+    '''
+    Compute the angular momentum flux due to advection
+    '''
+
+    X0, Y0 = 0.5 * snapshot.header.boxsize, 0.5 * snapshot.header.boxsize
+    gridX, gridY = grid.X + X0, grid.Y + Y0
+
+
+    # Compute the cell-centered quantities
+    jdot_per_cell = -snapshot.gas.RHO * ((snapshot.gas.POS[:,0] - X0) * (snapshot.gas.POS[:,1] - Y0) * \
+                                         (snapshot.gas.VELY**2 - snapshot.gas.VELX**2) + \
+                                         snapshot.gas.VELX * snapshot.gas.VELY * \
+                                         ((snapshot.gas.POS[:,0] - X0)**2 - (snapshot.gas.POS[:,1] - Y0)**2))
+    snapshot.add_data(jdot_per_cell,'TORQUEDENS')
+    # interpolate onto the grid
+    jdot_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
+                                                        quantities=['TORQUEDENS'],method = 'nearest')[0]
+
+    # Take the azimuthal integral to get the profile
+
+    jdot = (jdot_interp * grid.R).mean(axis=0) * 2 * np.pi
+    
+    return jdot
+
+
+def angular_momentum_viscosity(snapshot,grid, alpha=0.1, h0=0.1):
+    '''
+    Compute the angular momentum flux due to viscous diffusion of momentum
+    '''
+
+    X0, Y0 = 0.5 * snapshot.header.boxsize, 0.5 * snapshot.header.boxsize
+    gridX, gridY = grid.X + X0, grid.Y + Y0
+
+
+    
+    # First, we need cell-centered velocity gradients
+    gradientvx = compute_snapshot_gradient(snapshot,'VELX')
+    gradientvy = compute_snapshot_gradient(snapshot,'VELY')
+    # Add the gradients
+    snapshot.add_data(gradientvx,'GRVX')
+    snapshot.add_data(gradientvy,'GRVY')
     
     
-    # Compute the advection transfer rate
-    vrvphi = x * y * (vy * vy - vx * vx) +  vx * vx
-    Tadv = - 2 * np.pi * ((rho * x * y * vx).rshape(NR,Nphi)).mean(axis=0)
+    # Compute the cell-centered quantities
+    GM = 1.0
+    def nu(R): return alpha * h0**2 * np.sqrt(GM) * R**(0.5)
+    nu_cell = nu(snapshot.gas.R)
+    jdot_per_cell = -snapshot.gas.RHO * (2 * (snapshot.gas.POS[:,0] - X0) * (snapshot.gas.POS[:,1] - Y0) * \
+                                         (snapshot.gas.GRVY[:,1] - snapshot.gas.GRVX[:,0]) + \
+                                         ((snapshot.gas.POS[:,0] - X0)**2 - (snapshot.gas.POS[:,1] - Y0)**2) * \
+                                         (snapshot.gas.GRVX[:,1] + snapshot.gas.GRVY[:,0])) * nu_cell / snapshot.gas.R 
     
-    # Compute the radial torque density...
-    dTdR = ((radii * rho * dPhi_dphi).rshape(NR,Nphi)).mean(axis=0)
-    #... and integrate it into a torque
-    Tgrav = cumptrapz(dTdr,x=R)
+    snapshot.add_data(jdot_per_cell,'TORQUEDENS')
+    # interpolate onto the grid
+    jdot_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
+                                                        quantities=['TORQUEDENS'],method = 'nearest')[0]
 
 
+    # Take the azimuthal integral to get the profile
+
+    jdot = (jdot_interp * grid.R).mean(axis=0) * 2 * np.pi
+    
+    return jdot
 
 
+    
+def angular_momentum_gravity(snapshot,grid):
+    '''
+    Compute the angular momentum flux due to an external (non-axisymmetric) gravitational source
+
+    '''
+    
+    X0, Y0 = 0.5 * snapshot.header.boxsize, 0.5 * snapshot.header.boxsize
+    gridX, gridY = grid.X + X0, grid.Y + Y0
+
+    
+    # Compute the cell-centered quantities
+    jdot_per_cell = -snapshot.gas.RHO * ((snapshot.gas.POS[:,0] - X0) * snapshot.gas.ACCE[:,1] - \
+                                         (snapshot.gas.POS[:,1] - Y0) * snapshot.gas.ACCE[:,0])
+    snapshot.add_data(jdot_per_cell,'TORQUEDENS')
+    # interpolate onto the grid
+    jdot_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
+                                                        quantities=['TORQUEDENS'],method = 'nearest')[0]
 
 
-    return Tadv, Tvisc, Tgrav
+    # Take the azimuthal integral to get the profile
+    djdotdR = (jdot_interp * grid.R).mean(axis=0) * 2 * np.pi
+    
+    
+    # In the case of gravity, we need to carry out an additional integration step
+    gridR = grid.R.mean(axis=0)
+    jdot = cumtrapz(djdotdR[::-1],x = -gridR[::-1],initial=0)[::-1]
+    
+    
+    return jdot

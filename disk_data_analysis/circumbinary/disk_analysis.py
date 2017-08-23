@@ -19,7 +19,12 @@ def disk_compute_radial_balance(snapshot, griddata, nu_gridded, Rmin = None, Rma
     snapshot.add_data(gradientvy,'GRVY')
     snapshot.add_data(snapshot.gas.ACCE[:,0:2],'GRPHI')
 
+    # Add gravitational torque
+    torquedens_per_cell = - snapshot.gas.RHO[:]/(1- mu) * (xb * accel1[:,1] - yb * accel1[:,0])\
+                      + snapshot.gas.RHO[:]/mu * (xb * accel2[:,1] - yb * accel2[:,0])
 
+    snap.add_data(torquedens_per_cell,'TORQUEDENS')
+    
     #interpolate primitive quantities
     rho_interp = disk_interpolate_primitive_quantities(snapshot,[griddata.X,griddata.Y],\
                                                            quantities=['RHO'],method = 'linear')[0]
@@ -36,11 +41,14 @@ def disk_compute_radial_balance(snapshot, griddata, nu_gridded, Rmin = None, Rma
 
     gradvy_interp = disk_interpolate_gradient_quantities(snapshot,[griddata.X,griddata.Y],\
                                                              quantities=['GRVX'],method = 'nearest')[0]
-    
+    '''
     gradphi_interp = disk_interpolate_gradient_quantities(snapshot,[griddata.X,griddata.Y],\
                                                           quantities=['GRPHI'],method = 'nearest')[0]
-
-
+    '''
+    # interpolate gravitational torque
+    
+    
+    
     
     gridR = griddata.R.mean(axis=0)
     gridX, gridY = griddata.X - snapshot.header.boxsize * 0.5, griddata.Y  -  snapshot.header.boxsize * 0.5
@@ -56,15 +64,18 @@ def disk_compute_radial_balance(snapshot, griddata, nu_gridded, Rmin = None, Rma
                  (2 * gridX * gridY * (gradvy_interp[1] - gradvx_interp[0]) + \
                   (gridX**2 - gridY**2) * (gradvx_interp[1] + gradvy_interp[0]))).mean(axis=0)
 
-
+    '''
     dTgravdR = -2 * np.pi * (griddata.R * rho_interp * (gradphi_interp[1] * gridX -\
                                                     gradphi_interp[0] * gridY)).mean(axis = 0)
+    '''
+    
     dTgravdR[(gridR > Rmax) | (gridR < Rmin)] = 0.0
 
     Tgrav = np.asarray([trapz(dTgravdR[gridR > R],x=gridR[gridR > R]) for R in gridR[gridR <= Rmax]])
-
+    
     mdot = mdot[gridR <= Rmax]
     jdot_adv = jdot_adv[gridR <= Rmax]
     jdot_visc = jdot_visc[gridR <= Rmax]
-    
+
+
     return mdot, jdot_adv, jdot_visc, Tgrav
