@@ -38,35 +38,12 @@ def compute_angular_momentum_transfer(snapshot, Rmin, Rmax, NR = None, Nphi = No
     return grid.R.mean(axis=0),mdot, torque_adv,torque_visc,torque_grav
 
 
-def mass_advection(snapshot,grid):
-    '''
-    Compute the mass flux due to advection
-    '''
-
-    X0, Y0 = 0.5 * snapshot.header.boxsize, 0.5 * snapshot.header.boxsize
-    gridX, gridY = grid.X + X0, grid.Y + Y0
 
 
-    # Compute the cell-centered quantities
-    mdot_per_cell = -snapshot.gas.RHO * ((snapshot.gas.POS[:,0] - X0) * snapshot.gas.VELX + \
-                                         (snapshot.gas.POS[:,1] - Y0) * snapshot.gas.VELY) / snapshot.gas.R
-      
-    snapshot.add_data(mdot_per_cell,'MASSFLUX')
-    # interpolate onto the grid
-    mdot_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
-                                                        quantities=['MASSFLUX'],method = 'nearest')[0]
-
-    # Take the azimuthal integral to get the profile
-
-    mdot = (mdot_interp * grid.R).mean(axis=0) * 2 * np.pi
-    
-    return mdot
-
-def angular_momentum_advection(snapshot,grid):
+def compute_angular_momentum_flux_advection(snapshot,grid):
     '''
     Compute the angular momentum flux due to advection
-    '''
-
+    ''' 
     X0, Y0 = 0.5 * snapshot.header.boxsize, 0.5 * snapshot.header.boxsize
     gridX, gridY = grid.X + X0, grid.Y + Y0
 
@@ -82,16 +59,11 @@ def angular_momentum_advection(snapshot,grid):
     jdot_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
                                                         quantities=['TORQUEDENS'],method = 'nearest')[0]
 
-    # Take the azimuthal integral to get the profile
-
-    jdot = (jdot_interp * grid.R).mean(axis=0) * 2 * np.pi
+    return jdot_interp
     
-    return jdot
-
-
-def angular_momentum_viscosity(snapshot,grid, alpha=0.1, h0=0.1):
+def compute_angular_momentum_flux_viscosity(snapshot,grid):
     '''
-    Compute the angular momentum flux due to viscous diffusion of momentum
+    Compute the angular momentum flux due to viscosity
     '''
 
     X0, Y0 = 0.5 * snapshot.header.boxsize, 0.5 * snapshot.header.boxsize
@@ -122,8 +94,79 @@ def angular_momentum_viscosity(snapshot,grid, alpha=0.1, h0=0.1):
                                                         quantities=['TORQUEDENS'],method = 'nearest')[0]
 
 
+    return jdot_interp
+
+def compute_angular_momentum_flux_gravity(snapshot,grid):
+    '''
+    Compute the angular momentum flux due to an external gravitational potential
+    ''' 
+
+    
+    X0, Y0 = 0.5 * snapshot.header.boxsize, 0.5 * snapshot.header.boxsize
+    gridX, gridY = grid.X + X0, grid.Y + Y0
+
+    
+    # Compute the cell-centered quantities
+    jdotdens_per_cell = -snapshot.gas.RHO * ((snapshot.gas.POS[:,0] - X0) * (-snapshot.gas.ACCE[:,1]) - \
+                                         (snapshot.gas.POS[:,1] - Y0) * (-snapshot.gas.ACCE[:,0]))
+    snapshot.add_data(jdotdens_per_cell,'TORQUEDENS')
+    # interpolate onto the grid
+    jdotdens_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
+                                                            quantities=['TORQUEDENS'],method = 'nearest')[0]
+
+    # In the case of gravity, we need to carry out an additional integration step
+    gridR = grid.R.mean(axis=0)
+    jdot_interp = cumtrapz(jdotdens_interp[:,::-1],x = -gridR[::-1],initial=0,axis=1)[:,::-1]
+        
+    
+    return jdot_interp
+
+
+
+def mass_advection(snapshot,grid):
+    '''
+    Compute the mass flux due to advection
+    '''
+
+    X0, Y0 = 0.5 * snapshot.header.boxsize, 0.5 * snapshot.header.boxsize
+    gridX, gridY = grid.X + X0, grid.Y + Y0
+
+
+    # Compute the cell-centered quantities
+    mdot_per_cell = -snapshot.gas.RHO * ((snapshot.gas.POS[:,0] - X0) * snapshot.gas.VELX + \
+                                         (snapshot.gas.POS[:,1] - Y0) * snapshot.gas.VELY) / snapshot.gas.R
+      
+    snapshot.add_data(mdot_per_cell,'MASSFLUX')
+    # interpolate onto the grid
+    mdot_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
+                                                        quantities=['MASSFLUX'],method = 'nearest')[0]
+
     # Take the azimuthal integral to get the profile
 
+    mdot = (mdot_interp * grid.R).mean(axis=0) * 2 * np.pi
+    
+    return mdot
+
+
+def angular_momentum_advection(snapshot,grid):
+    '''
+    Compute the angular momentum trasfer rate profile due to advection
+    '''
+
+    jdot_interp = compute_angular_momentum_flux_advection(snapshot,grid)
+    # Take the azimuthal integral to get the profile
+    jdot = (jdot_interp * grid.R).mean(axis=0) * 2 * np.pi
+    
+    return jdot
+
+
+def angular_momentum_viscosity(snapshot,grid, alpha=0.1, h0=0.1):
+    '''
+    Compute the angular momentum transfer rate profile due to viscous diffusion of momentum
+    '''
+
+    jdot_interp = compute_angular_momentum_flux_viscosity(snapshot,grid)
+    # Take the azimuthal integral to get the profile
     jdot = (jdot_interp * grid.R).mean(axis=0) * 2 * np.pi
     
     return jdot
@@ -132,30 +175,12 @@ def angular_momentum_viscosity(snapshot,grid, alpha=0.1, h0=0.1):
     
 def angular_momentum_gravity(snapshot,grid):
     '''
-    Compute the angular momentum flux due to an external (non-axisymmetric) gravitational source
+    Compute the angular momentum transfer rate profile due to an external (non-axisymmetric) gravitational source
 
     '''
-    
-    X0, Y0 = 0.5 * snapshot.header.boxsize, 0.5 * snapshot.header.boxsize
-    gridX, gridY = grid.X + X0, grid.Y + Y0
-
-    
-    # Compute the cell-centered quantities
-    jdot_per_cell = -snapshot.gas.RHO * ((snapshot.gas.POS[:,0] - X0) * (-snapshot.gas.ACCE[:,1]) - \
-                                         (snapshot.gas.POS[:,1] - Y0) * (-snapshot.gas.ACCE[:,0]))
-    snapshot.add_data(jdot_per_cell,'TORQUEDENS')
-    # interpolate onto the grid
-    jdot_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
-                                                        quantities=['TORQUEDENS'],method = 'nearest')[0]
-
-
+    jdot_interp = compute_angular_momentum_flux_gravity(snapshot,grid)
     # Take the azimuthal integral to get the profile
-    djdotdR = (jdot_interp * grid.R).mean(axis=0) * 2 * np.pi
+    jdot = (jdot_interp * grid.R).mean(axis=0) * 2 * np.pi
     
-    
-    # In the case of gravity, we need to carry out an additional integration step
-    gridR = grid.R.mean(axis=0)
-    jdot = cumtrapz(djdotdR[::-1],x = -gridR[::-1],initial=0)[::-1]
-    
-    
+
     return jdot
