@@ -54,14 +54,15 @@ def compute_angular_momentum_flux_advection(snapshot,grid):
                                          snapshot.gas.VELX * snapshot.gas.VELY * \
                                          ((snapshot.gas.POS[:,0] - X0)**2 - (snapshot.gas.POS[:,1] - Y0)**2)) / \
                                          snapshot.gas.R
-    snapshot.add_data(jdot_per_cell,'TORQUEDENS')
+    snapshot.add_data(jdot_per_cell,'ANGMOMFLUX')
     # interpolate onto the grid
     jdot_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
-                                                        quantities=['TORQUEDENS'],method = 'nearest')[0]
-
+                                                        quantities=['ANGMOMFLUX'],method = 'nearest')[0]
+    
+    del snapshot.gas.ANGMOMFLUX
     return jdot_interp
     
-def compute_angular_momentum_flux_viscosity(snapshot,grid):
+def compute_angular_momentum_flux_viscosity(snapshot,grid, alpha = 0.1, h0 = 0.1):
     '''
     Compute the angular momentum flux due to viscosity
     '''
@@ -88,15 +89,16 @@ def compute_angular_momentum_flux_viscosity(snapshot,grid):
                                          ((snapshot.gas.POS[:,0] - X0)**2 - (snapshot.gas.POS[:,1] - Y0)**2) * \
                                          (snapshot.gas.GRVX[:,1] + snapshot.gas.GRVY[:,0])) * nu_cell / snapshot.gas.R 
     
-    snapshot.add_data(jdot_per_cell,'TORQUEDENS')
+    snapshot.add_data(jdot_per_cell,'ANGMOMFLUX')
     # interpolate onto the grid
     jdot_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
-                                                        quantities=['TORQUEDENS'],method = 'nearest')[0]
+                                                        quantities=['ANGMOMFLUX'],method = 'nearest')[0]
 
-
+    del snapshot.gas.ANGMOMFLUX
     return jdot_interp
 
 def compute_angular_momentum_flux_gravity(snapshot,grid):
+
     '''
     Compute the angular momentum flux due to an external gravitational potential
     ''' 
@@ -108,16 +110,19 @@ def compute_angular_momentum_flux_gravity(snapshot,grid):
     
     # Compute the cell-centered quantities
     jdotdens_per_cell = -snapshot.gas.RHO * ((snapshot.gas.POS[:,0] - X0) * (-snapshot.gas.ACCE[:,1]) - \
-                                         (snapshot.gas.POS[:,1] - Y0) * (-snapshot.gas.ACCE[:,0]))
+                                             (snapshot.gas.POS[:,1] - Y0) * (-snapshot.gas.ACCE[:,0])) 
     snapshot.add_data(jdotdens_per_cell,'TORQUEDENS')
     # interpolate onto the grid
     jdotdens_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
                                                             quantities=['TORQUEDENS'],method = 'nearest')[0]
 
+    del snapshot.gas.TORQUEDENS
+    
     # In the case of gravity, we need to carry out an additional integration step
     gridR = grid.R.mean(axis=0)
-    jdot_interp = cumtrapz(jdotdens_interp[:,::-1],x = -gridR[::-1],initial=0,axis=1)[:,::-1]
-        
+    print jdotdens_interp.shape,grid.R.shape
+    jdot_interp = cumtrapz((jdotdens_interp * grid.R)[:,::-1],x = -gridR[::-1],initial=0,axis=1)[:,::-1] / grid.R
+    print jdot_interp.shape
     
     return jdot_interp
 
