@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from joblib import Parallel, delayed
-import multiprocessing
+#from joblib import Parallel, delayed
+#import multiprocessing
 from string import split
 import disk_simulation_data 
 from disk_hdf5 import readsnapHDF5 as rs
