@@ -128,20 +128,22 @@ def compute_binary_force_timeseries_from_accretionfile(filename,variables=accret
 def create_binary_externalforces_files(accretionfile,outfilename1,
                                        outfilename2 = None,
                                        qb = 1.0, eb = 0.0,
-                                       time_min = None,time_max = None):
+                                       orbit_init = None,orbit_final = None):
 
     '''
-    Compute force data and save to a file in disk.
+    Compute force data and save to a file on disk.
 
     '''
 
     force_data = compute_binary_force_timeseries_from_accretionfile(accretionfile)
     
     time = force_data[:,0]
-    if (time_min is None):
-        time_min = time[0]
-    if (time_max is None):
-        time_max = time[-1]
+    if (orbit_init is None):
+        orbit_init = int(time[0]/2/np.pi)
+    if (orbit_final is None):
+        orbit_final = int(time[-1]/2/np.pi)
+        
+    time_min, time_max = orbit_init * 2 * np.pi, orbit_final * 2 * np.pi
     ind = (time >= time_min) & (time <= time_max) 
     time = time[ind]
     
