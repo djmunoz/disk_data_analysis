@@ -128,7 +128,7 @@ def compute_binary_force_timeseries_from_accretionfile(filename,variables=accret
 def create_binary_externalforces_files(accretionfile,outfilename1,
                                        outfilename2 = None,
                                        qb = 1.0, eb = 0.0,
-                                       orbit_init = None,orbit_final = None):
+                                       orbit_init = None,orbit_final = None, maxlines = None):
 
     '''
     Compute force data and save to a file on disk.
@@ -136,7 +136,11 @@ def create_binary_externalforces_files(accretionfile,outfilename1,
     '''
 
     force_data = compute_binary_force_timeseries_from_accretionfile(accretionfile)
-    
+    if (maxlines is not None):
+        if (force_data.shape[0] > 1.5 * maxlines):
+            skip = int(np.ceil(force_data.shape[0]/(1.5 * maxlines)))
+            force_data = force_data[::skip,:]
+            
     time = force_data[:,0]
     if (orbit_init is None):
         orbit_init = int(time[0]/2/np.pi)
@@ -175,7 +179,7 @@ def create_binary_externalforces_files(accretionfile,outfilename1,
 
     print "Saved accretion rate data to file:",outfilename1
 
-    if (outfilename is not None):
+    if (outfilename2 is not None):
         np.savetxt(outfilename2,np.array([time,dm1dt,dm2dt]).T,
                    fmt='%12f %.8g %.8g')
         print "Saved accretion rate data to file:",outfilename2
