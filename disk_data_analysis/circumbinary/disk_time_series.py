@@ -51,7 +51,7 @@ def compute_binary_force_timeseries_from_accretionfile(filename,variables=accret
         if not (accretion_variables[kk] in variables):
             read_variable[kk] = False
     
-    data=np.loadtxt(accretionfile)
+    data=np.loadtxt(filename)
 
     time = data[:,0]
     count_variable = 1
