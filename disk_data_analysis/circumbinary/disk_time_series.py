@@ -13,7 +13,7 @@ def compute_time_derivative(x,time):
 
     '''
     
-    dt=np.gradient(accretion_time)
+    dt=np.gradient(time)
     dxdt = np.gradient(x)/dt
 
     return dxdt
