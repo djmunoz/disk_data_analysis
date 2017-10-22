@@ -1,5 +1,5 @@
 import numpy as np
-from orbital import orbit_in_time
+from disk_data_analysis.orbital import orbit_in_time
 
 accretion_variables = ['m1','m2','v1x_a','v1y_a','v2x_a','v2y_a',
                        'fext1x','fext1y','fext2x','fext2y',
