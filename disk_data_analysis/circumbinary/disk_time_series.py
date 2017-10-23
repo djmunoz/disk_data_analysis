@@ -125,10 +125,10 @@ def compute_binary_force_timeseries_from_accretionfile(filename,variables=accret
 
     return force_data
     
-def create_binary_externalforces_files(accretionfile,outfilename1,
-                                       outfilename2 = None,
-                                       qb = 1.0, eb = 0.0,
-                                       orbit_init = None,orbit_final = None, maxlines = None):
+def write_binary_externalforces_file(accretionfile,outfilename1,
+                                     outfilename2 = None,
+                                     qb = 1.0, eb = 0.0,
+                                     orbit_init = None,orbit_final = None, maxlines = None):
 
     '''
     Compute force data and save to a file on disk.
@@ -184,3 +184,187 @@ def create_binary_externalforces_files(accretionfile,outfilename1,
                    fmt='%12f %.8g %.8g')
         print "Saved accretion rate data to file:",outfilename2
 
+
+    return
+
+
+
+def read_binary_externalforces_file(forcefilename,
+                                    qb = 1.0, eb = 0.0,
+                                    orbit_init = None,orbit_final = None, maxlines = None):
+    '''
+    Read from disk a precomputed file with the external forces
+    acting on the binary
+
+    '''
+
+    force_data = np.loadtxt(forcefilename)
+    time = force_data[:,0]
+    x1 = force_data[:,1]
+    y1 = force_data[:,2]
+    x2 = force_data[:,3]
+    y2 = force_data[:,4]
+    vx1 = force_data[:,5]
+    vy1 = force_data[:,6]
+    vx2 = force_data[:,7]
+    vy2 = force_data[:,8]
+    fx1_a = force_data[:,9]
+    fy1_a = force_data[:,10]
+    fx2_a = force_data[:,11]
+    fy2_a = force_data[:,12]
+    fx1_g = force_data[:,13]
+    fy1_g = force_data[:,14]
+    fx2_g = force_data[:,15]
+    fy2_g = force_data[:,16]
+    
+
+    return time,x1,y1,x2,y2,vx1,vy1,vx2,vy2,fx1_a,fy1_a,fx2_a,fy2_a,fx1_g,fy1_g,fx2_g,fy2_g
+
+
+def read_binary_accretion_file(accretionfilename,
+                               qb = 1.0, eb = 0.0,
+                               orbit_init = None,orbit_final = None, maxlines = None):
+    '''
+    Read from disk a precomputed file with the accretion rates
+    onto each component of the binary
+
+    '''
+
+    
+    accretion_data = np.loadtxt(accretionfilename)
+    time = accretion_data[:,0]
+    mdot1 = accretion_data[:,1]
+    mdot2 = accretion_data[:,2]
+
+    return time, mdot1, mdot2
+    
+def compute_external_torques(x,y,fx,fy):
+    """
+    Compute torque due to external forces on a binary orbit given
+    the position of both elements of the binary and the forces acting
+    on each of those two elements
+
+    x,y: numpy arrays -- (x,y) position of the binary relative coordinate
+
+    fx,fy: numpy arrays -- x- and y-components of the net external force 
+    **per unit mass** acting on the binary
+
+    """
+    
+    t =  x * fy - y * fx
+    
+    return t
+
+
+def compute_binary_torque_contributions_from_files(accretionfilename,forcefilename,
+                                                   qb=1.0,eb=0.0,orbit_init = None, orbit_final = None):
+    '''
+    Function to compute the different contributions to binary torque
+    from a file of precomputed quantities.
+    
+    '''
+
+    # Read quantities
+    time,x1,y1,x2,y2,vx1,vy1,vx2,vy2,fx1_a,fy1_a,fx2_a,fy2_a,fx1_g,fy1_g,fx2_g,fy2_g = read_binary_externalforces_file(forcefilename,
+                                                                                                                       qb=qb,eb=eb,
+                                                                                                                       orbit_init = orbit_init,
+                                                                                                                       orbit_final = orbit_final)
+
+    _, mdot1, mdot2 =  read_binary_accretion_file(accretionfilename,
+                                                  qb=qb,eb=eb,
+                                                  orbit_init = orbit_init,
+                                                  orbit_final = orbit_final)
+    
+    # Combine data
+    mdot = mdot1 + mdot2
+    qdot = (1 + qb) * (mdot2 - qb * mdot1)
+    fx1, fy1 = fx1_a + fx1_g, fy1_a + fy1_g
+    fx2, fy2 = fx2_a + fx2_g, fy2_a + fy2_g
+    
+    torque_grav = compute_external_torques(x1 - x2, y1 - y2, fx1_g - fx2_g, fy1_g - fy2_g)
+    torque_acc = compute_external_torques(x1 - x2, y1 - y2, fx1_a - fx2_a, fy1_a - fy2_a)
+    
+    reduced_mass = qb * 1.0 / (1 + qb) / (1 + qb)
+    lb = np.sqrt(1 - eb**2)
+    Jb = reduced_mass * lb
+    Jdot = Jb * ((1.0 - qb)/(1.0 + qb) * qdot /qb  + mdot  + (torque_acc+torque_grav) / lb)
+
+    return mdot,qdot,torque_grav,torque_acc,Jdot
+
+
+def compute_binary_angular_momentum_change(x1,y1,x2,y2,vx1,vy1,vx2,vy2,mdot1,mdot2,
+                                           fx1_ext,fy1_ext,fx2_ext,fy2_ext,
+                                           qb = 1.0, eb = 0,
+                                           G = 1.0 ,Mb = 1.0, ab = 1.0):
+    '''
+    Compute the change in both orbital energy and specific angular
+    momentum of a binary subject to mass changes and external 
+    torques
+    '''
+
+
+    # Combine data
+    mdot = mdot1 + mdot2
+    qdot = (1 + qb) * (mdot2 - qb * mdot1)
+    fx1, fy1 = fx1_a + fx1_g, fy1_a + fy1_g
+    fx2, fy2 = fx2_a + fx2_g, fy2_a + fy2_g
+    
+    ldot = compute_external_torques(x1 - x2, y1 - y2, fx1_ext - fx2_ext, fy1_ext - fy2_ext)
+    
+    reduced_mass = qb * 1.0 / (1 + qb) / (1 + qb) * Mb
+    lb = np.sqrt((1 - eb**2) * G * Mb *  ab)
+    Jb = reduced_mass * lb
+    Jdot = Jb * ((1.0 - qb)/(1.0 + qb) * qdot /qb  + mdot/Mb  + ldot / lb)
+
+    return mdot, qdot, ldot, Jdot
+
+
+
+def compute_binary_orbital_change(x1,y1,x2,y2,vx1,vy1,vx2,vy2,mdot1,mdot2,
+                                  fx1_ext,fy1_ext,fx2_ext,fy2_ext,
+                                  G = 1.0 ,Mb = 1.0, ab = 1.0, qb = 1.0, eb = 0):
+    '''
+    Compute the change in both orbital energy and specific angular
+    momentum of a binary subject to mass changes and external 
+    torques
+
+    '''
+    
+    lb = np.sqrt(G * Mb * ab * (1 - eb * eb))
+    Eb = -G * Mb / 2 / ab
+
+    x,y = x1 - x2, y1 - y2
+    vx,vy = vx1 - vx2, vy1 - vy2
+    fxext, fyext = fx1_ext - fx2_ext, fy1_ext - fy2_ext
+    mdot = mdot1 + mdot2
+    qdot = qb * (1 + qb) / Mb * (mdot2 / qb - mdot1)
+    lb = x * vy - y * vx
+    r = np.sqrt(x * x + y * y)
+    Eb = 0.5 * (vx * vx + vy * vy) - G * Mb / r
+    Jb = qb * Mb / (1 + qb)**2 * lb
+
+    Edot = -G * mdot / r + (vx * fxext + vy * fyext)
+
+    ldot = compute_external_torques(x,y,fxext,fyext)
+
+    Jdot = Jb * ( (1.0 - qb)/(1.0 + qb) * qdot / qb + mdot/Mb + ldot / lb)
+    
+
+
+    sinphi, cosphi = y/r, x/r
+    fr_ext = fxext * cosphi + fyext * sinphi
+    fphi_ext = -fxext * sinphi + fyext * cosphi
+
+
+
+    if (eb == 0):
+        edot = np.sqrt(ab * (1.0 - eb * eb)/ G / Mb) * ((eb + 2 * cosphi + eb * cosphi * cosphi) / (1 + eb * cosphi) * fphi_ext +\
+                                                        sinphi * fr_ext) - \
+                                                        mdot / Mb * (eb + cosphi)
+        adotovera = 2 * np.sqrt(ab / (1.0 - eb * eb)/ G / Mb) * (eb * sinphi * fr_ext + (1 + eb * cosphi) * fphi_ext) -\
+                  mdot / Mb * (1 + 2 * eb * cosphi + eb * eb) / (1 - eb * eb)
+    else:
+        edot= 1.0/(G**2 * Mb**2 / lb**2 / Eb + 2) * np.sqrt(1 + 2 * lb**2 * Eb / G**2 / Mb**2) *  (2 * ldot / lb +  Edot / Eb - 2 * mdot / Mb)
+        adotovera = ab * (-Edot / Eb + mdot / Mb)
+
+    return Edot, ldot, Jdot, adotovera, edot
