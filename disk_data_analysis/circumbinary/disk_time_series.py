@@ -306,9 +306,6 @@ def compute_binary_angular_momentum_change(x1,y1,x2,y2,mdot1,mdot2,
     # Combine data
     mdot = mdot1 + mdot2
     qdot = (1 + qb) * (mdot2 - qb * mdot1)
-    fx1, fy1 = fx1_a + fx1_g, fy1_a + fy1_g
-    fx2, fy2 = fx2_a + fx2_g, fy2_a + fy2_g
-    
     ldot = compute_external_torques(x1 - x2, y1 - y2, fx1_ext - fx2_ext, fy1_ext - fy2_ext)
     
     reduced_mass = qb * 1.0 / (1 + qb) / (1 + qb) * Mb
