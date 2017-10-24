@@ -102,8 +102,7 @@ def get_snapshot_data(filename_prefix,snap_num,quantities,parttype= None ,code="
         header = rs.snapshot_header(filename_prefix+str(snap_num).zfill(3))
 
     if (nquant == 0):
-        attributes = None
-        snap = snapshot(parttype=parttype,header=header,**attributes)
+        snap = snapshot(parttype=parttype,header=header)
         return snap
 
     
