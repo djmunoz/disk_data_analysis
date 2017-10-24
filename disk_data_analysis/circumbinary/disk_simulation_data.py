@@ -98,9 +98,16 @@ def get_snapshot_data(filename_prefix,snap_num,quantities,parttype= None ,code="
     if (parttype is None): types = [0,1,2,3,4]
     else: types = [parttype]
 
+    if (code == "AREPO"):
+        header = rs.snapshot_header(filename_prefix+str(snap_num).zfill(3))
+
+    if (quantities is None):
+        attributes = None
+        snap = snapshot(parttype=parttype,header=header,**attributes)
+        return snap
+
+    
     for quant in quantities:
-        if (code == "AREPO"):
-            header = rs.snapshot_header(filename_prefix+str(snap_num).zfill(3))
             for parttype in types:
                 if (quant.ljust(4) in datablocks):
                     outquant.append(rs.read_block(filename_prefix+str(snap_num).zfill(3),quant.ljust(4),parttype=parttype))
