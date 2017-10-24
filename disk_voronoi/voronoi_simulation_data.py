@@ -126,23 +126,20 @@ def compute_voronoi_gradients(VoronoiMesh,quant):
        cvectors = VoronoiMesh.faces.centroids - VoronoiMesh.faces.midpoints
        
        delta_quant =  quant[VoronoiMesh.faces.right_point_ind] -  quant[VoronoiMesh.faces.left_point_ind]
-       try:
+       
+       if (VoronoiMesh.cells.vols[VoronoiMesh.faces.left_point_ind] > 0):
               gradient_sum_x_left = VoronoiMesh.faces.areas * (delta_quant * cvectors[:,0] - 0.5 * quant[VoronoiMesh.faces.right_point_ind] * VoronoiMesh.faces.rvectors[:,0]) \
                                     / rvecsize /  VoronoiMesh.cells.vols[VoronoiMesh.faces.left_point_ind]
-       except RuntimeWarning:
-              gradient_sum_x_left = 0
-
-       try:
               gradient_sum_y_left = VoronoiMesh.faces.areas * (delta_quant * cvectors[:,1] - 0.5 * quant[VoronoiMesh.faces.right_point_ind] * VoronoiMesh.faces.rvectors[:,1]) / rvecsize /  VoronoiMesh.cells.vols[VoronoiMesh.faces.left_point_ind]
-       except RuntimeWarning:
+       else:
+              gradient_sum_x_left = 0
               gradient_sum_y_left = 0
-       try:
+              
+       if (VoronoiMesh.cells.vols[VoronoiMesh.faces.right_point_ind] > 0): 
               gradient_sum_x_right = VoronoiMesh.faces.areas * (-delta_quant * cvectors[:,0] + 0.5 * quant[VoronoiMesh.faces.left_point_ind] * VoronoiMesh.faces.rvectors[:,0]) / rvecsize /  VoronoiMesh.cells.vols[VoronoiMesh.faces.right_point_ind]
-       except RuntimeWarning:
-              gradient_sum_x_right = 0
-       try:
               gradient_sum_y_right = VoronoiMesh.faces.areas * (-delta_quant * cvectors[:,1] + 0.5 * quant[VoronoiMesh.faces.left_point_ind] * VoronoiMesh.faces.rvectors[:,1]) / rvecsize /  VoronoiMesh.cells.vols[VoronoiMesh.faces.right_point_ind]
-       except RuntimeWarning:
+       else:
+              gradient_sum_x_right = 0
               gradient_sum_y_right = 0  
               
        # Sum the gradient contributions by groups
