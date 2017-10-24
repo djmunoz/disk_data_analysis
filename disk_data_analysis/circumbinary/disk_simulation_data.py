@@ -108,6 +108,7 @@ def get_snapshot_data(filename_prefix,snap_num,quantities,parttype= None ,code="
 
     
     for quant in quantities:
+        if (code == "AREPO"):
             for parttype in types:
                 if (quant.ljust(4) in datablocks):
                     outquant.append(rs.read_block(filename_prefix+str(snap_num).zfill(3),quant.ljust(4),parttype=parttype))
