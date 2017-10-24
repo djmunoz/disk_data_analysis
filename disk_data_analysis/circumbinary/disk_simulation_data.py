@@ -101,7 +101,7 @@ def get_snapshot_data(filename_prefix,snap_num,quantities,parttype= None ,code="
     if (code == "AREPO"):
         header = rs.snapshot_header(filename_prefix+str(snap_num).zfill(3))
 
-    if (quantities is None):
+    if (nquant == 0):
         attributes = None
         snap = snapshot(parttype=parttype,header=header,**attributes)
         return snap
