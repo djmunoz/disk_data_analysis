@@ -107,11 +107,8 @@ class VoronoiMesh():
         centroidsx = combine_left_and_right(centroidx_left,centroidx_right,mask_left,mask_right,kind='sum')
         centroidsy = combine_left_and_right(centroidy_left,centroidy_right,mask_left,mask_right,kind='sum')
         centroids = np.array([centroidsx,centroidsy]).T
-        try:
-               centroids = centroids/cellvols[:,None]
-        except RuntimeWarning:
-               centroids[cellvols > 0,:] = centroids[cellvols > 0,:]/cellvols[cellvols > 0,None]
-               centroids[cellvols <= 0,:] = np.nan
+        centroids[cellvols > 0,:] = centroids[cellvols > 0,:]/cellvols[cellvols > 0,None]
+        centroids[cellvols <= 0,:] = np.nan
         
         # Areas
         cellarea_left, _ = sum_by_group(self.faces.areas,vor.ridge_points[:,0])
