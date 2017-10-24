@@ -122,35 +122,49 @@ class VoronoiMesh():
 
 def compute_voronoi_gradients(VoronoiMesh,quant):
 
-    rvecsize = np.sqrt(VoronoiMesh.faces.rvectors[:,0]**2 + VoronoiMesh.faces.rvectors[:,1]**2)
-    cvectors = VoronoiMesh.faces.centroids - VoronoiMesh.faces.midpoints
-    
-    delta_quant =  quant[VoronoiMesh.faces.right_point_ind] -  quant[VoronoiMesh.faces.left_point_ind] 
-    gradient_sum_x_left = VoronoiMesh.faces.areas * (delta_quant * cvectors[:,0] - 0.5 * quant[VoronoiMesh.faces.right_point_ind] * VoronoiMesh.faces.rvectors[:,0]) / rvecsize /  VoronoiMesh.cells.vols[VoronoiMesh.faces.left_point_ind]
-    gradient_sum_y_left = VoronoiMesh.faces.areas * (delta_quant * cvectors[:,1] - 0.5 * quant[VoronoiMesh.faces.right_point_ind] * VoronoiMesh.faces.rvectors[:,1]) / rvecsize /  VoronoiMesh.cells.vols[VoronoiMesh.faces.left_point_ind]
-    gradient_sum_x_right = VoronoiMesh.faces.areas * (-delta_quant * cvectors[:,0] + 0.5 * quant[VoronoiMesh.faces.left_point_ind] * VoronoiMesh.faces.rvectors[:,0]) / rvecsize /  VoronoiMesh.cells.vols[VoronoiMesh.faces.right_point_ind]
-    gradient_sum_y_right = VoronoiMesh.faces.areas * (-delta_quant * cvectors[:,1] + 0.5 * quant[VoronoiMesh.faces.left_point_ind] * VoronoiMesh.faces.rvectors[:,1]) / rvecsize /  VoronoiMesh.cells.vols[VoronoiMesh.faces.right_point_ind]
+       rvecsize = np.sqrt(VoronoiMesh.faces.rvectors[:,0]**2 + VoronoiMesh.faces.rvectors[:,1]**2)
+       cvectors = VoronoiMesh.faces.centroids - VoronoiMesh.faces.midpoints
+       
+       delta_quant =  quant[VoronoiMesh.faces.right_point_ind] -  quant[VoronoiMesh.faces.left_point_ind]
+       try:
+              gradient_sum_x_left = VoronoiMesh.faces.areas * (delta_quant * cvectors[:,0] - 0.5 * quant[VoronoiMesh.faces.right_point_ind] * VoronoiMesh.faces.rvectors[:,0]) \
+                                    / rvecsize /  VoronoiMesh.cells.vols[VoronoiMesh.faces.left_point_ind]
+       except RuntimeWarning:
+              gradient_sum_x_left = 0
 
-  # Sum the gradient contributions by groups
-    gradx_left, left_ind = sum_by_group(gradient_sum_x_left,VoronoiMesh.faces.left_point_ind)
-    gradx_right, right_ind = sum_by_group(gradient_sum_x_right,VoronoiMesh.faces.right_point_ind)
-    grady_left, _ = sum_by_group(gradient_sum_y_left,VoronoiMesh.faces.left_point_ind)
-    grady_right, _ = sum_by_group(gradient_sum_y_right,VoronoiMesh.faces.right_point_ind)
-
-    # indices
-    index_overlap  = np.intersect1d(left_ind,right_ind)
-    mask_right, mask_left = np.in1d(right_ind,index_overlap),np.in1d(left_ind,index_overlap)
-    global_ind =  np.append(np.append(left_ind[mask_left],right_ind[~mask_right]),left_ind[~mask_left])
-
-    
-    # Combine left-and-right information
-    gradx_global = combine_left_and_right(gradx_left,gradx_right,mask_left,mask_right,kind='sum')
-    grady_global = combine_left_and_right(grady_left,grady_right,mask_left,mask_right,kind='sum')
-
-    gradientx = gradx_global[global_ind.argsort()]
-    gradienty = grady_global[global_ind.argsort()]
-
-    return gradientx, gradienty
+       try:
+              gradient_sum_y_left = VoronoiMesh.faces.areas * (delta_quant * cvectors[:,1] - 0.5 * quant[VoronoiMesh.faces.right_point_ind] * VoronoiMesh.faces.rvectors[:,1]) / rvecsize /  VoronoiMesh.cells.vols[VoronoiMesh.faces.left_point_ind]
+       except RuntimeWarning:
+              gradient_sum_y_left = 0
+       try:
+              gradient_sum_x_right = VoronoiMesh.faces.areas * (-delta_quant * cvectors[:,0] + 0.5 * quant[VoronoiMesh.faces.left_point_ind] * VoronoiMesh.faces.rvectors[:,0]) / rvecsize /  VoronoiMesh.cells.vols[VoronoiMesh.faces.right_point_ind]
+       except RuntimeWarning:
+              gradient_sum_x_right = 0
+       try:
+              gradient_sum_y_right = VoronoiMesh.faces.areas * (-delta_quant * cvectors[:,1] + 0.5 * quant[VoronoiMesh.faces.left_point_ind] * VoronoiMesh.faces.rvectors[:,1]) / rvecsize /  VoronoiMesh.cells.vols[VoronoiMesh.faces.right_point_ind]
+       except RuntimeWarning:
+              gradient_sum_y_right = 0  
+              
+       # Sum the gradient contributions by groups
+       gradx_left, left_ind = sum_by_group(gradient_sum_x_left,VoronoiMesh.faces.left_point_ind)
+       gradx_right, right_ind = sum_by_group(gradient_sum_x_right,VoronoiMesh.faces.right_point_ind)
+       grady_left, _ = sum_by_group(gradient_sum_y_left,VoronoiMesh.faces.left_point_ind)
+       grady_right, _ = sum_by_group(gradient_sum_y_right,VoronoiMesh.faces.right_point_ind)
+       
+       # indices
+       index_overlap  = np.intersect1d(left_ind,right_ind)
+       mask_right, mask_left = np.in1d(right_ind,index_overlap),np.in1d(left_ind,index_overlap)
+       global_ind =  np.append(np.append(left_ind[mask_left],right_ind[~mask_right]),left_ind[~mask_left])
+       
+       
+       # Combine left-and-right information
+       gradx_global = combine_left_and_right(gradx_left,gradx_right,mask_left,mask_right,kind='sum')
+       grady_global = combine_left_and_right(grady_left,grady_right,mask_left,mask_right,kind='sum')
+       
+       gradientx = gradx_global[global_ind.argsort()]
+       gradienty = grady_global[global_ind.argsort()]
+       
+       return gradientx, gradienty
 
 
 def compute_voronoi_limiter(VoronoiMesh,quant,gradquant):
