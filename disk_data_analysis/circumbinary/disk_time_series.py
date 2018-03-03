@@ -19,20 +19,22 @@ def compute_time_derivative(x,time):
     return dxdt
 
 
-def remove_discontinuity(x, time, skiptype = 0):
+def remove_discontinuity(x, time, skiptype = 0, verbose = False):
 
     '''
-    Remove/skip jumpts or non-monotonic changes in the time variable due to errors in simulation output
+    Remove/skip jumps or non-monotonic changes in the time variable due to errors in simulation output
 
 
     '''
     ind0 = np.argwhere(np.diff(time) <= 0)[0][0]
-
+    if (verbose):
+        print "Found discontinuity at t=%f" % (time[ind0]/2/np.pi)
+    
     if (skiptype == 0):
-        xprime = np.append(x[:ind0],x[ind0+1:])
+        xprime = np.append(x[:ind0+1],x[ind0+2:])
     elif (skiptype == 1):
         x0 = x[ind0]
-        xprime = np.append(x[:ind0],x[ind0+1:]+x0)
+        xprime = np.append(x[:ind0+1],x[ind0+2:]+x0)
     else:
         xprime = x
     
@@ -67,34 +69,38 @@ def compute_binary_force_timeseries_from_accretionfile(filename,variables=accret
     v1y_a = data[:,4]
     v2x_a = data[:,5]
     v2y_a = data[:,6]
-    fext1x = data[:,7]
-    fext1y = data[:,8]
-    fext2x = data[:,9]
-    fext2y = data[:,10]
-    if (data.shape[1] == 15):
-        v1x_g = data[:,11]
-        v1y_g = data[:,12]
-        v2x_g = data[:,13]
-        v2y_g = data[:,14]
-
+    v1x_g = data[:,7]
+    v1y_g = data[:,8]
+    v2x_g = data[:,9]
+    v2y_g = data[:,10]
+    acc1x_g = data[:,11]
+    acc1y_g = data[:,12]
+    acc2x_g = data[:,13]
+    acc2y_g = data[:,14]
+    spin1 = data[:,15]
+    spin2 = data[:,16] 
+    # check if mass variable decreases at any point
+    ind_remove = np.argwhere(np.diff(m1) < 0)
+    time[ind_remove+1] = -9999999
 
     #check that accretion times do not have discontinuities
     while (np.any(np.diff(time) <= 0)):
-        m1 = remove_discontinuity(m1, time, skiptype = 1)
+        m1 = remove_discontinuity(m1, time, skiptype = 1,verbose=True)
         m2 = remove_discontinuity(m2, time, skiptype = 1)
         v1x_a = remove_discontinuity(v1x_a, time, skiptype = 1)
         v1y_a = remove_discontinuity(v1y_a, time, skiptype = 1)
         v2x_a = remove_discontinuity(v2x_a, time, skiptype = 1)
         v2y_a = remove_discontinuity(v2y_a, time, skiptype = 1)
-        fext1x = remove_discontinuity(fext1x, time, skiptype = 0)
-        fext1y = remove_discontinuity(fext1y, time, skiptype = 0)
-        fext2x = remove_discontinuity(fext2x, time, skiptype = 0)
-        fext2y = remove_discontinuity(fext2y, time, skiptype = 0)
-        if (data.shape[1] == 15):
-            v1x_g= remove_discontinuity(v1x_g, time, skiptype = 1)
-            v1y_g= remove_discontinuity(v1y_g, time, skiptype = 1)
-            v2x_g= remove_discontinuity(v2x_g, time, skiptype = 1)
-            v2y_g= remove_discontinuity(v2y_g, time, skiptype = 1)
+        v1x_g= remove_discontinuity(v1x_g, time, skiptype = 1)
+        v1y_g= remove_discontinuity(v1y_g, time, skiptype = 1)
+        v2x_g= remove_discontinuity(v2x_g, time, skiptype = 1)
+        v2y_g= remove_discontinuity(v2y_g, time, skiptype = 1)
+        acc1x_g= remove_discontinuity(acc1x_g, time, skiptype = 0)
+        acc1y_g= remove_discontinuity(acc1y_g, time, skiptype = 0)
+        acc2x_g= remove_discontinuity(acc2x_g, time, skiptype = 0)
+        acc2y_g= remove_discontinuity(acc2y_g, time, skiptype = 0)
+        spin1 = remove_discontinuity(spin1, time, skiptype = 1)
+        spin2 = remove_discontinuity(spin2, time, skiptype = 1)   
         time = remove_discontinuity(time, time, skiptype = 0)
         
 
@@ -107,21 +113,23 @@ def compute_binary_force_timeseries_from_accretionfile(filename,variables=accret
     dv2xdt_a = compute_time_derivative(v2x_a,time)
     dv2ydt_a = compute_time_derivative(v2y_a,time)
 
-    if (data.shape[1] == 15):
-        dv1xdt_g = compute_time_derivative(v1x_g,time)
-        dv1ydt_g = compute_time_derivative(v1y_g,time)
-        dv2xdt_g = compute_time_derivative(v2x_g,time)
-        dv2ydt_g = compute_time_derivative(v2y_g,time)
-    else:
-        dv1xdt_g = fext1x
-        dv1ydt_g = fext1y
-        dv2xdt_g = fext2x
-        dv2ydt_g = fext2y
+    dv1xdt_g = compute_time_derivative(v1x_g,time)
+    dv1ydt_g = compute_time_derivative(v1y_g,time)
+    dv2xdt_g = compute_time_derivative(v2x_g,time)
+    dv2ydt_g = compute_time_derivative(v2y_g,time)
 
-
+    #dv1xdt_g = acc1x_g
+    #dv1ydt_g = acc1y_g
+    #dv2xdt_g = acc2x_g
+    #dv2ydt_g = acc2y_g
+    
+    dspin1dt = compute_time_derivative(spin1,time)
+    dspin2dt = compute_time_derivative(spin2,time)
+    
     force_data = np.asarray([time,dm1dt,dm2dt,
                              dv1xdt_a,dv1ydt_a,dv2xdt_a,dv2ydt_a,
-                             dv1xdt_g,dv1ydt_g,dv2xdt_g,dv2ydt_g]).T
+                             dv1xdt_g,dv1ydt_g,dv2xdt_g,dv2ydt_g,
+                             dspin1dt,dspin2dt]).T
 
     return force_data
     
@@ -136,21 +144,26 @@ def write_binary_externalforces_file(accretionfile,outfilename1,
     '''
 
     force_data = compute_binary_force_timeseries_from_accretionfile(accretionfile)
+
     if (maxlines is not None):
         if (force_data.shape[0] > 1.5 * maxlines):
             skip = int(np.ceil(force_data.shape[0]/(1.5 * maxlines)))
             force_data = force_data[::skip,:]
             
     time = force_data[:,0]
+    if (orbit_init is not None):
+        time_min = orbit_init * 2 * np.pi
+    if (orbit_final is not None):
+        time_max = orbit_final * 2 * np.pi
     if (orbit_init is None):
-        orbit_init = int(time[0]/2/np.pi)
+        orbit_init = int(np.floor(time[0]/2/np.pi))
+        time_min = orbit_init * 2 * np.pi
     if (orbit_final is None):
-        orbit_final = int(time[-1]/2/np.pi)
-        
-    time_min, time_max = orbit_init * 2 * np.pi, orbit_final * 2 * np.pi
-    ind = (time >= time_min) & (time <= time_max) 
+        orbit_final = int(np.ceil(time[-1]/2/np.pi))
+        time_max = orbit_final * 2 * np.pi
+
+    ind = (time >= time_min) & (time <= time_max)
     time = time[ind]
-    
     dm1dt = force_data[:,1][ind]
     dm2dt = force_data[:,2][ind]
     dv1xdt_a = force_data[:,3][ind]
@@ -161,7 +174,8 @@ def write_binary_externalforces_file(accretionfile,outfilename1,
     dv1ydt_g = force_data[:,8][ind]
     dv2xdt_g = force_data[:,9][ind]
     dv2ydt_g = force_data[:,10][ind]
-
+    ds1dt = force_data[:,11][ind]
+    ds2dt = force_data[:,12][ind]
     
     mu =  qb / ( 1.0 + qb)
     xb, yb, vxb, vyb = np.vectorize(orbit_in_time)(time + np.pi, eb)
@@ -170,11 +184,11 @@ def write_binary_externalforces_file(accretionfile,outfilename1,
     vx1, vy1 = mu * vxb, mu * vyb
     vx2, vy2 = -(1.0 - mu) * vxb, -(1.0 - mu) * vyb
 
-
     np.savetxt(outfilename1,np.array([time,x1,y1,x2,y2,vx1,vy1,vx2,vy2,
                                       dv1xdt_a,dv1ydt_a,dv2xdt_a,dv2ydt_a,
-                                      dv1xdt_g,dv1ydt_g,dv2xdt_g,dv2ydt_g]).T,
-               fmt='%12f %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g')
+                                      dv1xdt_g,dv1ydt_g,dv2xdt_g,dv2ydt_g,
+                                      ds1dt,ds2dt]).T,
+               fmt='%12f %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g  %.8g %.8g %.8g %.8g %.8g %.8g')
   
 
     print "Saved accretion rate data to file:",outfilename1
@@ -216,9 +230,12 @@ def read_binary_externalforces_file(forcefilename,
     fy1_g = force_data[:,14]
     fx2_g = force_data[:,15]
     fy2_g = force_data[:,16]
+    dspin1dt = force_data[:,17]
+    dspin2dt = force_data[:,18]
     
-
-    return time,x1,y1,x2,y2,vx1,vy1,vx2,vy2,fx1_a,fy1_a,fx2_a,fy2_a,fx1_g,fy1_g,fx2_g,fy2_g
+    return time,x1,y1,x2,y2,vx1,vy1,vx2,vy2,\
+        fx1_a,fy1_a,fx2_a,fy2_a,fx1_g,fy1_g,fx2_g,fy2_g,\
+        dspin1t,dspin2t
 
 
 def read_binary_accretion_file(accretionfilename,

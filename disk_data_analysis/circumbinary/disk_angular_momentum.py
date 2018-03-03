@@ -120,14 +120,33 @@ def compute_angular_momentum_flux_gravity(snapshot,grid):
     
     # In the case of gravity, we need to carry out an additional integration step
     gridR = grid.R.mean(axis=0)
-    print jdotdens_interp.shape,grid.R.shape
     jdot_interp = cumtrapz((jdotdens_interp * grid.R)[:,::-1],x = -gridR[::-1],initial=0,axis=1)[:,::-1] / grid.R
-    print jdot_interp.shape
+
     
     return jdot_interp
 
 
+def compute_mass_flux(snapshot,grid):
+    '''
+    Compute the mass flux maps due to advection
+    '''
+    
+    X0, Y0 = 0.5 * snapshot.header.boxsize, 0.5 * snapshot.header.boxsize
+    gridX, gridY = grid.X + X0, grid.Y + Y0
 
+
+    # Compute the cell-centered quantities
+    mdot_per_cell = -snapshot.gas.RHO * ((snapshot.gas.POS[:,0] - X0) * snapshot.gas.VELX + \
+                                         (snapshot.gas.POS[:,1] - Y0) * snapshot.gas.VELY) / snapshot.gas.R
+      
+    snapshot.add_data(mdot_per_cell,'MASSFLUX')
+    # interpolate onto the grid
+    mdot_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
+                                                        quantities=['MASSFLUX'],method = 'nearest')[0]
+
+    return mdot_interp
+    
+    
 def mass_advection(snapshot,grid):
     '''
     Compute the mass flux due to advection
