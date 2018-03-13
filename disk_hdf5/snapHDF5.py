@@ -6,8 +6,7 @@ import numpy as np
 import os
 import sys
 import math
-import tables
-#import hdf5lib
+import h5py
 
 ############ 
 #DATABLOCKS#
@@ -21,6 +20,7 @@ datablocks = {"POS ":["Coordinates",3],
               "U   ":["InternalEnergy",1],
               "RHO ":["Density",1],
               "VOL ":["Volume",1],
+	      "PRES":["Pressure",1],
               "CMCE":["Center-of-Mass",3],
               "AREA":["Surface Area",1],
               "NFAC":["Number of faces of cell",1],
@@ -42,13 +42,18 @@ datablocks = {"POS ":["Coordinates",3],
               "GMET":["GFM Metals",9],
               "GMRE":["GFM MetalsReleased",9],	      
               "GMAR":["GFM MetalMassReleased", 1],
-	      "TRCE":["TracerField",1],
-	      "TSTP":["TimeStep",1],
+	      "TSTP":["TimeStep", 1],
+	      "SPIN":["CellSpin", 3],
+	      "VORT":["Vorticity", 3],
+	      "ANGM":["AngularMomentum", 3],
+	      "GRAP":["PressureGradient", 3],
+	      "GRAR":["DensityGradient", 3],
+	      "GRAV":["VelocityGradient", 3],
+	      "SECO":["SecondAreaMoment",4],
 	      "TRNT":["NumTracers",1],
 	      "TRID":["TracerID",1],
-	      "TRPI":["ParentID",1],     
+	      "TRPI":["ParentID",1]
 	      }
-
 #####################################################################################################################
 #                                                    READING ROUTINES			                            #
 #####################################################################################################################
@@ -71,24 +76,25 @@ class snapshot_header:
 				print "[error] file not found : ", filename
 			    	sys.exit()
     
-			f=tables.openFile(curfilename)
-			self.npart = f.root.Header._v_attrs.NumPart_ThisFile 
-			self.nall = f.root.Header._v_attrs.NumPart_Total
-			self.nall_highword = f.root.Header._v_attrs.NumPart_Total_HighWord
-			self.massarr = f.root.Header._v_attrs.MassTable 
-			self.time = f.root.Header._v_attrs.Time 
-			self.redshift = f.root.Header._v_attrs.Redshift 
-			self.boxsize = f.root.Header._v_attrs.BoxSize
-			self.filenum = f.root.Header._v_attrs.NumFilesPerSnapshot
-			self.omega0 = f.root.Header._v_attrs.Omega0
-			self.omegaL = f.root.Header._v_attrs.OmegaLambda
-			self.hubble = f.root.Header._v_attrs.HubbleParam
-			self.sfr = f.root.Header._v_attrs.Flag_Sfr 
-			self.cooling = f.root.Header._v_attrs.Flag_Cooling
-			self.stellar_age = f.root.Header._v_attrs.Flag_StellarAge
-			self.metals = f.root.Header._v_attrs.Flag_Metals
-			self.feedback = f.root.Header._v_attrs.Flag_Feedback
-			self.double = f.root.Header._v_attrs.Flag_DoublePrecision #GADGET-2
+			f=h5py.File(curfilename)
+                        header_dict = dict(f[f.keys()[f.keys().index('Header')]].attrs)
+			self.npart = header_dict['NumPart_ThisFile'] 
+			self.nall = header_dict['NumPart_Total']
+			self.nall_highword = header_dict['NumPart_Total_HighWord']
+			self.massarr = header_dict['MassTable'] 
+			self.time = header_dict['Time'] 
+			self.redshift = header_dict['Redshift'] 
+			self.boxsize = header_dict['BoxSize']
+			self.filenum = header_dict['NumFilesPerSnapshot']
+			self.omega0 = header_dict['Omega0']
+			self.omegaL = header_dict['OmegaLambda']
+			self.hubble = header_dict['HubbleParam']
+			self.sfr = header_dict['Flag_Sfr'] 
+			self.cooling = header_dict['Flag_Cooling']
+			self.double = header_dict['Flag_DoublePrecision']
+			self.stellar_age = header_dict['Flag_StellarAge']
+			self.metals = header_dict['Flag_Metals']
+			self.feedback = header_dict['Flag_Feedback']
 			f.close()
 
 		else:
@@ -99,7 +105,7 @@ class snapshot_header:
 			self.massarr = kwargs.get("massarr")
 			self.time = kwargs.get("time")
 			self.redshift = kwargs.get("redshift")
-  			self.boxsize = kwargs.get("boxsize")
+			self.boxsize = kwargs.get("boxsize")
 			self.filenum = kwargs.get("filenum")
 			self.omega0 = kwargs.get("omega0")
 			self.omegaL = kwargs.get("omegaL")
@@ -144,7 +150,7 @@ class snapshot_header:
 				self.metals = np.array([0], dtype="int32")
                         if (self.feedback is None):	
 				self.feedback = np.array([0], dtype="int32")
-                        if (self.double is None):
+                        if (self.double is None):	
 				self.double = np.array([0], dtype="int32")
 		
 			
@@ -153,7 +159,7 @@ class snapshot_header:
 ##############################
 #READ ROUTINE FOR SINGLE FILE#
 ############################## 
-def read_block_single_file(filename, block_name, dim2, parttype=-1, no_mass_replicate=False, verbose=False):
+def read_block_single_file(filename, block_name, dim2, parttype=-1, no_mass_replicate=False, fill_block_name="", verbose=False):
 
   if (verbose):
 	  print "[single] reading file           : ", filename   	
@@ -164,14 +170,14 @@ def read_block_single_file(filename, block_name, dim2, parttype=-1, no_mass_repl
   massarr = head.massarr
   nall = head.nall
   filenum = head.filenum
-  doubleflag = head.double #GADGET-2
-  #doubleflag = 0 #GADGET-2
+  doubleflag = head.double #GADGET-2 change
+  #doubleflag = 0          #GADGET-2 change
   del head
 
-  f=tables.openFile(filename)
+  f=h5py.File(filename)
 
 
-  #read specific particle type 
+  #read specific particle type (parttype>=0, non-default)
   if parttype>=0:
         if (verbose):
         	print "[single] parttype               : ", parttype 
@@ -181,22 +187,24 @@ def read_block_single_file(filename, block_name, dim2, parttype=-1, no_mass_repl
 		ret_val=np.repeat(massarr[parttype], npart[parttype])
         else:		
 	  	part_name='PartType'+str(parttype)
-	  	ret_val = f.root._f_getChild(part_name)._f_getChild(block_name)[:]
+	  	ret_val = f.__getitem__(part_name).__getitem__(block_name)[:]
         if (verbose):
         	print "[single] read particles (total) : ", ret_val.shape[0]/dim2
 
-  #read all particle types
+  #read all particle types (parttype=-1, default)
   if parttype==-1:
 	first=True
 	dim1=0
 	for parttype in range(0,5):
 		part_name='PartType'+str(parttype)
-		if (f.root.__contains__(part_name)):
+		if (f.keys().__contains__(part_name)):
 			if (verbose):
 				print "[single] parttype               : ", parttype 
 				print "[single] massarr                : ", massarr
 				print "[single] npart                  : ", npart
 
+
+		        #replicate mass block per default (unless no_mass_replicate is set)
 	        	if ((block_name=="Masses") & (npart[parttype]>0) & (massarr[parttype]>0) & (no_mass_replicate==False)):
                        		if (verbose):
                                		print "[single] replicate mass block"
@@ -213,14 +221,38 @@ def read_block_single_file(filename, block_name, dim2, parttype=-1, no_mass_repl
                 	        	print "[single] read particles (total) : ", ret_val.shape[0]/dim2
                                 if (doubleflag==0):
 					ret_val=ret_val.astype("float32")
-			if (f.root._f_getChild(part_name).__contains__(block_name)):
+                                else:
+                                        ret_val=ret_val.astype("float64")
+
+			#fill fill_block_name with zeros if fill_block_name is set and particle type is present and fill_block_name not already stored in file for that particle type
+                        if ((block_name==fill_block_name) & (block_name!="Masses") & (npart[parttype]>0) & (f.__getitem__(part_name).__contains__(block_name)==False)):
+                                if (verbose):
+                                        print "[single] replicate block name", fill_block_name
+                                if (first):
+                                        data=np.repeat(0.0, npart[parttype]*dim2)
+                                        dim1+=data.shape[0]
+                                        ret_val=data
+                                        first=False
+                                else:
+                                        data=np.repeat(0.0, npart[parttype]*dim2)
+                                        dim1+=data.shape[0]
+                                        ret_val=np.append(ret_val, data)
+                                if (verbose):
+                                        print "[single] read particles (total) : ", ret_val.shape[0]/dim2
+                                if (doubleflag==0):
+                                        ret_val=ret_val.astype("float32")
+                                else:
+                                        ret_val=ret_val.astype("float64")
+
+			#default: just read the block
+			if (f.__getitem__(part_name).__contains__(block_name)):
 				if (first):
-					data=f.root._f_getChild(part_name)._f_getChild(block_name)[:]
+					data=f.__getitem__(part_name).__getitem__(block_name)[:]
 					dim1+=data.shape[0]
 					ret_val=data
 					first=False
 				else:
-					data=f.root._f_getChild(part_name)._f_getChild(block_name)[:]
+					data=f.__getitem__(part_name).__getitem__(block_name)[:]
 					dim1+=data.shape[0]
 					ret_val=np.append(ret_val, data)
                 		if (verbose):
@@ -236,11 +268,11 @@ def read_block_single_file(filename, block_name, dim2, parttype=-1, no_mass_repl
 ##############
 #READ ROUTINE#
 ##############
-def read_block(filename, block, parttype=-1, no_mass_replicate=False, verbose=False):
+def read_block(filename, block, parttype=-1, no_mass_replicate=False, fill_block="", verbose=False):
   if (verbose):
           print "reading block          : ", block
 
-  if parttype not in [-1,0,1,2,3,4,5]:
+  if parttype not in [-1,0,1,2,3,4,5,6]:
     print "[error] wrong parttype given"
     sys.exit()
 
@@ -259,6 +291,7 @@ def read_block(filename, block, parttype=-1, no_mass_replicate=False, verbose=Fa
   filenum = head.filenum
   del head
 
+ 
   if (datablocks.has_key(block)):
         block_name=datablocks[block][0]
         dim2=datablocks[block][1]
@@ -271,6 +304,14 @@ def read_block(filename, block, parttype=-1, no_mass_replicate=False, verbose=Fa
         print "[error] Block type ", block, "not known!"
         sys.exit()
 
+  fill_block_name=""
+  if (fill_block!=""):
+        if (datablocks.has_key(fill_block)):
+                fill_block_name=datablocks[fill_block][0]
+                dim2=datablocks[fill_block][1]
+                if (verbose):
+                        print "Block filling active   : ", fill_block_name
+
 
   if (multiple_files):	
 	first=True
@@ -280,12 +321,12 @@ def read_block(filename, block, parttype=-1, no_mass_replicate=False, verbose=Fa
 		if (verbose):
 			print "Reading file           : ", num, curfilename 
 		if (first):
-			data = read_block_single_file(curfilename, block_name, dim2, parttype, verbose)
+			data = read_block_single_file(curfilename, block_name, dim2, parttype, no_mass_replicate, fill_block_name, verbose)
 			dim1+=data.shape[0]
 			ret_val = data
 			first = False 
 		else:	 
-                        data = read_block_single_file(curfilename, block_name, dim2, parttype, verbose)
+                        data = read_block_single_file(curfilename, block_name, dim2, parttype, no_mass_replicate, fill_block_name, verbose)
                         dim1+=data.shape[0]
 			ret_val=np.append(ret_val, data)
                 if (verbose):
@@ -294,7 +335,7 @@ def read_block(filename, block, parttype=-1, no_mass_replicate=False, verbose=Fa
 	if ((dim1>0) & (dim2>1)):
 		ret_val=ret_val.reshape(dim1,dim2)	
   else:
-	ret_val=read_block_single_file(curfilename, block_name, dim2, parttype, no_mass_replicate, verbose)
+	ret_val=read_block_single_file(curfilename, block_name, dim2, parttype, no_mass_replicate, fill_block_name, verbose)
 
   return ret_val
 
@@ -304,10 +345,10 @@ def read_block(filename, block, parttype=-1, no_mass_replicate=False, verbose=Fa
 #############
 def list_blocks(filename, parttype=-1, verbose=False):
   
-  f=tables.openFile(filename)
+  f=h5py.File(filename)
   for parttype in range(0,5):
   	part_name='PartType'+str(parttype)
-        if (f.root.__contains__(part_name)):
+        if (f.__contains__(part_name)):
         	print "Parttype contains : ", parttype
 		print "-------------------"
 		iter = it=datablocks.__iter__()
@@ -315,7 +356,7 @@ def list_blocks(filename, parttype=-1, verbose=False):
 		while (1):
 			if (verbose):
 				print "check ", next, datablocks[next][0]
-			if (f.root._f_getChild(part_name).__contains__(datablocks[next][0])):
+			if (f.__getitem__(part_name).__contains__(datablocks[next][0])):
   				print next, datablocks[next][0]
 			try:
 				next=iter.next()
@@ -329,16 +370,16 @@ def list_blocks(filename, parttype=-1, verbose=False):
 def contains_block(filename, tag, parttype=-1, verbose=False):
   
   contains_flag=False
-  f=tables.openFile(filename)
+  f=h5py.File(filename)
   for parttype in range(0,5):
         part_name='PartType'+str(parttype)
-        if (f.root.__contains__(part_name)):
+        if (f.__contains__(part_name)):
                 iter = it=datablocks.__iter__()
                 next = iter.next()
                 while (1):
                         if (verbose):
                                 print "check ", next, datablocks[next][0]
-                        if (f.root._f_getChild(part_name).__contains__(datablocks[next][0])):
+                        if (f.__getitem__(part_name).__contains__(datablocks[next][0])):
                                 if (next.find(tag)>-1):
 					contains_flag=True	
                         try:
@@ -352,7 +393,7 @@ def contains_block(filename, tag, parttype=-1, verbose=False):
 #CHECK FILE#
 ############
 def check_file(filename):
-  f=tables.openFile(filename)
+  f=h5py.File(filename)
   f.close()
                                                                                                                                                   
 
@@ -371,7 +412,7 @@ def check_file(filename):
 #OPEN FILE FOR WRITING#
 #######################
 def openfile(filename):
-	f=tables.openFile(filename, mode = "w")	 
+	f=h5py.File(filename, mode = "w")	 
 	return f
 
 ############
@@ -384,40 +425,40 @@ def closefile(f):
 #WRITE SNAPSHOT HEADER OBJECT#
 ##############################
 def writeheader(f, header):	
-    	group_header=f.createGroup(f.root, "Header")
-	group_header._v_attrs.NumPart_ThisFile=header.npart
-	group_header._v_attrs.NumPart_Total=header.nall
-	group_header._v_attrs.NumPart_Total_HighWord=header.nall_highword
-	group_header._v_attrs.MassTable=header.massarr
-	group_header._v_attrs.Time=header.time
-	group_header._v_attrs.Redshift=header.redshift
-	group_header._v_attrs.BoxSize=header.boxsize
-	group_header._v_attrs.NumFilesPerSnapshot=header.filenum						
-	group_header._v_attrs.Omega0=header.omega0							
-	group_header._v_attrs.OmegaLambda=header.omegaL							
-	group_header._v_attrs.HubbleParam=header.hubble	
-	group_header._v_attrs.Flag_Sfr=header.sfr	
-	group_header._v_attrs.Flag_Cooling=header.cooling
-	group_header._v_attrs.Flag_StellarAge=header.stellar_age		
-	group_header._v_attrs.Flag_Metals=header.metals		
-	group_header._v_attrs.Flag_Feedback=header.feedback				
-	group_header._v_attrs.Flag_DoublePrecision=header.double			
-
+    	group_header=f.create_group("Header")
+	group_header.attrs.__setitem__("NumPart_ThisFile",header.npart)
+	group_header.attrs.__setitem__("NumPart_Total",header.nall)
+	group_header.attrs.__setitem__("NumPart_Total_HighWord",header.nall_highword)
+	group_header.attrs.__setitem__("MassTable",header.massarr)
+	group_header.attrs.__setitem__("Time",header.time)
+	group_header.attrs.__setitem__("Redshift",header.redshift)
+	group_header.attrs.__setitem__("BoxSize",header.boxsize)
+	group_header.attrs.__setitem__("NumFilesPerSnapshot",header.filenum)
+        group_header.attrs.__setitem__("Omega0",header.omega0)
+	group_header.attrs.__setitem__("OmegaLambda",header.omegaL)
+        group_header.attrs.__setitem__("HubbleParam",header.hubble)	
+	group_header.attrs.__setitem__("Flag_Sfr",header.sfr)	
+	group_header.attrs.__setitem__("Flag_Cooling",header.cooling)
+	group_header.attrs.__setitem__("Flag_StellarAge",header.stellar_age)
+	group_header.attrs.__setitem__("Flag_Metals",header.metals)
+	group_header.attrs.__setitem__("Flag_Feedback",header.feedback)
+	group_header.attrs.__setitem__("Flag_DoublePrecision",header.double)
+        
 ###############
 #WRITE ROUTINE#
 ###############
 def write_block(f, block, parttype, data):
 	part_name="PartType"+str(parttype)
-	if (f.root.__contains__(part_name)==False):
-	    	group=f.createGroup(f.root, part_name)
+	if (f.__contains__(part_name)==False):
+	    	group=f.create_group(part_name)
 	else:
-		group=f.root._f_getChild(part_name)	
+		group=f.__getitem__(part_name)	
 	
 	if (datablocks.has_key(block)):
         	block_name=datablocks[block][0]
 	        dim2=datablocks[block][1]		
 		if (group.__contains__(block_name)==False):
-			table=f.createArray(group, block_name, data)
+			table=group.create_dataset(block_name, data=data)
 		else:
 			print "I/O block already written"
 	else:

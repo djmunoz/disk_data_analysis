@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 #from joblib import Parallel, delayed
 #import multiprocessing
 from string import split
-import disk_simulation_data 
+#import disk_simulation_data 
 from disk_hdf5 import readsnapHDF5 as rs
 
 def compute_cell_size_profile(radii,cell_vol,reference_radius):
@@ -23,6 +23,36 @@ def compute_cell_size_profile(radii,cell_vol,reference_radius):
             
     return np.array(cell_size)
 
+
+def compute_smoothed_radial_placements(radii,volumes,Rmin,Rmax,NRmin=128):
+
+    '''
+    Function to compute a collection of effective radial zones from unstructured-mesh data.
+
+    '''
+
+    # First attempt: a logarithmically-space radial grid
+    nzones = (np.log10(Rmax)-np.log10(Rmin))/np.sqrt(volumes.min()) * Rmin
+    radius_arr = np.logspace(np.log10(Rmin),np.log10(Rmax),nzones)
+
+    while True:
+        # Bin the original radial placements
+        
+        digitized = np.digitize(radii, radius_arr)
+        bin_pop = np.array([radii[digitized == i].shape[0] for i in range(1, len(radius_arr))])
+
+        # Remove bins that underpopulated, but not more than 5 at a time
+        ind = (bin_pop <= 0.1 * bin_pop.max()) & (bin_pop < sorted(bin_pop)[5])
+        if (bin_pop[ind].shape[0] == 0): break
+        radius_arr = np.append(np.append(radius_arr[0],radius_arr[1:][np.invert(ind)]),radius_arr[-1])
+        # Smooth the sharp transitions
+        w = np.hanning(7)
+        radius_arr = np.convolve(w/w.sum(),radius_arr,mode='valid')
+
+        if (radius_arr.shape[0] <= NRmin): break
+        
+    return radius_arr
+        
 
 def compute_weighted_azimuthal_average(quantity,radii,cell_vol,reference_radius,bin_width):
     # The azimuthal average is weighted by cells volume
@@ -51,24 +81,20 @@ def compute_profiles(quantity,radii,volumes,rad_list,num_cores=1):
     
     
     quantity_av = [average_quantity(rad) for rad in rad_list]
-    print len(quantity_av)
     #quantity_av = average_quantity(rad_list[2])
 
     return quantity_av
     
 
-def compute_mdot_profile(rad_list,num,path_to_files,snapshot_base,code="AREPO",delta_t=0):
+def compute_mdot_profile(snapshot,rad_list,code="AREPO",delta_t=0):
 
 
-    filename_prefix=path_to_files+snapshot_base
-    time = disk_simulation_data.get_snapshot_time(filename_prefix,num,code=code,snapinterval=delta_t)
-    print "SNAPSHOT #",num," TIME=",time
-    dens,radius,vr,vol,ids = disk_simulation_data.get_snapshot_data(filename_prefix,num,["RHO","R","VELR","VOL","ID"],code=code)
-    mdot = 2*np.pi * dens * vr * radius
-    ind = ids > -2
+    time = snapshot.header.time + delta_t
+
+    mdot = 2 * np.pi * snapshot.gas.RHO * snapshot.gas.VELR * snapshot.gas.R
+    ind = snapshot.gas.ID > -2
         
-    mdot_av=compute_profiles(mdot[ind],radius[ind],vol[ind],rad_list)
+    mdot_av=compute_profiles(mdot[ind],snapshot.gas.R[ind],snapshot.gas.MASS[ind]/snapshot.gas.RHO[ind],rad_list)
     
-    print len(mdot_av),len([time]+ mdot_av)
-    return np.array([time]+mdot_av)
+    return np.array(mdot_av)
 

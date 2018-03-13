@@ -235,7 +235,7 @@ def read_binary_externalforces_file(forcefilename,
     
     return time,x1,y1,x2,y2,vx1,vy1,vx2,vy2,\
         fx1_a,fy1_a,fx2_a,fy2_a,fx1_g,fy1_g,fx2_g,fy2_g,\
-        dspin1t,dspin2t
+        dspin1dt,dspin2dt
 
 
 def read_binary_accretion_file(accretionfilename,

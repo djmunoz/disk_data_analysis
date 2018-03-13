@@ -1,4 +1,4 @@
-from disk_hdf5 import readsnapHDF5 as rs
+from disk_hdf5 import snapHDF5 as rs
 from disk_voronoi import voronoi_simulation_data 
 #import readsnap_PLUTO as rspluto
 #import pluto_data_utils as rspluto
@@ -82,25 +82,34 @@ class snapshot():
         
         if (self.parttype == 0):
             self.gas = gas_data(**kwargs)
+        else:
+            self.gas = None
         if (self.parttype > 1) & (self.parttype <= 5):
             self.particle = particle_data(**kwargs)
-        
+        else:
+            self.particle = None
     def add_data(self,data,fieldname,parttype=0):
         if (parttype == 0):
             self.gas.add_gas_data(data,fieldname)
         if (parttype > 1) & (parttype <= 5):
             self.gas.add_particle_data(data,fieldname)
             
-def get_snapshot_data(filename_prefix,snap_num,quantities,parttype= None ,code="AREPO"):
+def get_snapshot_data(filename_prefix='./',snap_num = None,quantities=None,parttype= None ,
+                      code="AREPO",filename = None):
 
     nquant=len(quantities)
     outquant = []
     if (parttype is None): types = [0,1,2,3,4]
     else: types = [parttype]
 
+    if (filename is None):
+        path = filename_prefix+str(snap_num).zfill(3)
+    else:
+        path  = filename
+        
     if (code == "AREPO"):
-        header = rs.snapshot_header(filename_prefix+str(snap_num).zfill(3))
-
+        header = rs.snapshot_header(path)
+        
     if (nquant == 0):
         snap = snapshot(parttype=parttype,header=header)
         return snap
@@ -110,10 +119,10 @@ def get_snapshot_data(filename_prefix,snap_num,quantities,parttype= None ,code="
         if (code == "AREPO"):
             for parttype in types:
                 if (quant.ljust(4) in datablocks):
-                    outquant.append(rs.read_block(filename_prefix+str(snap_num).zfill(3),quant.ljust(4),parttype=parttype))
+                    outquant.append(rs.read_block(path,quant.ljust(4),parttype=parttype))
                 elif (quant in disk_data_fields):
                     BoxX,BoxY = header.boxsize,header.boxsize
-                    pos = rs.read_block(filename_prefix+str(snap_num).zfill(3),"POS ", parttype=parttype)
+                    pos = rs.read_block(path,"POS ", parttype=parttype)
                     pos[:,0],pos[:,1] = (pos[:,0]- BoxX/2), (pos[:,1]- BoxY/2)
                     radius = np.sqrt(pos[:,0]**2 + pos[:,1]**2)
                     phi = np.arctan2(pos[:,1],pos[:,0])
@@ -122,7 +131,7 @@ def get_snapshot_data(filename_prefix,snap_num,quantities,parttype= None ,code="
                     if (quant == "PHI"):
                         outquant.append(phi)
                     if ((quant == "VELR") | (quant == "VELPHI") | (quant == "VELX") | (quant == "VELY" )):
-                        vel = rs.read_block(filename_prefix+str(snap_num).zfill(3),"VEL ", parttype=parttype)
+                        vel = rs.read_block(path,"VEL ", parttype=parttype)
                         vphi = -np.sin(phi) * vel[:,0] + np.cos(phi) * vel[:,1]
                         vr   =  np.cos(phi) * vel[:,0] + np.sin(phi) * vel[:,1]
                         if (quant == "VELR"):
@@ -170,6 +179,31 @@ def get_snapshot_data(filename_prefix,snap_num,quantities,parttype= None ,code="
     snap = snapshot(parttype=parttype,header=header,**attributes)
     
     return snap
+
+
+def write_snapshot(snapshot,filename="./disk.dat.hdf5",time=0, \
+                   relax_density_in_input = False):
+
+    f=rs.openfile(filename)
+    rs.writeheader(f, snapshot.header)
+    rs.write_block(f, "POS ", 0, snapshot.gas.POS)
+    rs.write_block(f, "VEL ", 0, snapshot.gas.VEL)
+    if (relax_density_in_input):
+        rs.write_block(f, "MASS", 0, snapshot.gas.RHO)
+    else:
+        if (snapshot.gas.MASS is not None):
+            rs.write_block(f, "MASS", 0, snapshot.gas.MASS)
+        rs.write_block(f, "RHO ", 0, snapshot.gas.RHO)
+    #rs.write_block(f, "U   ", 0, snapshot.gas.UTHERM)
+    rs.write_block(f, "ID  ", 0, snapshot.gas.ID)
+    
+    if (snapshot.particle is not None):
+        rs.write_block(f, "POS ", STAR_PARTTYPE, snapshot.particle.POS)
+        rs.write_block(f, "VEL ", STAR_PARTTYPE, snapshot.particle.VEL)
+        rs.write_block(f, "MASS", STAR_PARTTYPE, snapshot.particle.MASS)
+        rs.write_block(f, "ID  ", STAR_PARTTYPE, snapshot.particle.ID)
+
+    rs.closefile(f)
 
 
 def get_snapshot_time(filename,snapnum,code="AREPO",snapinterval=0):
