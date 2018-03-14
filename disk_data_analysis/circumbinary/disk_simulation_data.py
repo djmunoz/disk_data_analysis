@@ -1,5 +1,8 @@
 from disk_hdf5 import snapHDF5 as rs
-from disk_voronoi import voronoi_simulation_data 
+try:
+    from disk_voronoi import voronoi_simulation_data 
+except ImportError:
+    None
 #import readsnap_PLUTO as rspluto
 #import pluto_data_utils as rspluto
 import numpy as np

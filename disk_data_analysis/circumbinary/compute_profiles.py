@@ -32,7 +32,7 @@ def compute_smoothed_radial_placements(radii,volumes,Rmin,Rmax,NRmin=128):
     '''
 
     # First attempt: a logarithmically-space radial grid
-    nzones = (np.log10(Rmax)-np.log10(Rmin))/np.sqrt(volumes.min()/np.pi) * Rmin
+    nzones = (np.log10(Rmax)-np.log10(Rmin))/np.sqrt(volumes.min()/np.pi) * Rmin/2
     radius_arr = np.logspace(np.log10(Rmin),np.log10(Rmax),nzones)
 
     while True:
@@ -42,15 +42,17 @@ def compute_smoothed_radial_placements(radii,volumes,Rmin,Rmax,NRmin=128):
         bin_pop = np.array([radii[digitized == i].shape[0] for i in range(1, len(radius_arr))])
 
         # Remove bins that underpopulated, but not more than 5 at a time
-        ind = (bin_pop <= 0.05 * bin_pop.max()) & (bin_pop < sorted(bin_pop)[5])
+        ind = (bin_pop <= 0.03 * bin_pop.max()) & (bin_pop <= sorted(bin_pop)[4])
         if (bin_pop[ind].shape[0] == 0): break
-        radius_arr = np.append(np.append(radius_arr[0],radius_arr[1:][np.invert(ind)]),radius_arr[-1])
+        radius_arr = np.append(np.append(Rmin,radius_arr[1:][np.invert(ind)]),Rmax)
         # Smooth the sharp transitions
-        w = np.hanning(3)
-        radius_arr = np.convolve(w/w.sum(),radius_arr,mode='valid')
+        w = np.hanning(5)
+        radius_arr = np.append(Rmin,np.convolve(w/w.sum(),radius_arr[1:],mode='valid'))
+        print radius_arr[0]
 
         if (radius_arr.shape[0] <= NRmin): break
-        
+    
+    print bin_pop,bin_pop.min(),bin_pop.max(),bin_pop.mean(),sorted(bin_pop)[5]  
     return radius_arr
         
 
