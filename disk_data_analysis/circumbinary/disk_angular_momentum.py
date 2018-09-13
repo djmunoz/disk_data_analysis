@@ -47,7 +47,7 @@ def compute_angular_momentum_flux_advection(snapshot,grid):
     X0, Y0 = 0.5 * snapshot.header.boxsize, 0.5 * snapshot.header.boxsize
     gridX, gridY = grid.X + X0, grid.Y + Y0
 
-
+    '''
     # Compute the cell-centered quantities
     jdot_per_cell = -snapshot.gas.RHO * ((snapshot.gas.POS[:,0] - X0) * (snapshot.gas.POS[:,1] - Y0) * \
                                          (snapshot.gas.VELY**2 - snapshot.gas.VELX**2) + \
@@ -60,6 +60,21 @@ def compute_angular_momentum_flux_advection(snapshot,grid):
                                                         quantities=['ANGMOMFLUX'],method = 'nearest')[0]
     
     del snapshot.gas.ANGMOMFLUX
+    '''
+    angmom_dens = snapshot.gas.RHO * snapshot.gas.R * snapshot.gas.VELPHI
+    snapshot.add_data(angmom_dens,'ANGMOMDENS')
+    angmomdens_interp =  disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
+                                                               quantities=['ANGMOMDENS'],method = 'linear')[0]
+    del snapshot.gas.ANGMOMDENS
+    velr_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
+                                                        quantities=['VELR'],method = 'linear')[0]
+    #velphi_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
+    #                                                    quantities=['VELPHI'],method = 'nearest')[0]
+    #sigma_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
+    #                                                    quantities=['RHO'],method = 'nearest')[0]
+    #jdot_interp = -velr_interp * velphi_interp * sigma_interp * grid.R
+
+    jdot_interp = -velr_interp * angmomdens_interp
     return jdot_interp
     
 def compute_angular_momentum_flux_viscosity(snapshot,grid, alpha = 0.1, h0 = 0.1):
@@ -83,18 +98,35 @@ def compute_angular_momentum_flux_viscosity(snapshot,grid, alpha = 0.1, h0 = 0.1
     # Compute the cell-centered quantities
     GM = 1.0
     def nu(R): return alpha * h0**2 * np.sqrt(GM) * R**(0.5)
+    '''
     nu_cell = nu(snapshot.gas.R)
     jdot_per_cell = -snapshot.gas.RHO * (2 * (snapshot.gas.POS[:,0] - X0) * (snapshot.gas.POS[:,1] - Y0) * \
                                          (snapshot.gas.GRVY[:,1] - snapshot.gas.GRVX[:,0]) + \
                                          ((snapshot.gas.POS[:,0] - X0)**2 - (snapshot.gas.POS[:,1] - Y0)**2) * \
                                          (snapshot.gas.GRVX[:,1] + snapshot.gas.GRVY[:,0])) * nu_cell / snapshot.gas.R 
-    
     snapshot.add_data(jdot_per_cell,'ANGMOMFLUX')
     # interpolate onto the grid
     jdot_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
                                                         quantities=['ANGMOMFLUX'],method = 'nearest')[0]
-
     del snapshot.gas.ANGMOMFLUX
+    '''
+
+    nugrid = nu(grid.R)
+    sigma_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
+                                                         quantities=['RHO'],method = 'linear')[0]
+    grad1 = (snapshot.gas.GRVY[:,1] - snapshot.gas.GRVX[:,0])
+    snapshot.add_data(grad1,'GRAD1')
+    grad1_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
+                                                         quantities=['GRAD1'],method = 'nearest')[0]
+    grad2 = (snapshot.gas.GRVX[:,1] + snapshot.gas.GRVY[:,0])
+    snapshot.add_data(grad2,'GRAD2')
+    grad2_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
+                                                         quantities=['GRAD2'],method = 'nearest')[0]
+    del snapshot.gas.GRAD1,snapshot.gas.GRAD2
+
+    jdot_interp = -nugrid * sigma_interp / grid.R * (2 * grid.X * grid.Y * grad1_interp +\
+                                                    (grid.X**2-grid.Y**2) * grad2_interp)
+    
     return jdot_interp
 
 def compute_angular_momentum_flux_gravity(snapshot,grid):
@@ -134,20 +166,30 @@ def compute_mass_flux(snapshot,grid):
     X0, Y0 = 0.5 * snapshot.header.boxsize, 0.5 * snapshot.header.boxsize
     gridX, gridY = grid.X + X0, grid.Y + Y0
 
-
+    '''
     # Compute the cell-centered quantities
-    mdot_per_cell = -snapshot.gas.RHO * ((snapshot.gas.POS[:,0] - X0) * snapshot.gas.VELX + \
-                                         (snapshot.gas.POS[:,1] - Y0) * snapshot.gas.VELY) / snapshot.gas.R
+    if hasattr(snapshot.gas, 'VELR'):
+        mdot_per_cell = -snapshot.gas.RHO * snapshot.gas.VELR
+    else:
+        mdot_per_cell = -snapshot.gas.RHO * ((snapshot.gas.POS[:,0] - X0) * snapshot.gas.VELX + \
+                                             (snapshot.gas.POS[:,1] - Y0) * snapshot.gas.VELY) / snapshot.gas.R
       
     snapshot.add_data(mdot_per_cell,'MASSFLUX')
     # interpolate onto the grid
     mdot_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
-                                                        quantities=['MASSFLUX'],method = 'nearest')[0]
+                                                        quantities=['MASSFLUX'],method = 'linear')[0]
+    '''
+    
+    velr_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
+                                                        quantities=['VELR'],method = 'linear')[0]
+    sigma_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
+                                                        quantities=['RHO'],method = 'linear')[0]
+    mdot_interp = -velr_interp * sigma_interp
 
     return mdot_interp
     
     
-def mass_advection(snapshot,grid):
+def compute_radial_mass_current_advection(snapshot,grid):
     '''
     Compute the mass flux due to advection
     '''
@@ -155,24 +197,28 @@ def mass_advection(snapshot,grid):
     X0, Y0 = 0.5 * snapshot.header.boxsize, 0.5 * snapshot.header.boxsize
     gridX, gridY = grid.X + X0, grid.Y + Y0
 
-
+    '''
     # Compute the cell-centered quantities
-    mdot_per_cell = -snapshot.gas.RHO * ((snapshot.gas.POS[:,0] - X0) * snapshot.gas.VELX + \
-                                         (snapshot.gas.POS[:,1] - Y0) * snapshot.gas.VELY) / snapshot.gas.R
+    if hasattr(snapshot.gas, 'VELR'):
+        mdot_per_cell = -snapshot.gas.RHO * snapshot.gas.VELR
+    else:
+        mdot_per_cell = -snapshot.gas.RHO * ((snapshot.gas.POS[:,0] - X0) * snapshot.gas.VELX + \
+                                             (snapshot.gas.POS[:,1] - Y0) * snapshot.gas.VELY) / snapshot.gas.R
       
     snapshot.add_data(mdot_per_cell,'MASSFLUX')
     # interpolate onto the grid
     mdot_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
-                                                        quantities=['MASSFLUX'],method = 'nearest')[0]
+                                                        quantities=['MASSFLUX'],method = 'linear')[0]
+    '''
 
+    mdot_interp = compute_mass_flux(snapshot,grid)
     # Take the azimuthal integral to get the profile
-
     mdot = (mdot_interp * grid.R).mean(axis=0) * 2 * np.pi
     
     return mdot
 
 
-def angular_momentum_advection(snapshot,grid):
+def compute_radial_angular_momentum_current_advection(snapshot,grid):
     '''
     Compute the angular momentum trasfer rate profile due to advection
     '''
@@ -184,7 +230,7 @@ def angular_momentum_advection(snapshot,grid):
     return jdot
 
 
-def angular_momentum_viscosity(snapshot,grid, alpha=0.1, h0=0.1):
+def compute_radial_angular_momentum_current_viscosity(snapshot,grid, alpha=0.1, h0=0.1):
     '''
     Compute the angular momentum transfer rate profile due to viscous diffusion of momentum
     '''
@@ -197,7 +243,7 @@ def angular_momentum_viscosity(snapshot,grid, alpha=0.1, h0=0.1):
 
 
     
-def angular_momentum_gravity(snapshot,grid):
+def compute_radial_angular_momentum_current_gravity(snapshot,grid):
     '''
     Compute the angular momentum transfer rate profile due to an external (non-axisymmetric) gravitational source
 

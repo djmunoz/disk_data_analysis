@@ -69,6 +69,8 @@ def disk_interpolate_primitive_quantities(snapshot, gridXY, quantities = None, m
         
     return  interp_quant
 
+
+
 def disk_interpolate_gradient_quantities(snapshot, gridXY, quantities = None, method = 'nearest'):
 
     if (quantities is None):
@@ -85,6 +87,23 @@ def disk_interpolate_gradient_quantities(snapshot, gridXY, quantities = None, me
         
     return interp_gradquant
         
+def disk_interpolate_vector_quantities(snapshot, gridXY, quantities = None, method = 'linear',dims = 2):
+
+    x,y = snapshot.gas.POS[:,0], snapshot.gas.POS[:,1]
+
+    interp_quant = []
+    for quant in quantities:
+        quant = getattr(snapshot.gas,quant)
+        quant_dim = quant.shape[1]
+        interp = interpolate_quantities(x,y, [gridXY[0],gridXY[1]], quant[:,0], method = method).reshape(1,len(gridXY[0]),len(gridXY[1]))
+        for kk in range(1,min(quant_dim,dims)):
+            interp = np.vstack([interp,
+                               interpolate_quantities(x,y, [gridXY[0],gridXY[1]], quant[:,kk], method = method).reshape(1,len(gridXY[0]),len(gridXY[1]))])
+        interp_quant.append(interp)
+
+    return  interp_quant
+
+
 
 def compute_gradient_on_grid(x,y,quantity,grid):
 

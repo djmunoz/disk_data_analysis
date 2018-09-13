@@ -3,7 +3,7 @@ try:
     from disk_voronoi import voronoi_simulation_data 
 except ImportError:
     None
-#import readsnap_PLUTO as rspluto
+import readsnap_PLUTO as rspluto
 #import pluto_data_utils as rspluto
 import numpy as np
 import sys
@@ -91,6 +91,7 @@ class snapshot():
             self.particle = particle_data(**kwargs)
         else:
             self.particle = None
+            
     def add_data(self,data,fieldname,parttype=0):
         if (parttype == 0):
             self.gas.add_gas_data(data,fieldname)
@@ -112,6 +113,10 @@ def get_snapshot_data(filename_prefix='./',snap_num = None,quantities=None,partt
         
     if (code == "AREPO"):
         header = rs.snapshot_header(path)
+
+    if (code == "PLUTO"):
+        header = rs.snapshot_header()
+
         
     if (nquant == 0):
         snap = snapshot(parttype=parttype,header=header)
@@ -150,29 +155,26 @@ def get_snapshot_data(filename_prefix='./',snap_num = None,quantities=None,partt
                     sys.exit()  
 
         elif (code == "PLUTO"):
+            header_file = 'grid.out'
             if (quant.ljust(4) in datablocks):
-                outquant.append(rspluto.read_data_block(filename_prefix,snap_num,quant.ljust(4)))
+                outquant.append(rspluto.pluto_read_block(filename_prefix,snap_num,quant.ljust(4),
+                                                         header_file=header_file))
             elif (quant in disk_data_fields):
-                if ((quant == "R") | (quant == "PHI")):
-                    pos = rspluto.read_data_block(filename_prefix,snap_num,"POS ")
-                    radius = pos[:,0]
-                    phi = pos[:,1]
-                    if (quant == "R"):
-                        outquant.append(radius)
-                    if (quant == "PHI"):
-                        outquant.append(phi)
-                if ((quant == "VELR") | (quant == "VELPHI")):
-                    vel = rspluto.read_data_block(filename_prefix,snap_num,"VEL ")
-                    vphi = vel[:,1]
-                    vr   = vel[:,0]
-                    if (quant == "VELR"):
-                        outquant.append(vr)
-                    if (quant == "VELPHI"):
-                        outquant.append(vphi)
+                if (quant == "R"):
+                    radius = rspluto.pluto_read_block(filename_prefix,snap_num,"R   ",header_file=header_file)
+                    outquant.append(radius)
+                if (quant == "PHI"):
+                    phi = rspluto.pluto_read_block(filename_prefix,snap_num,"PHI ",header_file=header_file)
+                    outquant.append(phi)
+                if (quant == "VELR"):
+                    vr = rspluto.pluto_read_block(filename_prefix,snap_num,"VR  ",header_file=header_file)
+                    outquant.append(vr)
+                if (quant == "VELPHI"):
+                    vphi =rspluto.pluto_read_block(filename_prefix,snap_num,"VPHI",header_file=header_file)
+                    outquant.append(vphi)
             else: 
                 print "[error] Quantity type ", quant, "not known!"
                 sys.exit()  
-                
         else:
             print "[error] Simulations code ", code, "not known or supported!"
             sys.exit()  

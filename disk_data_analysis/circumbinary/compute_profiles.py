@@ -1,10 +1,8 @@
 import numpy as np
-import matplotlib.pyplot as plt
-#from joblib import Parallel, delayed
-#import multiprocessing
-from string import split
-#import disk_simulation_data 
-from disk_hdf5 import readsnapHDF5 as rs
+from scipy.integrate import cumtrapz
+from disk_orbital_elements import compute_disk_eccentriciy_vector,\
+    compute_disk_angular_momentum_vector
+from disk_simulation_data import *
 
 def compute_cell_size_profile(radii,cell_vol,reference_radius):
 # In unstructured meshes, we need to estimate a representative cell size
@@ -59,9 +57,9 @@ def compute_smoothed_radial_placements(radii,volumes,Rmin,Rmax,NRmin=128):
 def compute_weighted_azimuthal_average(quantity,radii,cell_vol,reference_radius,bin_width):
     # The azimuthal average is weighted by cells volume
 
-    cell_ind = (radii < (reference_radius+1.5*bin_width)) & (radii > (reference_radius-1.5*bin_width)) 
+    cell_ind = (radii < (reference_radius+3.0*bin_width)) & (radii > (reference_radius-3.0*bin_width)) 
     #gaussian kernel function strongly peaked at r=reference_radius
-    kernel=np.exp(-(radii[cell_ind]-(reference_radius))**2/2/(0.4*bin_width)**2)
+    kernel=np.exp(-(radii[cell_ind]-(reference_radius))**2/2/(0.5*bin_width)**2)
     weight = kernel * cell_vol[cell_ind] / radii[cell_ind]
     norm = weight.sum()
 
@@ -72,7 +70,7 @@ def compute_weighted_azimuthal_average(quantity,radii,cell_vol,reference_radius,
     return mu
 
 
-def compute_profiles(quantity,radii,volumes,rad_list,num_cores=1):
+def compute_profiles(quantity,radii,volumes,rad_list):
     #Loop over values of radius in rad_list
     
     def average_quantity(r):
@@ -88,15 +86,120 @@ def compute_profiles(quantity,radii,volumes,rad_list,num_cores=1):
     return quantity_av
     
 
-def compute_mdot_profile(snapshot,rad_list,code="AREPO",delta_t=0):
+
+def compute_mdot_profile(snapshot,rad_list,code="AREPO"):
 
 
-    time = snapshot.header.time + delta_t
-
-    mdot = 2 * np.pi * snapshot.gas.RHO * snapshot.gas.VELR * snapshot.gas.R
+    vol = snapshot.gas.MASS/snapshot.gas.RHO
+    mdot = -snapshot.gas.RHO * snapshot.gas.VELR 
     ind = snapshot.gas.ID > -2
-        
-    mdot_av=compute_profiles(mdot[ind],snapshot.gas.R[ind],snapshot.gas.MASS[ind]/snapshot.gas.RHO[ind],rad_list)
-    
+
+    mdot_av=compute_profiles(mdot[ind],snapshot.gas.R[ind],vol[ind],rad_list)
+
+    mdot_av[:] *= 2 * np.pi *  rad_list[:]
     return np.array(mdot_av)
 
+
+def compute_jdot_adv_profile(snapshot,rad_list,code="AREPO"):
+
+
+    vol = snapshot.gas.MASS/snapshot.gas.RHO
+    jdot = -snapshot.gas.RHO * snapshot.gas.VELR * snapshot.gas.VELPHI * snapshot.gas.R
+    ind = snapshot.gas.ID > -2
+
+    jdot_av=compute_profiles(jdot[ind],snapshot.gas.R[ind],vol[ind],rad_list)
+
+    jdot_av[:] *= 2 * np.pi *  rad_list[:]
+    return np.array(jdot_av)
+
+
+def compute_jdot_visc_profile(snapshot,rad_list,code="AREPO", alpha = 0.1, h0 = 0.1):
+
+    X0, Y0 = 0.5 * snapshot.header.boxsize, 0.5 * snapshot.header.boxsize
+    vol = snapshot.gas.MASS/snapshot.gas.RHO
+    # add gradients
+    gradientvx = compute_snapshot_gradient(snapshot,'VELX')
+    gradientvy = compute_snapshot_gradient(snapshot,'VELY')
+    snapshot.add_data(gradientvx,'GRVX')
+    snapshot.add_data(gradientvy,'GRVY')
+    GM = 1.0
+    def nu(R): return alpha * h0**2 * np.sqrt(GM) * R**(0.5)
+    nu_cell = nu(snapshot.gas.R)
+    jdot = -snapshot.gas.RHO * (2 * (snapshot.gas.POS[:,0] - X0) * (snapshot.gas.POS[:,1] - Y0) * \
+                                (snapshot.gas.GRVY[:,1] - snapshot.gas.GRVX[:,0]) + \
+                                ((snapshot.gas.POS[:,0] - X0)**2 - (snapshot.gas.POS[:,1] - Y0)**2) * \
+                                (snapshot.gas.GRVX[:,1] + snapshot.gas.GRVY[:,0])) * nu_cell / snapshot.gas.R
+
+    ind = snapshot.gas.ID > -2
+    jdot_av=compute_profiles(jdot[ind],snapshot.gas.R[ind],vol[ind],rad_list)
+
+    jdot_av[:] *= 2 * np.pi *  rad_list[:]
+    return np.array(jdot_av)
+
+
+def compute_jdot_grav_profile(snapshot,rad_list,code="AREPO", alpha = 0.1, h0 = 0.1):
+    
+    X0, Y0 = 0.5 * snapshot.header.boxsize, 0.5 * snapshot.header.boxsize
+    vol = snapshot.gas.MASS/snapshot.gas.RHO
+    # add gradients
+    jdotdens = -snapshot.gas.RHO * ((snapshot.gas.POS[:,0] - X0) * (-snapshot.gas.ACCE[:,1]) - \
+                                    (snapshot.gas.POS[:,1] - Y0) * (-snapshot.gas.ACCE[:,0])) 
+    ind = snapshot.gas.ID > -2
+    jdotdens_av=compute_profiles(jdotdens[ind],snapshot.gas.R[ind],vol[ind],rad_list)
+    jdot_av = 2 * np.pi *  cumtrapz((jdotdens_av[:] * rad_list[:])[::-1],x = -rad_list[::-1],initial=0)[::-1]
+    #jdot_av = 2 * np.pi *  cumtrapz((jdotdens_av[:] * rad_list[:]),x = rad_list,initial=0)
+    
+    return np.array(jdot_av)
+
+
+
+    
+    # Compute the cell-centered quantities
+    jdotdens_per_cell = -snapshot.gas.RHO * ((snapshot.gas.POS[:,0] - X0) * (-snapshot.gas.ACCE[:,1]) - \
+                                             (snapshot.gas.POS[:,1] - Y0) * (-snapshot.gas.ACCE[:,0])) 
+    snapshot.add_data(jdotdens_per_cell,'TORQUEDENS')
+    # interpolate onto the grid
+    jdotdens_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
+                                                            quantities=['TORQUEDENS'],method = 'nearest')[0]
+
+    del snapshot.gas.TORQUEDENS
+    
+    # In the case of gravity, we need to carry out an additional integration step
+    gridR = grid.R.mean(axis=0)
+    jdot_interp = cumtrapz((jdotdens_interp * grid.R)[:,::-1],x = -gridR[::-1],initial=0,axis=1)[:,::-1] / grid.R
+
+    
+    return jdot_interp
+
+
+def compute_eccentricity_profile(snapshot,rad_list,code="AREPO"):
+
+    ecc = compute_disk_eccentriciy(snapshot.gas.POS,snapshot.gas.VEL)
+    
+    ind = snapshot.gas.ID > -2
+    ex_av = np.array(compute_profiles(ecc[ind,0],snapshot.gas.R[ind],snapshot.gas.MASS[ind]/snapshot.gas.RHO[ind],rad_list))
+    ey_av = np.array(compute_profiles(ecc[ind,1],snapshot.gas.R[ind],snapshot.gas.MASS[ind]/snapshot.gas.RHO[ind],rad_list))
+
+    
+    return np.sqrt(ex_av**2 + ey_av**2)
+
+
+def compute_orbital_elements_profile(snapshot,rad_list,code="AREPO"):
+
+    X0,Y0 = 0.5 * snapshot.header.boxsize, 0.5 * snapshot.header.boxsize
+    snapshot.gas.POS[:,0]-=X0
+    snapshot.gas.POS[:,1]-=Y0
+    ecc = compute_disk_eccentriciy_vector(snapshot.gas.POS,snapshot.gas.VEL)
+    j = compute_disk_angular_momentum_vector(snapshot.gas.POS,snapshot.gas.VEL)
+    
+    ind = snapshot.gas.ID > -2
+    ex_av = np.array(compute_profiles(ecc[ind,0]*snapshot.gas.RHO[ind],
+                                      snapshot.gas.R[ind],snapshot.gas.MASS[ind]/snapshot.gas.RHO[ind],rad_list))
+    ey_av = np.array(compute_profiles(ecc[ind,1]*snapshot.gas.RHO[ind],
+                                      snapshot.gas.R[ind],snapshot.gas.MASS[ind]/snapshot.gas.RHO[ind],rad_list))
+    j_av = np.array(compute_profiles(j[ind,2]*snapshot.gas.RHO[ind],
+                                     snapshot.gas.R[ind],snapshot.gas.MASS[ind]/snapshot.gas.RHO[ind],rad_list))
+    rho_av = np.array(compute_profiles(snapshot.gas.RHO[ind],
+                                       snapshot.gas.R[ind],snapshot.gas.MASS[ind]/snapshot.gas.RHO[ind],rad_list))
+    
+    return ex_av/rho_av,ey_av/rho_av,j_av/rho_av
