@@ -309,7 +309,8 @@ def compute_binary_torque_contributions_from_files(accretionfilename,forcefilena
     return mdot,qdot,torque_grav,torque_acc,Jdot
 
 
-def compute_binary_angular_momentum_change(x1,y1,x2,y2,mdot1,mdot2,
+def compute_binary_angular_momentum_change(x1,y1,x2,y2,vx1,vy1,vx2,vy2,
+                                           mdot1,mdot2,
                                            fx1_ext,fy1_ext,fx2_ext,fy2_ext,
                                            qb = 1.0, eb = 0,
                                            G = 1.0 ,Mb = 1.0, ab = 1.0):
@@ -320,7 +321,9 @@ def compute_binary_angular_momentum_change(x1,y1,x2,y2,mdot1,mdot2,
     '''
 
 
-    # Combine data
+    # Define additional variables and combine data
+    x,y = x1 - x2, y1 - y2
+    r = np.sqrt(x * x + y * y)
     mdot = mdot1 + mdot2
     qdot = (1 + qb) * (mdot2 - qb * mdot1)
     ldot = compute_external_torques(x1 - x2, y1 - y2, fx1_ext - fx2_ext, fy1_ext - fy2_ext)
@@ -329,8 +332,10 @@ def compute_binary_angular_momentum_change(x1,y1,x2,y2,mdot1,mdot2,
     lb = np.sqrt((1 - eb**2) * G * Mb *  ab)
     Jb = reduced_mass * lb
     Jdot = Jb * ((1.0 - qb)/(1.0 + qb) * qdot /qb  + mdot/Mb  + ldot / lb)
+    Edot = -G * mdot / r + ((vx1 - vx2) * (fx1_ext - fx2_ext)+ (vy1 - vy2) * (fy1_ext - fy2_ext))
+    
 
-    return mdot, qdot, ldot, Jdot
+    return mdot, qdot, ldot, Jdot, Edot
 
 
 

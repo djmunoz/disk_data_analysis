@@ -9,7 +9,8 @@ import numpy as np
 import sys
 
 
-disk_data_fields = ["POS","VEL","MASS","U","RHO","R","PHI","VELR","VELPHI","VELX","VELY"]
+disk_data_fields = ["POS","VEL","MASS","U","RHO","R","PHI","VELR","VELPHI","VELX","VELY",
+                    "ACCE","GRAP"]
 
 
 datablocks = {"POS ":["Coordinates",3], 
@@ -24,7 +25,8 @@ datablocks = {"POS ":["Coordinates",3],
               "AREA":["SurfaceArea",1],
               "ACCE":["Acceleration",3],
               "GRAR":["DensityGradient", 3],
-              "GRAV":["VelocityGradient", 9]
+              "GRAV":["VelocityGradient", 9],
+              "GRAP":["PressureGradient", 3]
               }
 
 
