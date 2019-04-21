@@ -1,9 +1,41 @@
+from __future__ import print_function
 import numpy as np
 from disk_data_analysis.orbital import orbit_in_time
 
 accretion_variables = ['m1','m2',
                        'v1x_a','v1y_a','v2x_a','v2y_a',
                        'v1x_g','v1y_g','v2x_g','v2y_g']
+
+class TimeSeries(object):
+    def __init__(self,*args,**kwargs):
+        self.time = kwargs.get("time")
+        self.x1 = kwargs.get("x1")
+        self.y1 = kwargs.get("y1")
+        self.x2 = kwargs.get("x2")
+        self.y2 = kwargs.get("y2")
+        self.vx1 = kwargs.get("vx1")
+        self.vy1 = kwargs.get("vy1")
+        self.vx2 = kwargs.get("vx2")
+        self.vy2 = kwargs.get("vy2")
+        self.fx1_a = kwargs.get("fx1_a")
+        self.fy1_a = kwargs.get("fy1_a")
+        self.fx2_a = kwargs.get("fx2_a")
+        self.fy2_a = kwargs.get("fy2_a")
+        self.fx1_g = kwargs.get("fx1_g")
+        self.fy1_g = kwargs.get("fy1_g")
+        self.fx2_g = kwargs.get("fx2_g")
+        self.fy2_g = kwargs.get("fy2_g")
+        self.dspin1dt = kwargs.get("dspin1dt")
+        self.dspin2dt = kwargs.get("dspin2dt")
+        self.mdot1 = kwargs.get("mdot1")
+        self.mdot2 = kwargs.get("mdot2")
+        self.mdot = kwargs.get("mdot")
+        self.qdot = kwargs.get("qdot")
+        self.ldot = kwargs.get("ldot")
+        self.Jdot = kwargs.get("Jdot")
+        self.Edot = kwargs.get("Edot")
+
+
 
 
 def compute_time_derivative(x,time):
@@ -28,7 +60,7 @@ def remove_discontinuity(x, time, skiptype = 0, verbose = False):
     '''
     ind0 = np.argwhere(np.diff(time) <= 0)[0][0]
     if (verbose):
-        print "Found discontinuity at t=%f" % (time[ind0]/2/np.pi)
+        print("Found discontinuity at t=%f" % (time[ind0]/2/np.pi))
     
     if (skiptype == 0):
         xprime = np.append(x[:ind0+1],x[ind0+2:])
@@ -135,6 +167,7 @@ def compute_binary_force_timeseries_from_accretionfile(filename,variables=accret
     
 def write_binary_externalforces_file(accretionfile,outfilename1,
                                      outfilename2 = None,
+                                     outfilename3 = None,
                                      qb = 1.0, eb = 0.0,
                                      orbit_init = None,orbit_final = None, maxlines = None):
 
@@ -191,18 +224,35 @@ def write_binary_externalforces_file(accretionfile,outfilename1,
                fmt='%12f %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g  %.8g %.8g %.8g %.8g %.8g %.8g')
   
 
-    print "Saved accretion rate data to file:",outfilename1
+    print("Saved accretion rate data to file:",outfilename1)
 
     if (outfilename2 is not None):
         np.savetxt(outfilename2,np.array([time,dm1dt,dm2dt]).T,
                    fmt='%12f %.8g %.8g')
-        print "Saved accretion rate data to file:",outfilename2
+        print("Saved accretion rate data to file:",outfilename2)
+
+    # Compute the change rates that affect the orbital elements directly
+    
+    mdot, qdot, ldot, Jdot, Edot = compute_binary_angular_momentum_change(x1,y1,x2,y2,vx1,vy1,vx2,vy2,
+                                                                          dm1dt,dm2dt,
+                                                                          (dv1xdt_g+dv1xdt_a),
+                                                                          (dv1ydt_g+dv1ydt_a),
+                                                                          (dv2xdt_g+dv2xdt_a),
+                                                                          (dv2ydt_g+dv2ydt_a),
+                                                                          qb = qb,eb = eb)
+    if (outfilename3 is not None):
+        np.savetxt(outfilename3,np.array([time,mdot, qdot, ldot, Jdot, Edot]).T,
+                   fmt='%12f %.8g %.8g %.8g %.8g %.8g')
+        print("Saved accretion rate data to file:",outfilename3)
 
 
     return
 
 
 
+'''
+Function to read-in a previously saved file with forces acting on a binary
+'''
 def read_binary_externalforces_file(forcefilename,
                                     qb = 1.0, eb = 0.0,
                                     orbit_init = None,orbit_final = None, maxlines = None):
@@ -237,7 +287,9 @@ def read_binary_externalforces_file(forcefilename,
         fx1_a,fy1_a,fx2_a,fy2_a,fx1_g,fy1_g,fx2_g,fy2_g,\
         dspin1dt,dspin2dt
 
-
+'''
+Function to read-in a previously saved file with accretion onto a binary
+'''
 def read_binary_accretion_file(accretionfilename,
                                qb = 1.0, eb = 0.0,
                                orbit_init = None,orbit_final = None, maxlines = None):
@@ -254,6 +306,55 @@ def read_binary_accretion_file(accretionfilename,
     mdot2 = accretion_data[:,2]
 
     return time, mdot1, mdot2
+
+'''
+Function to read-in a previously saved file with forces acting on a binary
+'''
+def read_binary_orbitalchange_file(accretionfilename,
+                                   qb = 1.0, eb = 0.0,
+                                   orbit_init = None,orbit_final = None, maxlines = None):
+    '''
+    INPUT: 'accretionfilename': the name of the file being read
+
+
+    '''
+
+    
+    accretion_data = np.loadtxt(accretionfilename)
+    time = accretion_data[:,0]
+    mdot = accretion_data[:,1]
+    qdot = accretion_data[:,2]
+    ldot = accretion_data[:,3]
+    Jdot = accretion_data[:,4]
+    Edot = accretion_data[:,5]
+    
+    return time, mdot, qdot, ldot, Jdot, Edot
+
+
+def read_binary_timeseries_file(file1,file2,file3,mdot_mask=1e10):
+
+    time,x1,y1,x2,y2,vx1,vy1,vx2,vy2,fx1_a,fy1_a,fx2_a,fy2_a,fx1_g,fy1_g,fx2_g,fy2_g,dspin1dt,dspin2dt = read_binary_externalforces_file(file1)
+    _, mdot1, mdot2 =  read_binary_accretion_file(file2)    
+    _, mdot, qdot, ldot, Jdot, Edot = read_binary_orbitalchange_file(file3) 
+
+    ind = mdot < mdot_mask
+    time, mdot,qdot,ldot,Jdot,Edot = time[ind],mdot[ind],qdot[ind],ldot[ind],Jdot[ind],Edot[ind]
+    mdot1,mdot2 = mdot1[ind],mdot2[ind]
+    x1,y1,x2,y2 = x1[ind],y1[ind],x2[ind],y2[ind]
+    fx1_a,fy1_a,fx2_a,fy2_a = fx1_a[ind],fy1_a[ind],fx2_a[ind],fy2_a[ind]
+    fx1_g,fy1_g,fx2_g,fy2_g = fx1_g[ind],fy1_g[ind],fx2_g[ind],fy2_g[ind]
+    dspin1dt,dspin2dt = dspin1dt[ind],dspin2dt[ind]
+
+    
+    data = TimeSeries(time=time,
+                      x1=x1,y1=y1,x2=x2,y2=y2,
+                      mdot1=mdot1,mdot2=mdot2,mdot=mdot,
+                      fx1_a=fx1_a,fy1_a=fy1_a,fx2_a=fx2_a,fy2_a=fy2_a,
+                      fx1_g=fx1_g,fy1_g=fy1_g,fx2_g=fx2_g,fy2_g=fy2_g,
+                      dspin1dt=dspin1dt,dspin2dt=dspin2dt,
+                      qdot=qdot,ldot=ldot, Jdot=Jdot,Edot=Edot)
+
+    return data
     
 def compute_external_torques(x,y,fx,fy):
     """

@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Script to plot a collection of different 2-D slices (or projections)
 # as different panels into the same figure file.
 
@@ -51,7 +52,7 @@ if __name__=="__main__":
 	#for comparison, we need two different runs of similar configuration
 	run_base ="restart-woboundary-standardres-binary_norbits1950"
 	run_name= run_base+("_q%.1f_e%.1f_h%.1f_alpha%.1f/" % (qb,eb,h,alpha))
-	print "Reading from simulation run:", run_name
+	print("Reading from simulation run:", run_name)
 	directory = run_path+run_name
 
 	output_base_label1 = "sink_short_2200"
@@ -91,7 +92,7 @@ if __name__=="__main__":
 
 	for jj,base_label in enumerate(output_base_label_list):
 		base = "output_restart_"+base_label+"/"
-		print "Reading from output directory:",base
+		print("Reading from output directory:",base)
 		snap_base="snap_"
 
                 #check the number of orbits at the zeroth snapshot
@@ -111,8 +112,6 @@ if __name__=="__main__":
 			if (np.abs(time0-rs.snapshot_header(snapfile).time) < np.abs(time0-time)):
 				time = rs.snapshot_header(snapfile).time
 				num = int(split(split(snapfile,snap_base)[1],".hdf5")[0])
-		print num
-		print time
 	
 		filename=directory+base+snap_base+str(num).zfill(3)
 		header = rs.snapshot_header(filename)
@@ -129,10 +128,10 @@ if __name__=="__main__":
 		projfilename=directory+base+"density_field_"+str(num).zfill(3)
                 #check if the file exists
 		if not os.path.isfile(projfilename):
-			print "\nERROR: projection not found"
-			print "execute: "
-			print "./Arepo param.txt 4 %i 1024 1024 0 1 2  %.2f  %.2f  %.2f %.2f 0.0 > OUTPUT_IM.%i" \
-			    % (num,(X0+0.5*BoxX),(X1+0.5*BoxX),(Y0+0.5*BoxY),(Y1+0.5*BoxY),num)
+			print("\nERROR: projection not found")
+			print("execute: ")
+			print("./Arepo param.txt 4 %i 1024 1024 0 1 2  %.2f  %.2f  %.2f %.2f 0.0 > OUTPUT_IM.%i" \
+			    % (num,(X0+0.5*BoxX),(X1+0.5*BoxX),(Y0+0.5*BoxY),(Y1+0.5*BoxY),num))
 		else:
 			f = open(projfilename,"rb")
 			pixelx = np.fromfile(f, dtype=np.int32, count=1)[0]
@@ -203,7 +202,7 @@ if __name__=="__main__":
 		figname="./figure-resolution-comparison-panels_q%.1f_e%.1f_horizontal" % (qb,eb)
 	else:
 		figname="./figure-resolution-comparison-panels_q%.1f_e%.1f" % (qb,eb)
-	print "Saving figure",figname+".pdf"
+	print("Saving figure",figname+".pdf")
 	plt.savefig(figname+".pdf")
 	plt.savefig(figname+".png",dpi=200)
 	plt.clf()

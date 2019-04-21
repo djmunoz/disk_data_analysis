@@ -1,3 +1,4 @@
+from __future__ import print_function
 import matplotlib.pyplot as plt
 import numpy as np
 from pylab import *
@@ -125,7 +126,7 @@ for num in snap_list:
             radial_zones=1024
 
 
-	print "SNAPSHOT #",num
+	print("SNAPSHOT #",num)
 	#open the snapshot header
 	filename=directory+base+"snap_"+str(num).zfill(3)
 	header = rs.snapshot_header(filename)
@@ -156,7 +157,6 @@ for num in snap_list:
         Zm = np.ma.masked_where(np.isnan(Z),Z)
 
 	#dZdY = np.gradient(Zm.flatten('F'),2*delta_y).reshape(Y.shape).T
-	print np.gradient(Zm,delta_y)[0].shape
 	dZdY = np.gradient(Zm,delta_y)[0].reshape(Zm.shape)
 
 	#data to interpolate
@@ -169,7 +169,6 @@ for num in snap_list:
         Zm = np.ma.masked_where(np.isnan(Z),Z)
 
 	#dZdX = np.gradient(Zm.flatten('C'),2*delta_x).reshape(X.shape)
-	print np.gradient(Zm,delta_x)[1].shape
 	dZdX = np.gradient(Zm,delta_x)[1].reshape(Zm.shape)
 
 
@@ -192,7 +191,7 @@ for num in snap_list:
 	if (num == 0): Vortensity0 = Vortensity
 
 
-	print "Doing geometric transformation to R-theta plane..."
+	print("Doing geometric transformation to R-theta plane...")
         #create polar-coordinate array
 	Vortensity_polar = geometric_transform(Vortensity.T, cartesian2polar, output_shape = (Vortensity.T.shape[0], Vortensity.T.shape[0]),
 				      extra_keywords = {'inputshape':Vortensity.T.shape,'origin':(Vortensity.T.shape[0]/2, Vortensity.T.shape[1]/2)})
@@ -249,13 +248,12 @@ for num in snap_list:
 		fig.clf()
 	 ####################################################################
 	#plot polar image
-        print "Creating image in polar coordinates..."
+        print("Creating image in polar coordinates...")
         
         if (frame_labels):
             margin_x = 0.04
             axes = [margin_x+(count_dir-1)*(1.0 - margin_x) /len(dir_array),
                     0.135,(1.0 - margin_x)/len(dir_array),0.78]
-            print axes
             ax=fig_polar.add_axes(axes)
             
         else:

@@ -1,3 +1,4 @@
+from __future__ import print_function
 from disk_hdf5 import snapHDF5 as rs
 try:
     from disk_voronoi import voronoi_simulation_data 
@@ -10,7 +11,7 @@ import sys
 
 
 disk_data_fields = ["POS","VEL","MASS","U","RHO","R","PHI","VELR","VELPHI","VELX","VELY",
-                    "ACCE","GRAP"]
+                    "ACCE","GRAP","VISC"]
 
 
 datablocks = {"POS ":["Coordinates",3], 
@@ -26,7 +27,9 @@ datablocks = {"POS ":["Coordinates",3],
               "ACCE":["Acceleration",3],
               "GRAR":["DensityGradient", 3],
               "GRAV":["VelocityGradient", 9],
-              "GRAP":["PressureGradient", 3]
+              "AREA":["SurfaceArea",1],
+              "GRAP":["PressureGradient", 3],
+              "VISC":["Viscosity",1],
               }
 
 
@@ -153,7 +156,7 @@ def get_snapshot_data(filename_prefix='./',snap_num = None,quantities=None,partt
                     if (quant == "VELY"):
                         outquant.append(vel[:,1])
                 else: 
-                    print "[error] Quantity type ", quant, "not known!"
+                    print("[error] Quantity type ", quant, "not known!")
                     sys.exit()  
 
         elif (code == "PLUTO"):
@@ -175,10 +178,10 @@ def get_snapshot_data(filename_prefix='./',snap_num = None,quantities=None,partt
                     vphi =rspluto.pluto_read_block(filename_prefix,snap_num,"VPHI",header_file=header_file)
                     outquant.append(vphi)
             else: 
-                print "[error] Quantity type ", quant, "not known!"
+                print("[error] Quantity type ", quant, "not known!")
                 sys.exit()  
         else:
-            print "[error] Simulations code ", code, "not known or supported!"
+            print("[error] Simulations code ", code, "not known or supported!")
             sys.exit()  
 
 

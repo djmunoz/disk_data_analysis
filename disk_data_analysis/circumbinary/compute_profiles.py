@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 from scipy.integrate import cumtrapz
 from disk_orbital_elements import compute_disk_eccentriciy_vector,\
@@ -46,11 +47,9 @@ def compute_smoothed_radial_placements(radii,volumes,Rmin,Rmax,NRmin=128):
         # Smooth the sharp transitions
         w = np.hanning(5)
         radius_arr = np.append(Rmin,np.convolve(w/w.sum(),radius_arr[1:],mode='valid'))
-        print radius_arr[0]
 
         if (radius_arr.shape[0] <= NRmin): break
     
-    print bin_pop,bin_pop.min(),bin_pop.max(),bin_pop.mean(),sorted(bin_pop)[5]  
     return radius_arr
         
 

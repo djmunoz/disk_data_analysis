@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 from scipy.interpolate import griddata,interp2d
 
@@ -114,7 +115,6 @@ def compute_gradient_on_grid(x,y,quantity,grid):
     
     delta_x = np.diff(grid.X[0,:]).mean()
     delta_y = np.diff(grid.Y[:,0]).mean()
-    print delta_x,delta_y
     grad = np.gradient(quantity_interp,[delta_x,delta_y])
 
     gradx = grad[0].reshape(quantity_interp.shape)
@@ -122,4 +122,3 @@ def compute_gradient_on_grid(x,y,quantity,grid):
 
     local_gradx = interp2d(grid.X,grid.Y,gradx)(x,y)
 
-    print local_gradx.shape
