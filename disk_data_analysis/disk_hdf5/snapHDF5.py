@@ -64,25 +64,25 @@ class snapshot_header:
             else:
                 print("[error] file not found : ", filename)
                 sys.exit()
-            f = h5py.File(curfilename)
-            header_dict = dict(f[f.keys()[f.keys().index('Header')]].attrs)
-            self.npart = header_dict['NumPart_ThisFile']
-            self.nall = header_dict['NumPart_Total']
-            self.nall_highword = header_dict['NumPart_Total_HighWord']
-            self.massarr = header_dict['MassTable']
-            self.time = header_dict['Time']
-            self.redshift = header_dict['Redshift']
-            self.boxsize = header_dict['BoxSize']
-            self.filenum = header_dict['NumFilesPerSnapshot']
-            self.omega0 = header_dict['Omega0']
-            self.omegaL = header_dict['OmegaLambda']
-            self.hubble = header_dict['HubbleParam']
-            self.sfr = header_dict['Flag_Sfr']
-            self.cooling = header_dict['Flag_Cooling']
-            self.double = header_dict['Flag_DoublePrecision']
-            self.stellar_age = header_dict['Flag_StellarAge']
-            self.metals = header_dict['Flag_Metals']
-            self.feedback = header_dict['Flag_Feedback']
+            f = h5py.File(curfilename,'r')
+            #f['Header'].attrs = dict(f[f.keys()[f.keys().index('Header')]].attrs)
+            self.npart = f['Header'].attrs['NumPart_ThisFile']
+            self.nall = f['Header'].attrs['NumPart_Total']
+            self.nall_highword = f['Header'].attrs['NumPart_Total_HighWord']
+            self.massarr = f['Header'].attrs['MassTable']
+            self.time = f['Header'].attrs['Time']
+            self.redshift = f['Header'].attrs['Redshift']
+            self.boxsize = f['Header'].attrs['BoxSize']
+            self.filenum = f['Header'].attrs['NumFilesPerSnapshot']
+            self.omega0 = f['Header'].attrs['Omega0']
+            self.omegaL = f['Header'].attrs['OmegaLambda']
+            self.hubble = f['Header'].attrs['HubbleParam']
+            self.sfr = f['Header'].attrs['Flag_Sfr']
+            self.cooling = f['Header'].attrs['Flag_Cooling']
+            self.double = f['Header'].attrs['Flag_DoublePrecision']
+            self.stellar_age = f['Header'].attrs['Flag_StellarAge']
+            self.metals = f['Header'].attrs['Flag_Metals']
+            self.feedback = f['Header'].attrs['Flag_Feedback']
             f.close()
         else:
             # read arguments

@@ -1,10 +1,10 @@
 from __future__ import print_function
-from disk_hdf5 import snapHDF5 as rs
+from ..disk_hdf5 import snapHDF5 as rs
 try:
     from disk_voronoi import voronoi_simulation_data 
 except ImportError:
     None
-import readsnap_PLUTO as rspluto
+from .readsnap_PLUTO import *
 #import pluto_data_utils as rspluto
 import numpy as np
 import sys
@@ -162,20 +162,20 @@ def get_snapshot_data(filename_prefix='./',snap_num = None,quantities=None,partt
         elif (code == "PLUTO"):
             header_file = 'grid.out'
             if (quant.ljust(4) in datablocks):
-                outquant.append(rspluto.pluto_read_block(filename_prefix,snap_num,quant.ljust(4),
+                outquant.append(pluto_read_block(filename_prefix,snap_num,quant.ljust(4),
                                                          header_file=header_file))
             elif (quant in disk_data_fields):
                 if (quant == "R"):
-                    radius = rspluto.pluto_read_block(filename_prefix,snap_num,"R   ",header_file=header_file)
+                    radius = pluto_read_block(filename_prefix,snap_num,"R   ",header_file=header_file)
                     outquant.append(radius)
                 if (quant == "PHI"):
-                    phi = rspluto.pluto_read_block(filename_prefix,snap_num,"PHI ",header_file=header_file)
+                    phi = pluto_read_block(filename_prefix,snap_num,"PHI ",header_file=header_file)
                     outquant.append(phi)
                 if (quant == "VELR"):
-                    vr = rspluto.pluto_read_block(filename_prefix,snap_num,"VR  ",header_file=header_file)
+                    vr = pluto_read_block(filename_prefix,snap_num,"VR  ",header_file=header_file)
                     outquant.append(vr)
                 if (quant == "VELPHI"):
-                    vphi =rspluto.pluto_read_block(filename_prefix,snap_num,"VPHI",header_file=header_file)
+                    vphi =pluto_read_block(filename_prefix,snap_num,"VPHI",header_file=header_file)
                     outquant.append(vphi)
             else: 
                 print("[error] Quantity type ", quant, "not known!")

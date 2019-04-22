@@ -1,9 +1,9 @@
 from __future__ import print_function
 import numpy as np
 from scipy.integrate import cumtrapz
-from disk_orbital_elements import compute_disk_eccentriciy_vector,\
+from .disk_orbital_elements import compute_disk_eccentriciy_vector,\
     compute_disk_angular_momentum_vector
-from disk_simulation_data import *
+from .disk_simulation_data import *
 
 def compute_cell_size_profile(radii,cell_vol,reference_radius):
 # In unstructured meshes, we need to estimate a representative cell size

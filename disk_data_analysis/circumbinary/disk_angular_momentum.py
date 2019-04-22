@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.integrate import cumtrapz
-from disk_interpolate_primitive import *
-from disk_simulation_data import *
+from .disk_interpolate_primitive import *
+from .disk_simulation_data import *
 
 """
 Set of routines to compute angular momentum transfer rates as defined
