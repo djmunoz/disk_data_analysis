@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
-from ..my_colortable import my_colortable
+from ..colortable import my_colortable as myct
 import matplotlib.colors as colors
 
 s, gamma, hue, r = 0.45, 0.8, 1.1, -1.46
-mycmap, nlow, nhigh = my_colortable(start=s, rots=r, hue=hue, gamma=gamma)
+mycmap, nlow, nhigh = myct.my_colortable(start=s, rots=r, hue=hue, gamma=gamma)
 
 
 class ImageData():
