@@ -158,6 +158,20 @@ def compute_angular_momentum_flux_gravity(snapshot,grid):
     return jdot_interp
 
 
+def compute_sigma_map(snapshot,grid):
+    '''
+    Compute the mass distribution map
+    '''
+    
+    X0, Y0 = 0.5 * snapshot.header.boxsize, 0.5 * snapshot.header.boxsize
+    gridX, gridY = grid.X + X0, grid.Y + Y0
+    
+    sigma_interp = disk_interpolate_primitive_quantities(snapshot,[gridX,gridY],\
+                                                        quantities=['RHO'],method = 'linear')[0]
+
+    return sigma_interp
+    
+    
 def compute_mass_flux(snapshot,grid):
     '''
     Compute the mass flux maps due to advection

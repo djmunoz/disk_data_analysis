@@ -2,7 +2,7 @@ __all__ = ["get_snapshot_data","write_snapshot","get_snapshot_time","compute_sna
 	   "compute_external_gravforce_from_snapshot","compute_external_gravforce",
            "compute_angular_momentum_transfer","compute_angular_momentum_flux_advection",
            "compute_angular_momentum_flux_viscosity","compute_angular_momentum_flux_gravity",
-           "compute_mass_flux",
+           "compute_sigma_map","compute_mass_flux",
            "compute_radial_mass_current_advection","compute_radial_angular_momentum_current_advection",
            "compute_radial_angular_momentum_current_viscosity","compute_radial_angular_momentum_current_gravity",
            "compute_profiles","plot_profiles",
@@ -29,7 +29,7 @@ from .disk_interpolate_primitive import grid_polar, grid_cartesian, disk_interpo
 from .disk_analysis import disk_compute_radial_balance
 
 from .disk_angular_momentum import compute_angular_momentum_transfer,compute_angular_momentum_flux_gravity, compute_angular_momentum_flux_advection, \
-    compute_angular_momentum_flux_viscosity, compute_mass_flux,\
+    compute_angular_momentum_flux_viscosity, compute_sigma_map, compute_mass_flux,\
     compute_radial_mass_current_advection,compute_radial_angular_momentum_current_advection,\
     compute_radial_angular_momentum_current_viscosity,compute_radial_angular_momentum_current_gravity
 
