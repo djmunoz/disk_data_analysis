@@ -139,7 +139,14 @@ def orbit(peri,e,I,omega,Omega,M,mu):
 
 ###################################################################################3
 def keplerEquation(mean_anom,e):
+ 
+  k = 0.85
+  iter = 0
+  abstol = 1.0e-8
+  reltol = 1.0e-8
   
+
+
   while (abs(mean_anom) > 2.0*pi):
     mean_anom-=2.0*pi*sign(mean_anom)
   if (mean_anom < 0.0): mean_anom = 2*pi + mean_anom
@@ -150,8 +157,6 @@ def keplerEquation(mean_anom,e):
   if (e > 0.8):
     ecc_anom = pi
     
-  abstol,reltol = 1.0e-8, 1.0e-8
-  iter = 0
   while(True):
     f = ecc_anom -e * sin(ecc_anom) - mean_anom
     fprime = 1.0 - e * cos(ecc_anom)

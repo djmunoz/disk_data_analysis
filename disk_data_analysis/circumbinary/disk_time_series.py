@@ -45,8 +45,9 @@ def compute_time_derivative(x,time):
 
     '''
     
-    dt=np.gradient(time)
-    dxdt = np.gradient(x)/dt
+    #dt=np.gradient(time)
+    #dxdt = np.gradient(x)/dt
+    dxdt = np.gradient(x,time)
 
     return dxdt
 
@@ -135,7 +136,6 @@ def compute_binary_force_timeseries_from_accretionfile(filename,variables=accret
         spin2 = remove_discontinuity(spin2, time, skiptype = 1)   
         time = remove_discontinuity(time, time, skiptype = 0)
         
-
     # Take the time derivatives
     dm1dt = compute_time_derivative(m1,time)
     dm2dt = compute_time_derivative(m2,time)
@@ -178,6 +178,7 @@ def write_binary_externalforces_file(accretionfile,outfilename1,
 
     force_data = compute_binary_force_timeseries_from_accretionfile(accretionfile)
 
+    print("hehehe")
     if (maxlines is not None):
         if (force_data.shape[0] > 1.5 * maxlines):
             skip = int(np.ceil(force_data.shape[0]/(1.5 * maxlines)))
@@ -217,6 +218,7 @@ def write_binary_externalforces_file(accretionfile,outfilename1,
     vx1, vy1 = mu * vxb, mu * vyb
     vx2, vy2 = -(1.0 - mu) * vxb, -(1.0 - mu) * vyb
 
+    print("hahaha")
     np.savetxt(outfilename1,np.array([time,x1,y1,x2,y2,vx1,vy1,vx2,vy2,
                                       dv1xdt_a,dv1ydt_a,dv2xdt_a,dv2ydt_a,
                                       dv1xdt_g,dv1ydt_g,dv2xdt_g,dv2ydt_g,
