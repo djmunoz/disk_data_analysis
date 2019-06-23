@@ -61,7 +61,7 @@ def remove_discontinuity(x, time, skiptype = 0, verbose = False):
     '''
     ind0 = np.argwhere(np.diff(time) <= 0)[0][0]
     if (verbose):
-        print("Found discontinuity at t=%f" % (time[ind0]/2/np.pi))
+        print("WARNING: Found discontinuity at t=%f" % (time[ind0]/2/np.pi))
     
     if (skiptype == 0):
         xprime = np.append(x[:ind0+1],x[ind0+2:])
@@ -118,6 +118,7 @@ def compute_binary_force_timeseries_from_accretionfile(filename,variables=accret
 
     #check that accretion times do not have discontinuities
     while (np.any(np.diff(time) <= 0)):
+        print("hello")
         m1 = remove_discontinuity(m1, time, skiptype = 1,verbose=True)
         m2 = remove_discontinuity(m2, time, skiptype = 1)
         v1x_a = remove_discontinuity(v1x_a, time, skiptype = 1)
@@ -212,7 +213,8 @@ def write_binary_externalforces_file(accretionfile,outfilename1,
     ds2dt = force_data[:,12][ind]
     
     mu =  qb / ( 1.0 + qb)
-    xb, yb, vxb, vyb = np.vectorize(orbit_in_time)(time + np.pi, eb)
+    #xb, yb, vxb, vyb = np.vectorize(orbit_in_time)(time + np.pi, eb)
+    xb, yb, vxb, vyb = orbit_in_time(time + np.pi, eb)
     x1, y1 = mu * xb, mu * yb
     x2, y2 = -(1.0 - mu) * xb, -(1.0 - mu) * yb
     vx1, vy1 = mu * vxb, mu * vyb

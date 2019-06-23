@@ -1,4 +1,4 @@
-from numpy import sqrt, cos, sin, tan, arccos, arctan2, pi, cosh, sinh, arctanh, abs, sign, e
+from numpy import sqrt, cos, sin, tan, arccos, arctan2, pi, cosh, sinh, arctanh, abs, sign, e, any, all, ndarray
 import matplotlib.pyplot as plt
 import numpy.random as rd
 
@@ -142,20 +142,26 @@ def keplerEquation(mean_anom,e):
  
   k = 0.85
   iter = 0
-  abstol = 1.0e-8
-  reltol = 1.0e-8
+  abstol = 1.0e-10
+  reltol = 1.0e-10
   
+  # do phase wrapping
+  if (isinstance(mean_anom,(list, tuple, ndarray))):
+    while (any(abs(mean_anom) > 2.0*pi)):
+      ind = abs(mean_anom) > 2.0*pi
+      mean_anom[ind]-=2.0*pi*sign(mean_anom[ind])
+    if (any(mean_anom < 0.0)):
+      ind = mean_anom < 0.0
+      mean_anom[ind] = 2*pi + mean_anom[ind]
+  else:
+    while (abs(mean_anom) > 2.0*pi):
+      mean_anom-=2.0*pi*sign(mean_anom)
+    if (mean_anom < 0.0): mean_anom = 2*pi + mean_anom
 
-
-  while (abs(mean_anom) > 2.0*pi):
-    mean_anom-=2.0*pi*sign(mean_anom)
-  if (mean_anom < 0.0): mean_anom = 2*pi + mean_anom
-
-  k = 0.85
   ecc_anom = mean_anom + sign(sin(mean_anom))* k * e
   #ecc_anom = mean_anom
   if (e > 0.8):
-    ecc_anom = pi
+    ecc_anom = mean_anom * 0 + pi
     
   while(True):
     f = ecc_anom -e * sin(ecc_anom) - mean_anom
@@ -166,21 +172,37 @@ def keplerEquation(mean_anom,e):
     delta2 = - f /(fprime + 0.5 * delta1 * fprime2)
     delta3 = - f /(fprime + 0.5 * delta2 * fprime2 + 0.16666666666 * delta2**2 * fprime3) 
 
-    if (delta3 == 0): break
-    
-    if (abs(ecc_anom) > 0.0):
-      abserr,relerr = abs(delta3),abs(delta3)/abs(ecc_anom)
-    else:
-      abserr,relerr = abs(delta3),1.0e40
+    if (isinstance(mean_anom,(list, tuple, ndarray))):
+      #if (all(delta3) == 0): break
+      
+      if (all(abs(ecc_anom) > 0.0)):
+        abserr,relerr = abs(delta3),abs(delta3)/abs(ecc_anom)
+      else:
+        abserr,relerr = abs(delta3),abs(delta3)*0 + 1.0e40
 
-    ecc_anom+=delta3
-    #print iter,ecc_anom,e,delta3
-    
-    if (abs(ecc_anom) > abstol/reltol):
-      if (abserr < abstol): break
+      ecc_anom+=delta3
+
+      if (all(abs(ecc_anom) > abstol/reltol)):
+        if all(abserr < abstol): break
+      else:
+        if all(relerr < reltol): break
+      iter+=1
+      
     else:
-      if (relerr < reltol): break
-    iter+=1      
+      if (delta3 == 0): break
+    
+      if (abs(ecc_anom) > 0.0):
+        abserr,relerr = abs(delta3),abs(delta3)/abs(ecc_anom)
+      else:
+        abserr,relerr = abs(delta3),1.0e40
+
+      ecc_anom+=delta3
+    
+      if (abs(ecc_anom) > abstol/reltol):
+        if (abserr < abstol): break
+      else:
+        if (relerr < reltol): break
+      iter+=1      
 
   return ecc_anom % (2*pi)
 
