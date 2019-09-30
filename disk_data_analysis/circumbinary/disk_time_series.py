@@ -32,7 +32,7 @@ class TimeSeries(object):
         self.mdot = kwargs.get("mdot")
         self.qdot = kwargs.get("qdot")
         self.ldot = kwargs.get("ldot")
-        self.Jdot = kwargs.get("Jdot")
+        self.Ldot = kwargs.get("Ldot")
         self.Edot = kwargs.get("Edot")
 
 
@@ -237,7 +237,7 @@ def write_binary_externalforces_file(accretionfile,outfilename1,
 
     # Compute the change rates that affect the orbital elements directly
     
-    mdot, qdot, ldot, Jdot, Edot = compute_binary_angular_momentum_change(x1,y1,x2,y2,vx1,vy1,vx2,vy2,
+    mdot, qdot, ldot, Ldot, Edot = compute_binary_angular_momentum_change(x1,y1,x2,y2,vx1,vy1,vx2,vy2,
                                                                           dm1dt,dm2dt,
                                                                           (dv1xdt_g+dv1xdt_a),
                                                                           (dv1ydt_g+dv1ydt_a),
@@ -245,7 +245,7 @@ def write_binary_externalforces_file(accretionfile,outfilename1,
                                                                           (dv2ydt_g+dv2ydt_a),
                                                                           qb = qb,eb = eb)
     if (outfilename3 is not None):
-        np.savetxt(outfilename3,np.array([time,mdot, qdot, ldot, Jdot, Edot]).T,
+        np.savetxt(outfilename3,np.array([time,mdot, qdot, ldot, Ldot, Edot]).T,
                    fmt='%12f %.8g %.8g %.8g %.8g %.8g')
         print("Saved accretion rate data to file:",outfilename3)
 
@@ -329,20 +329,20 @@ def read_binary_orbitalchange_file(accretionfilename,
     mdot = accretion_data[:,1]
     qdot = accretion_data[:,2]
     ldot = accretion_data[:,3]
-    Jdot = accretion_data[:,4]
+    Ldot = accretion_data[:,4]
     Edot = accretion_data[:,5]
     
-    return time, mdot, qdot, ldot, Jdot, Edot
+    return time, mdot, qdot, ldot, Ldot, Edot
 
 
 def read_binary_timeseries_file(file1,file2,file3,mdot_mask=1e10):
 
     time,x1,y1,x2,y2,vx1,vy1,vx2,vy2,fx1_a,fy1_a,fx2_a,fy2_a,fx1_g,fy1_g,fx2_g,fy2_g,dspin1dt,dspin2dt = read_binary_externalforces_file(file1)
     _, mdot1, mdot2 =  read_binary_accretion_file(file2)    
-    _, mdot, qdot, ldot, Jdot, Edot = read_binary_orbitalchange_file(file3) 
+    _, mdot, qdot, ldot, Ldot, Edot = read_binary_orbitalchange_file(file3) 
 
     ind = mdot < mdot_mask
-    time, mdot,qdot,ldot,Jdot,Edot = time[ind],mdot[ind],qdot[ind],ldot[ind],Jdot[ind],Edot[ind]
+    time, mdot,qdot,ldot,Ldot,Edot = time[ind],mdot[ind],qdot[ind],ldot[ind],Ldot[ind],Edot[ind]
     mdot1,mdot2 = mdot1[ind],mdot2[ind]
     x1,y1,x2,y2 = x1[ind],y1[ind],x2[ind],y2[ind]
     fx1_a,fy1_a,fx2_a,fy2_a = fx1_a[ind],fy1_a[ind],fx2_a[ind],fy2_a[ind]
@@ -356,7 +356,7 @@ def read_binary_timeseries_file(file1,file2,file3,mdot_mask=1e10):
                       fx1_a=fx1_a,fy1_a=fy1_a,fx2_a=fx2_a,fy2_a=fy2_a,
                       fx1_g=fx1_g,fy1_g=fy1_g,fx2_g=fx2_g,fy2_g=fy2_g,
                       dspin1dt=dspin1dt,dspin2dt=dspin2dt,
-                      qdot=qdot,ldot=ldot, Jdot=Jdot,Edot=Edot)
+                      qdot=qdot,ldot=ldot, Ldot=Ldot,Edot=Edot)
 
     return data
     
@@ -408,10 +408,10 @@ def compute_binary_torque_contributions_from_files(accretionfilename,forcefilena
     
     reduced_mass = qb * 1.0 / (1 + qb) / (1 + qb)
     lb = np.sqrt(1 - eb**2)
-    Jb = reduced_mass * lb
-    Jdot = Jb * ((1.0 - qb)/(1.0 + qb) * qdot /qb  + mdot  + (torque_acc+torque_grav) / lb)
+    Lb = reduced_mass * lb
+    Ldot = Lb * ((1.0 - qb)/(1.0 + qb) * qdot /qb  + mdot  + (torque_acc+torque_grav) / lb)
 
-    return mdot,qdot,torque_grav,torque_acc,Jdot
+    return mdot,qdot,torque_grav,torque_acc,Ldot
 
 
 def compute_binary_angular_momentum_change(x1,y1,x2,y2,vx1,vy1,vx2,vy2,
@@ -435,12 +435,12 @@ def compute_binary_angular_momentum_change(x1,y1,x2,y2,vx1,vy1,vx2,vy2,
     
     reduced_mass = qb * 1.0 / (1 + qb) / (1 + qb) * Mb
     lb = np.sqrt((1 - eb**2) * G * Mb *  ab)
-    Jb = reduced_mass * lb
-    Jdot = Jb * ((1.0 - qb)/(1.0 + qb) * qdot /qb  + mdot/Mb  + ldot / lb)
+    Lb = reduced_mass * lb
+    Ldot = Lb * ((1.0 - qb)/(1.0 + qb) * qdot /qb  + mdot/Mb  + ldot / lb)
     Edot = -G * mdot / r + ((vx1 - vx2) * (fx1_ext - fx2_ext)+ (vy1 - vy2) * (fy1_ext - fy2_ext))
     
 
-    return mdot, qdot, ldot, Jdot, Edot
+    return mdot, qdot, ldot, Ldot, Edot
 
 
 
@@ -463,13 +463,13 @@ def compute_binary_orbital_change(x1,y1,x2,y2,mdot1,mdot2,
     qdot = qb * (1 + qb) / Mb * (mdot2 / qb - mdot1)
     r = np.sqrt(x * x + y * y)
 
-    Jb = qb * Mb / (1 + qb)**2 * lb
+    Lb = qb * Mb / (1 + qb)**2 * lb
 
     Edot = -G * mdot / r + (vx * fxext + vy * fyext)
 
     ldot = compute_external_torques(x,y,fxext,fyext)
 
-    Jdot = Jb * ( (1.0 - qb)/(1.0 + qb) * qdot / qb + mdot/Mb + ldot / lb)
+    Ldot = Lb * ( (1.0 - qb)/(1.0 + qb) * qdot / qb + mdot/Mb + ldot / lb)
     
 
 
@@ -489,4 +489,4 @@ def compute_binary_orbital_change(x1,y1,x2,y2,mdot1,mdot2,
         edot= 1.0/(G**2 * Mb**2 / lb**2 / Eb + 2) * np.sqrt(1 + 2 * lb**2 * Eb / G**2 / Mb**2) *  (2 * ldot / lb +  Edot / Eb - 2 * mdot / Mb)
         adotovera = ab * (-Edot / Eb + mdot / Mb)
 
-    return Edot, ldot, Jdot, adotovera, edot
+    return Edot, ldot, Ldot, adotovera, edot
