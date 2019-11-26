@@ -196,7 +196,7 @@ def compute_density_profile(snapshot,rad_list,semimajor=False,code="AREPO"):
     else:
         radii = snapshot.gas.R[ind]
 
-    rho = np.array(compute_profiles(snap.gas.RHO[ind],radii,snapshot.gas.MASS[ind]/snapshot.gas.RHO[ind],
+    rho = np.array(compute_profiles(snapshot.gas.RHO[ind],radii,snapshot.gas.MASS[ind]/snapshot.gas.RHO[ind],
                                     rad_list,semimajor=semimajor))
     
     return rho
