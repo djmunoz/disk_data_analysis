@@ -69,7 +69,7 @@ def compute_weighted_azimuthal_average(quantity,radii,cell_vol,reference_radius,
     return mu
 
 
-def compute_profiles(quantity,radii,volumes,rad_list):
+def compute_profiles(quantity,radii,volumes,rad_list,semimajor=False):
     #Loop over values of radius in rad_list
     
     def average_quantity(r):
