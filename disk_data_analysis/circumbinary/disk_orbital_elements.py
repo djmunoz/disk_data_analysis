@@ -45,6 +45,7 @@ def compute_disk_angular_momentum_vector(pos,vel,GM=1,coordinates='cartesian'):
 def compute_disk_semimajor(pos,vel,GM=1,coordinates='cartesian'):
     if (coordinates=='cartesian'):
         x , y , z = pos[:,0], pos[:,1], pos[:,2]
+        print(x,y,z)
         r = np.sqrt(x**2+y**2+z**2)
         vx , vy ,vz = vel[:,0], vel[:,1], vel[:,2]
         v2 = vx**2+vy**2+vz**2
