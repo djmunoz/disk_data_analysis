@@ -188,7 +188,7 @@ def compute_eccentricity_profile(snapshot,rad_list,semimajor=False,code="AREPO")
     
     return np.sqrt(ex_av**2 + ey_av**2)
 
-def compute_demsity_profile(snapshot,rad_list,semimajor=False,code="AREPO"):
+def compute_density_profile(snapshot,rad_list,semimajor=False,code="AREPO"):
 
     ind = snapshot.gas.ID > -2
     if (semimajor):
