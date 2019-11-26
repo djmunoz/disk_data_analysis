@@ -11,10 +11,10 @@ class grid_polar():
             self.R, self.phi = np.meshgrid(np.logspace(np.log10(Rmin),np.log10(Rmax),self.NR),\
                                            np.linspace(0,2*np.pi,self.Nphi))
         elif (scale == 'linear'):
-            self.R, self.phi = np.meshgrid(np.linspace(Rmin,Rmax,self.NR),np.linspace(0,2*pi-pi/self.Nphi,self
+            self.R, self.phi = np.meshgrid(np.linspace(Rmin,Rmax,self.NR),np.linspace(0,2*pi-pi/self.Nphi,self.Nphi))
             
         self.X, self.Y = self.R * np.cos(self.phi), self.R * np.sin(self.phi)
-        #self.phi =
+                                                                                      #self.phi =
         #self.R = 
 
 class grid_cartesian():    
