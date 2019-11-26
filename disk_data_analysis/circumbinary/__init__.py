@@ -43,7 +43,7 @@ from .disk_time_series import TimeSeries,\
 from .disk_compute_profiles import compute_profiles, compute_smoothed_radial_placements, compute_mdot_profile,\
     compute_jdot_adv_profile,compute_jdot_visc_profile,compute_jdot_grav_profile,\
     compute_orbital_elements_profile,\
-    compute_eccentricity_profile
+    compute_eccentricity_profile,compute_density_profile
 
 from . import plot_profiles
 from .readsnap_PLUTO import pluto_header
