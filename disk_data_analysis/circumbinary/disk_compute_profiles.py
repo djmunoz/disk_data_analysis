@@ -2,7 +2,7 @@ from __future__ import print_function
 import numpy as np
 from scipy.integrate import cumtrapz
 from .disk_orbital_elements import compute_disk_eccentriciy_vector,\
-    compute_disk_angular_momentum_vector
+    compute_disk_angular_momentum_vector, compute_disk_semimajor
 from .disk_simulation_data import *
 
 def compute_cell_size_profile(radii,cell_vol,reference_radius):
@@ -171,17 +171,35 @@ def compute_jdot_grav_profile(snapshot,rad_list,code="AREPO", alpha = 0.1, h0 = 
     return jdot_interp
 
 
-def compute_eccentricity_profile(snapshot,rad_list,code="AREPO"):
+def compute_eccentricity_profile(snapshot,rad_list,semimajor=False,code="AREPO"):
 
-    ecc = compute_disk_eccentriciy(snapshot.gas.POS,snapshot.gas.VEL)
-    
     ind = snapshot.gas.ID > -2
-    ex_av = np.array(compute_profiles(ecc[ind,0],snapshot.gas.R[ind],snapshot.gas.MASS[ind]/snapshot.gas.RHO[ind],rad_list))
-    ey_av = np.array(compute_profiles(ecc[ind,1],snapshot.gas.R[ind],snapshot.gas.MASS[ind]/snapshot.gas.RHO[ind],rad_list))
+    ecc = compute_disk_eccentriciy_vector(snapshot.gas.POS,snapshot.gas.VEL)
+    if (semimajor):
+        radii = compute_disk_semimajor(snapshot.gas.POS,snapshot.gas.VEL)[ind]
+    else:
+        radii = snapshot.gas.R[ind]
+
+    ex_av = np.array(compute_profiles(ecc[ind,0],radii,snapshot.gas.MASS[ind]/snapshot.gas.RHO[ind],
+                                      rad_list,semimajor=semimajor))
+    ey_av = np.array(compute_profiles(ecc[ind,1],radii,snapshot.gas.MASS[ind]/snapshot.gas.RHO[ind],
+                                      rad_list,semimajor=semimajor))
 
     
     return np.sqrt(ex_av**2 + ey_av**2)
 
+def compute_demsity_profile(snapshot,rad_list,semimajor=False,code="AREPO"):
+
+    ind = snapshot.gas.ID > -2
+    if (semimajor):
+        radii = compute_disk_semimajor(snapshot.gas.POS,snapshot.gas.VEL)[ind]
+    else:
+        radii = snapshot.gas.R[ind]
+
+    rho = np.array(compute_profiles(snap.gas.RHO[ind],radii,snapshot.gas.MASS[ind]/snapshot.gas.RHO[ind],
+                                    rad_list,semimajor=semimajor))
+    
+    return rho
 
 def compute_orbital_elements_profile(snapshot,rad_list,code="AREPO"):
 

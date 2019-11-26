@@ -19,6 +19,7 @@ __all__ = ["get_snapshot_data","write_snapshot","get_snapshot_time","compute_sna
            "compute_jdot_adv_profile","compute_jdot_visc_profile","compute_jdot_grav_profile",
            "compute_orbital_elements_profile",
            "compute_eccentricity_profile",
+           "compute_density_profile",
            "pluto_header"]
 
 from .disk_simulation_data import get_snapshot_data, write_snapshot, get_snapshot_time, compute_snapshot_gradient, compute_external_gravforce_from_snapshot,compute_external_gravforce
@@ -39,7 +40,7 @@ from .disk_time_series import TimeSeries,\
     read_binary_timeseries_file,\
     compute_binary_angular_momentum_change, compute_binary_orbital_change ,compute_external_torques
 
-from .compute_profiles import compute_profiles, compute_smoothed_radial_placements, compute_mdot_profile,\
+from .disk_compute_profiles import compute_profiles, compute_smoothed_radial_placements, compute_mdot_profile,\
     compute_jdot_adv_profile,compute_jdot_visc_profile,compute_jdot_grav_profile,\
     compute_orbital_elements_profile,\
     compute_eccentricity_profile

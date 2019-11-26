@@ -8,11 +8,10 @@ class grid_polar():
         self.NR = NR
         self.Nphi = Nphi
         if (scale == 'log'):
-            self.R, self.phi = np.meshgrid(np.logspace(np.log10(Rmin),np.log10(Rmax),NR),\
-	                                   np.linspace(0,2*np.pi,Nphi))
+            self.R, self.phi = np.meshgrid(np.logspace(np.log10(Rmin),np.log10(Rmax),self.NR),\
+                                           np.linspace(0,2*np.pi,self.Nphi))
         elif (scale == 'linear'):
-             self.R, self.phi = np.meshgrid(np.arange(Rmin,Rmax,(Rmax-Rmin)/NR),\
-                                            np.linspace(0,2*np.pi-np.pi/Nphi,Nphi))
+            self.R, self.phi = np.meshgrid(np.linspace(Rmin,Rmax,self.NR),np.linspace(0,2*pi-pi/self.Nphi,self
             
         self.X, self.Y = self.R * np.cos(self.phi), self.R * np.sin(self.phi)
         #self.phi =
