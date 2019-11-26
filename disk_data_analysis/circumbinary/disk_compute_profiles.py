@@ -193,6 +193,7 @@ def compute_density_profile(snapshot,rad_list,semimajor=False,code="AREPO"):
     ind = snapshot.gas.ID > -2
     if (semimajor):
         radii = compute_disk_semimajor(snapshot.gas.POS-0.5 *snapshot.header.boxsize,snapshot.gas.VEL)[ind]
+        print(radii)
     else:
         radii = snapshot.gas.R[ind]
 
