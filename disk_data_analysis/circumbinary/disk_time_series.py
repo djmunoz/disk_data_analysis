@@ -179,7 +179,6 @@ def write_binary_externalforces_file(accretionfile,outfilename1,
 
     force_data = compute_binary_force_timeseries_from_accretionfile(accretionfile)
 
-    print("hehehe")
     if (maxlines is not None):
         if (force_data.shape[0] > 1.5 * maxlines):
             skip = int(np.ceil(force_data.shape[0]/(1.5 * maxlines)))
@@ -220,7 +219,6 @@ def write_binary_externalforces_file(accretionfile,outfilename1,
     vx1, vy1 = mu * vxb, mu * vyb
     vx2, vy2 = -(1.0 - mu) * vxb, -(1.0 - mu) * vyb
 
-    print("hahaha")
     np.savetxt(outfilename1,np.array([time,x1,y1,x2,y2,vx1,vy1,vx2,vy2,
                                       dv1xdt_a,dv1ydt_a,dv2xdt_a,dv2ydt_a,
                                       dv1xdt_g,dv1ydt_g,dv2xdt_g,dv2ydt_g,
@@ -341,7 +339,7 @@ def read_binary_timeseries_file(file1,file2,file3,mdot_mask=1e10):
     _, mdot1, mdot2 =  read_binary_accretion_file(file2)    
     _, mdot, qdot, ldot, Ldot, Edot = read_binary_orbitalchange_file(file3) 
 
-    ind = mdot < mdot_mask
+    ind = np.abs(mdot) < mdot_mask
     time, mdot,qdot,ldot,Ldot,Edot = time[ind],mdot[ind],qdot[ind],ldot[ind],Ldot[ind],Edot[ind]
     mdot1,mdot2 = mdot1[ind],mdot2[ind]
     x1,y1,x2,y2 = x1[ind],y1[ind],x2[ind],y2[ind]
