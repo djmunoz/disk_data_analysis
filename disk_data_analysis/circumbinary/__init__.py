@@ -20,6 +20,7 @@ __all__ = ["get_snapshot_data","write_snapshot","get_snapshot_time","compute_sna
            "compute_orbital_elements_profile",
            "compute_eccentricity_profile",
            "compute_density_profile",
+           "compute_disk_eccentriciy_vector",
            "pluto_header"]
 
 from .disk_simulation_data import get_snapshot_data, write_snapshot, get_snapshot_time, compute_snapshot_gradient, compute_external_gravforce_from_snapshot,compute_external_gravforce
@@ -44,6 +45,8 @@ from .disk_compute_profiles import compute_profiles, compute_smoothed_radial_pla
     compute_jdot_adv_profile,compute_jdot_visc_profile,compute_jdot_grav_profile,\
     compute_orbital_elements_profile,\
     compute_eccentricity_profile,compute_density_profile
+
+from .disk_orbital_elements import compute_disk_eccentriciy_vector
 
 from . import plot_profiles
 from .readsnap_PLUTO import pluto_header
