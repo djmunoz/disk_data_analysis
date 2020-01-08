@@ -176,7 +176,10 @@ def compute_eccentricity_profile(snapshot,rad_list,semimajor=False,code="AREPO")
     ind = snapshot.gas.ID > -2
     ecc = compute_disk_eccentriciy_vector(snapshot.gas.POS,snapshot.gas.VEL)
     if (semimajor):
-        radii = compute_disk_semimajor(snapshot.gas.POS-0.5 *snapshot.header.boxsize,snapshot.gas.VEL)[ind]
+        x,y,z = snapshot.gas.POS[:,0]- 0.5 *snapshot.header.boxsize,\
+            snapshot.gas.POS[:,1]- 0.5 *snapshot.header.boxsize, \
+            snapshot.gas.POS[:,2]
+        radii = compute_disk_semimajor(np.array([x,y,z]).T,snapshot.gas.VEL)[ind]
     else:
         radii = snapshot.gas.R[ind]
 
