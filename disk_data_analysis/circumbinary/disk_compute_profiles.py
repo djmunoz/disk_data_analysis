@@ -174,11 +174,11 @@ def compute_jdot_grav_profile(snapshot,rad_list,code="AREPO", alpha = 0.1, h0 = 
 def compute_eccentricity_profile(snapshot,rad_list,semimajor=False,code="AREPO"):
 
     ind = snapshot.gas.ID > -2
-    ecc = compute_disk_eccentriciy_vector(snapshot.gas.POS,snapshot.gas.VEL)
-    if (semimajor):
-        x,y,z = snapshot.gas.POS[:,0]- 0.5 *snapshot.header.boxsize,\
+    x,y,z = snapshot.gas.POS[:,0]- 0.5 *snapshot.header.boxsize,\
             snapshot.gas.POS[:,1]- 0.5 *snapshot.header.boxsize, \
             snapshot.gas.POS[:,2]
+    ecc = compute_disk_eccentriciy_vector(np.array([x,y,z]).T,snapshot.gas.VEL)
+    if (semimajor):
         radii = compute_disk_semimajor(np.array([x,y,z]).T,snapshot.gas.VEL)[ind]
     else:
         radii = snapshot.gas.R[ind]
