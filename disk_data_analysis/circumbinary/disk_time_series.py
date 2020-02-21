@@ -195,6 +195,7 @@ def write_binary_externalforces_file(accretionfile,outfilename1,
     if (orbit_final is None):
         orbit_final = int(np.ceil(time[-1]/2/np.pi))
         time_max = orbit_final * 2 * np.pi
+    print("Reading entries from time=%g, to time=%g",time_min,time_max)
 
     ind = (time >= time_min) & (time <= time_max)
     time = time[ind]
